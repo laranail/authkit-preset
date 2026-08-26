@@ -13,3 +13,7 @@ Enable this flow with `--password-reset` or `Features::passwordReset()`. Guest r
 Configure Laravel's mail transport, password broker, and the public application URL before enabling the form. The broker creates the reset link, and the reset handler validates its token, requires a confirmed password, hashes it, clears the remember token, and revokes personal access tokens when the user model has a `tokens()` relation. Never replace broker token validation with an application-controlled raw request.
 
 For non-browser clients, `POST /api/auth/forgot-password` and `POST /api/auth/reset-password` require both the password-reset and API features, are rate-limited, and return JSON; see [API routes](api-routes.md). Removing password reset removes all four web routes, the matching Fortify views, and both API endpoints when present.
+
+---
+
+[← Docs index](../README.md#documentation)
