@@ -1,4 +1,4 @@
-<x-auth-preset::layout title="Verify Email">
+<x-laranail-authkit-preset::layout title="Verify Email">
     <div class="text-center mb-8">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Verify your email</h2>
         <p class="mt-2 text-sm text-gray-600">
@@ -33,4 +33,4 @@
             </button>
         </form>
     </div>
-</x-auth-preset::layout>
+</x-laranail-authkit-preset::layout>

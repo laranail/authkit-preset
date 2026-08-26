@@ -1,4 +1,4 @@
-<x-auth-preset::layout title="Forgot Password">
+<x-laranail-authkit-preset::layout title="Forgot Password">
     <div class="text-center mb-8">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Reset your password</h2>
         <p class="mt-2 text-sm text-gray-600">
@@ -16,9 +16,9 @@
         @csrf
 
         <div>
-            <x-auth-preset::label for="email" value="Email address" />
+            <x-laranail-authkit-preset::label for="email" value="Email address" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="email"
                     name="email"
                     type="email"
@@ -29,10 +29,10 @@
                     :error="$errors->has('email')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('email')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('email')" />
         </div>
 
-        @if (\Simtabi\Laranail\AuthPreset\Features::enabled(\Simtabi\Laranail\AuthPreset\Features::botProtection()))
+        @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::botProtection()))
             <x-captcha />
         @endif
 
@@ -51,4 +51,4 @@
             </a>
         </div>
     </form>
-</x-auth-preset::layout>
+</x-laranail-authkit-preset::layout>

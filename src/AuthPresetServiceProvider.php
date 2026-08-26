@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset;
+namespace Simtabi\Laranail\AuthKitPreset;
 
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Simtabi\Laranail\Package\Tools\Package;
-use Simtabi\Laranail\AuthPreset\Commands\InstallCommand;
-use Simtabi\Laranail\AuthPreset\Http\Middleware\ValidateCaptcha;
+use Simtabi\Laranail\AuthKitPreset\Commands\InstallCommand;
+use Simtabi\Laranail\AuthKitPreset\Http\Middleware\ValidateCaptcha;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
 
 class AuthPresetServiceProvider extends PackageServiceProvider
@@ -16,31 +16,35 @@ class AuthPresetServiceProvider extends PackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('laranail/auth-preset')
+            ->name('laranail/authkit-preset')
             ->publish(
-                ['config/auth-preset.php' => config_path('auth-preset.php')],
-                'auth-preset-config',
+                ['config/laranail/authkit-preset.php' => config_path('laranail/authkit-preset.php')],
+                'laranail::authkit-preset-config',
             )
             ->publish(
-                ['routes/web.php' => base_path('routes/auth-preset-web.php')],
-                'auth-preset-routes',
+                ['routes/web.php' => base_path('routes/laranail-authkit-preset-web.php')],
+                'laranail::authkit-preset-routes',
             )
             ->publish(
-                ['routes/api.php' => base_path('routes/auth-preset-api.php')],
-                'auth-preset-routes',
+                ['routes/api.php' => base_path('routes/laranail-authkit-preset-api.php')],
+                'laranail::authkit-preset-routes',
             )
             ->publish(
-                ['resources/views/blade' => resource_path('views/vendor/auth-preset')],
-                'auth-preset-views',
+                ['resources/views/blade' => resource_path('views/vendor/laranail-authkit-preset')],
+                'laranail::authkit-preset-views',
+            )
+            ->publish(
+                ['lang' => lang_path('vendor/laranail-authkit-preset')],
+                'laranail::authkit-preset-lang',
             );
     }
 
     public function packageRegistered(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/auth-preset.php', 'auth-preset');
+        $this->mergeConfigFrom(__DIR__ . '/../config/laranail/authkit-preset.php', 'laranail.authkit-preset');
 
-        config()->set('auth-kit.turnstile.enabled', false);
-        config()->set('laranail.captcha.provider', config('auth-preset.bot_protection.provider', 'turnstile'));
+        config()->set('laranail.authkit.turnstile.enabled', false);
+        config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
         config()->set('laranail.captcha.credentials.source', 'config');
         config()->set('laranail.captcha.credentials.database.enabled', false);
     }
@@ -49,6 +53,7 @@ class AuthPresetServiceProvider extends PackageServiceProvider
     {
         $this->registerCommands();
         $this->loadViews();
+        $this->loadTranslations();
         $this->registerFortifyViews();
         $this->loadRoutes();
         $this->app->booted(function (): void {
@@ -93,7 +98,14 @@ class AuthPresetServiceProvider extends PackageServiceProvider
 
     private function loadViews(): void
     {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'auth-preset');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laranail-authkit-preset');
+    }
+
+    private function loadTranslations(): void
+    {
+        // Laravel resolves overrides from lang/vendor/{namespace}, so the namespace and the
+        // publish destination must agree exactly.
+        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'laranail-authkit-preset');
     }
 
     private function loadRoutes(): void
@@ -103,7 +115,7 @@ class AuthPresetServiceProvider extends PackageServiceProvider
 
     private function registerRoutes(): void
     {
-        if (config(key: 'auth-preset.routes.mode', default: 'package') !== 'package') {
+        if (config(key: 'laranail.authkit-preset.routes.mode', default: 'package') !== 'package') {
             return;
         }
 

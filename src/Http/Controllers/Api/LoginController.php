@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset\Http\Controllers\Api;
+namespace Simtabi\Laranail\AuthKitPreset\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Simtabi\Laranail\Auth\Enums\AuthStatus;
-use Simtabi\Laranail\Auth\Support\AuthResult;
-use Simtabi\Laranail\AuthPreset\Support\AuthPreset;
-use Simtabi\Laranail\Auth\Contracts\LoginUserInterface;
-use Simtabi\Laranail\Auth\Contracts\IssueTokenForUserInterface;
-use Simtabi\Laranail\Auth\Contracts\AttemptEmailPasswordLoginInterface;
-use Simtabi\Laranail\Auth\Http\Requests\AttemptEmailPasswordLoginRequest;
-use Simtabi\Laranail\Auth\Http\Controllers\AbstractAttemptEmailPasswordLoginController;
+use Simtabi\Laranail\AuthKit\Enums\AuthStatus;
+use Simtabi\Laranail\AuthKit\Support\AuthResult;
+use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Contracts\LoginUserInterface;
+use Simtabi\Laranail\AuthKit\Contracts\IssueTokenForUserInterface;
+use Simtabi\Laranail\AuthKit\Contracts\AttemptEmailPasswordLoginInterface;
+use Simtabi\Laranail\AuthKit\Http\Requests\AttemptEmailPasswordLoginRequest;
+use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractAttemptEmailPasswordLoginController;
 
 class LoginController extends AbstractAttemptEmailPasswordLoginController
 {

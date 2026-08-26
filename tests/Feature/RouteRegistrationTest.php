@@ -3,19 +3,19 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Simtabi\Laranail\AuthPreset\Features;
-use Simtabi\Laranail\AuthPreset\Http\Middleware\ValidateCaptcha;
-use Simtabi\Laranail\AuthPreset\Http\Controllers\Api\LoginController as ApiLoginController;
-use Simtabi\Laranail\AuthPreset\Http\Controllers\Auth\LoginController as WebLoginController;
-use Simtabi\Laranail\AuthPreset\Http\Controllers\Api\RegisterController as ApiRegisterController;
-use Simtabi\Laranail\AuthPreset\Http\Controllers\Auth\RegisterController as WebRegisterController;
+use Simtabi\Laranail\AuthKitPreset\Features;
+use Simtabi\Laranail\AuthKitPreset\Http\Middleware\ValidateCaptcha;
+use Simtabi\Laranail\AuthKitPreset\Http\Controllers\Api\LoginController as ApiLoginController;
+use Simtabi\Laranail\AuthKitPreset\Http\Controllers\Auth\LoginController as WebLoginController;
+use Simtabi\Laranail\AuthKitPreset\Http\Controllers\Api\RegisterController as ApiRegisterController;
+use Simtabi\Laranail\AuthKitPreset\Http\Controllers\Auth\RegisterController as WebRegisterController;
 
 it(description: 'registers the dashboard route', closure: function (): void {
     $route = Route::getRoutes()->getByName('dashboard');
 
     expect($route)->not->toBeNull()
         ->and($route->uri())->toBe('dashboard')
-        ->and($route->gatherMiddleware())->toContain('auth:' . config('auth-preset.guard'));
+        ->and($route->gatherMiddleware())->toContain('auth:' . config('laranail.authkit-preset.guard'));
 });
 
 it(description: 'registers login, registration, and API routes when features are enabled', closure: function (): void {
@@ -51,8 +51,8 @@ it(description: 'validates captcha on web login submissions', closure: function 
 });
 
 it(description: 'registers Fortify password reset routes when feature is enabled', closure: function (): void {
-    config()->set(key: 'auth-preset.features', value: array_merge(
-        config(key: 'auth-preset.features'),
+    config()->set(key: 'laranail.authkit-preset.features', value: array_merge(
+        config(key: 'laranail.authkit-preset.features'),
         [Features::passwordReset()]
     ));
 
@@ -64,8 +64,8 @@ it(description: 'registers Fortify password reset routes when feature is enabled
 });
 
 it(description: 'registers Fortify email verification routes when feature is enabled', closure: function (): void {
-    config()->set(key: 'auth-preset.features', value: array_merge(
-        config(key: 'auth-preset.features'),
+    config()->set(key: 'laranail.authkit-preset.features', value: array_merge(
+        config(key: 'laranail.authkit-preset.features'),
         [Features::emailVerification()]
     ));
 

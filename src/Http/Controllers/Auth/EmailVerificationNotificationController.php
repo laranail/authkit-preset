@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset\Http\Controllers\Auth;
+namespace Simtabi\Laranail\AuthKitPreset\Http\Controllers\Auth;
 
-use Simtabi\Laranail\Auth\Http\Controllers\AbstractEmailVerificationNotificationController;
+use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractEmailVerificationNotificationController;
 
 class EmailVerificationNotificationController extends AbstractEmailVerificationNotificationController
 {

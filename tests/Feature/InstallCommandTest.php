@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Input\ArrayInput;
-use Simtabi\Laranail\AuthPreset\Commands\InstallCommand;
+use Simtabi\Laranail\AuthKitPreset\Commands\InstallCommand;
 
 it('offers one feature selection with API, passkeys, and bot protection choices', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
 
     expect($command->getDefinition()->hasOption('api'))->toBeTrue()
         ->and($command->getDefinition()->hasOption('passkeys'))->toBeTrue()
@@ -46,7 +46,7 @@ it('offers one feature selection with API, passkeys, and bot protection choices'
 });
 
 it('uses Enumerator feature metadata for interactive feature choices', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $features = $reflection->getMethod('authenticationFeatures');
     $descriptions = $reflection->getMethod('featureDescriptions');
@@ -75,11 +75,11 @@ it('uses the laranail console prompter for interactive selections', function ():
 });
 
 it('writes the selected feature set without retaining deselected features', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureFeatures');
-    $configPath = tempnam(dirname(__DIR__, 2), 'auth-preset-config-');
-    $source = file_get_contents(dirname(__DIR__, 2) . '/config/auth-preset.php');
+    $configPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-config-');
+    $source = file_get_contents(dirname(__DIR__, 2) . '/config/laranail/authkit-preset.php');
 
     file_put_contents($configPath, $source);
 
@@ -100,7 +100,7 @@ it('writes the selected feature set without retaining deselected features', func
 });
 
 it('selects the configured Eloquent model and supports explicit non-interactive selection', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $inputProperty = $reflection->getParentClass()->getProperty('input');
     $resolver = $reflection->getMethod('resolveAuthModel');
@@ -130,7 +130,7 @@ it('selects the configured Eloquent model and supports explicit non-interactive 
 });
 
 it('adds Sanctum and passkey support to a selected model only once', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureModelFile');
     $modelPath = tempnam(dirname(__DIR__, 2), 'auth-preset-model-');
@@ -158,7 +158,7 @@ PHP
         expect($contents)
             ->toContain('use Laravel\\Sanctum\\HasApiTokens;')
             ->toContain('use Laravel\\Fortify\\Contracts\\PasskeyUser;')
-            ->toContain('use Simtabi\\Laranail\\Auth\\PasskeyAuthenticatable;')
+            ->toContain('use Simtabi\\Laranail\\AuthKit\\PasskeyAuthenticatable;')
             ->toContain('class User extends Authenticatable implements PasskeyUser')
             ->toContain('    use HasApiTokens;')
             ->toContain('    use PasskeyAuthenticatable;');
@@ -172,7 +172,7 @@ PHP
 });
 
 it('adds the auth-preset Blade source to app.css only once', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureTailwindSource');
     $cssPath = tempnam(dirname(__DIR__, 2), 'auth-preset-app-css-');
@@ -195,7 +195,7 @@ CSS
         expect($configurator->invoke($command, $cssPath))->toBeTrue();
 
         $contents = file_get_contents($cssPath);
-        $source = "@source '../../vendor/laravel/laranail/**/*.blade.php';";
+        $source = "@source '../../vendor/laranail/*/resources/views/**/*.blade.php';";
 
         expect($contents)->toContain($source)
             ->toContain("@source '../../storage/framework/views/*.php';\n{$source}");
@@ -208,7 +208,7 @@ CSS
 });
 
 it('installs the passkey browser client and app entrypoint idempotently', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $installer = $reflection->getMethod('installPasskeyFrontend');
     $directory = dirname(__DIR__, 2) . '/.tmp-passkey-frontend-' . uniqid();
@@ -246,13 +246,13 @@ it('installs the passkey browser client and app entrypoint idempotently', functi
 });
 
 it('adds selected social and captcha environment variables to both env files without overwriting them', function (): void {
-    $command = Artisan::all()['laranail:authkit.install'];
+    $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureEnvironment');
     $envPath = tempnam(dirname(__DIR__, 2), 'auth-preset-env-');
     $envExamplePath = tempnam(dirname(__DIR__, 2), 'auth-preset-env-example-');
 
-    file_put_contents($envPath, "APP_KEY=existing\nAUTH_KIT_GOOGLE_CLIENT_ID=existing-client\nCAPTCHA_SITE_KEY=existing-site\n");
+    file_put_contents($envPath, "APP_KEY=existing\nAUTHKIT_GOOGLE_CLIENT_ID=existing-client\nCAPTCHA_SITE_KEY=existing-site\n");
     file_put_contents($envExamplePath, "APP_KEY=\n");
 
     try {
@@ -262,30 +262,56 @@ it('adds selected social and captcha environment variables to both env files wit
             $contents = file_get_contents($path);
 
             expect($contents)
-                ->toContain('AUTH_KIT_GOOGLE_CLIENT_ID=')
-                ->toContain('AUTH_KIT_GOOGLE_CLIENT_SECRET=')
-                ->toContain('AUTH_KIT_GOOGLE_REDIRECT=http://localhost/auth/social/google/callback')
-                ->toContain('AUTH_KIT_LINKEDIN_CLIENT_ID=')
-                ->toContain('AUTH_KIT_LINKEDIN_CLIENT_SECRET=')
-                ->toContain('AUTH_KIT_LINKEDIN_REDIRECT=http://localhost/auth/social/linkedin/callback')
+                ->toContain('AUTHKIT_GOOGLE_CLIENT_ID=')
+                ->toContain('AUTHKIT_GOOGLE_CLIENT_SECRET=')
+                ->toContain('AUTHKIT_GOOGLE_REDIRECT=http://localhost/auth/social/google/callback')
+                ->toContain('AUTHKIT_LINKEDIN_CLIENT_ID=')
+                ->toContain('AUTHKIT_LINKEDIN_CLIENT_SECRET=')
+                ->toContain('AUTHKIT_LINKEDIN_REDIRECT=http://localhost/auth/social/linkedin/callback')
                 ->toContain('CAPTCHA_PROVIDER=turnstile')
                 ->toContain('CAPTCHA_SITE_KEY=')
                 ->toContain('CAPTCHA_SECRET_KEY=')
-                ->not->toContain('AUTH_PRESET_GUARD=')
+                ->not->toContain('AUTHKIT_PRESET_GUARD=')
                 ->not->toContain('CAPTCHA_CREDENTIALS_FROM_DATABASE=');
         }
 
         expect(file_get_contents($envPath))
-            ->toContain('AUTH_KIT_GOOGLE_CLIENT_ID=existing-client')
+            ->toContain('AUTHKIT_GOOGLE_CLIENT_ID=existing-client')
             ->toContain('CAPTCHA_SITE_KEY=existing-site')
             ->and(mb_substr_count(file_get_contents($envPath), 'CAPTCHA_SITE_KEY='))->toBe(1);
 
         $configurator->invoke($command, ['google', 'linkedin'], true, $envPath, $envExamplePath);
 
-        expect(mb_substr_count(file_get_contents($envPath), 'AUTH_KIT_GOOGLE_CLIENT_ID='))->toBe(1)
+        expect(mb_substr_count(file_get_contents($envPath), 'AUTHKIT_GOOGLE_CLIENT_ID='))->toBe(1)
             ->and(mb_substr_count(file_get_contents($envExamplePath), 'CAPTCHA_PROVIDER='))->toBe(1);
     } finally {
         unlink($envPath);
         unlink($envExamplePath);
     }
+});
+
+it('is idempotent when the model already implements the interface', function (): void {
+    // addModelInterface() used to return implode('', $matches), which emits the full match plus
+    // all three capture groups and so duplicated the class declaration on a second run, leaving
+    // the application's User model a syntax error.
+    $reflection = new ReflectionClass(InstallCommand::class);
+    $method = $reflection->getMethod('addModelInterface');
+
+    $source = <<<'PHP'
+<?php
+
+namespace App\Models;
+
+class User extends Authenticatable implements PasskeyUser
+{
+    use HasApiTokens;
+}
+PHP;
+
+    $once = $method->invoke(app(InstallCommand::class), $source, 'User', 'PasskeyUser');
+    $twice = $method->invoke(app(InstallCommand::class), $once, 'User', 'PasskeyUser');
+
+    expect($once)->toBe($source)
+        ->and($twice)->toBe($source)
+        ->and(substr_count($twice, 'class User extends'))->toBe(1);
 });

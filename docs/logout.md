@@ -1,6 +1,6 @@
 # Logout
 
-When `Features::logout()` is enabled, `POST /auth/logout` (`logout`) is registered under the web prefix with the configured web middleware and `auth:<AUTH_PRESET_GUARD>`. It invalidates the current session, regenerates the CSRF token, and redirects to `AUTH_PRESET_AFTER_LOGOUT` (`/` by default). There is no GET logout route.
+When `Features::logout()` is enabled, `POST /auth/logout` (`logout`) is registered under the web prefix with the configured web middleware and `auth:<AUTHKIT_PRESET_GUARD>`. It invalidates the current session, regenerates the CSRF token, and redirects to `AUTHKIT_PRESET_AFTER_LOGOUT` (`/` by default). There is no GET logout route.
 
 Use a CSRF-protected form; a link or JavaScript request must supply the token as well. Disabling the feature removes the route, so remove published-view navigation that targets `route('logout')`.
 

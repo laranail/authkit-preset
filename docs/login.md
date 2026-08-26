@@ -4,12 +4,12 @@ Login has two deliberately separate interfaces. The Blade flow creates a session
 
 ## Web login
 
-When package routes are enabled and `Features::login()` is present, the preset registers these guest routes under `AUTH_PRESET_WEB_PREFIX` (`auth` by default):
+When package routes are enabled and `Features::login()` is present, the preset registers these guest routes under `AUTHKIT_PRESET_WEB_PREFIX` (`auth` by default):
 
 | Route                              | Middleware and result                                                                                                                                                                                                    |
 |------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `GET /auth/login` (`login`)        | `web` and `guest:<AUTH_PRESET_GUARD>`; renders `auth-preset::blade.login`.                                                                                                                                               |
-| `POST /auth/login` (`login.store`) | The same guest middleware, `throttle:10,1`, and CAPTCHA validation when bot protection is enabled. A successful attempt creates a session and redirects to the intended URL or `AUTH_PRESET_AFTER_LOGIN` (`/dashboard`). |
+| `GET /auth/login` (`login`)        | `web` and `guest:<AUTHKIT_PRESET_GUARD>`; renders `laranail-authkit-preset::blade.login`.                                                                                                                                               |
+| `POST /auth/login` (`login.store`) | The same guest middleware, `throttle:10,1`, and CAPTCHA validation when bot protection is enabled. A successful attempt creates a session and redirects to the intended URL or `AUTHKIT_PRESET_AFTER_LOGIN` (`/dashboard`). |
 
 The supplied form posts `email`, `password`, and optional `remember`. It keeps the email and remember choice on an invalid-credential response, attaches the error to `email`, and returns `429` after an Auth Kit credential throttle. Successful login regenerates the session. Auth Kit also applies its credential limiter, keyed by the configured guard, lowercased email, and client IP; that limit is configured independently from the route's ten-per-minute limit.
 
@@ -29,4 +29,4 @@ CAPTCHA middleware is attached to the named **web** guest submissions only; it d
 
 ## Enabling and disabling
 
-Remove `Features::login()` from `auth-preset.features` to remove both preset login routes, the registered Fortify login view, and login-dependent UI. Remove `Features::api()` to keep the Blade flow while removing every API route. Changing `AUTH_PRESET_GUARD`, either prefix, route mode, or middleware changes the actual route surface; verify it with `php artisan route:list` after configuration changes. For a headless implementation or custom response hooks, see Auth Kit's [login guide](../../laranail-auth-kit/docs/login.md).
+Remove `Features::login()` from `laranail.authkit-preset.features` to remove both preset login routes, the registered Fortify login view, and login-dependent UI. Remove `Features::api()` to keep the Blade flow while removing every API route. Changing `AUTHKIT_PRESET_GUARD`, either prefix, route mode, or middleware changes the actual route surface; verify it with `php artisan route:list` after configuration changes. For a headless implementation or custom response hooks, see authkit's [login guide](../../authkit/docs/login.md).

@@ -16,7 +16,7 @@ it(description: 'renders an empty passkey management page for authenticated user
     $this->actingAs($user)
         ->get(route('user-passkeys.index'))
         ->assertOk()
-        ->assertViewIs('auth-preset::blade.passkeys')
+        ->assertViewIs('laranail-authkit-preset::blade.passkeys')
         ->assertSee(value: 'data-passkey-management', escape: false)
         ->assertSee('No passkeys registered yet.')
         ->assertSee(value: route('passkey.registration-options'), escape: false)
@@ -70,8 +70,8 @@ it(description: 'adds passkey login hooks to the login view when enabled', closu
 });
 
 it(description: 'hides passkey login hooks when the preset feature is disabled', closure: function (): void {
-    config()->set(key: 'auth-preset.features', value: array_values(array_filter(
-        array: config('auth-preset.features'),
+    config()->set(key: 'laranail.authkit-preset.features', value: array_values(array_filter(
+        array: config('laranail.authkit-preset.features'),
         callback: fn (string $feature): bool => $feature !== 'passkeys',
     )));
 

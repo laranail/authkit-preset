@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset\Http\Middleware;
+namespace Simtabi\Laranail\AuthKitPreset\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Simtabi\Laranail\AuthPreset\Features;
+use Simtabi\Laranail\AuthKitPreset\Features;
 use Simtabi\Laranail\Captcha\Rules\Captcha;
 
 class ValidateCaptcha

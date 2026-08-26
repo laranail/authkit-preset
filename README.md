@@ -1,6 +1,6 @@
-# Laravel Auth Preset
+# laranail/authkit-preset
 
-Blade authentication scaffolding for Laravel 13+, powered by [`laranail/auth-kit`](https://github.com/laranail/auth-kit).
+Blade authentication scaffolding for Laravel 13+, powered by [`laranail/authkit`](https://github.com/laranail/authkit).
 
 > [!WARNING]
 > This package is still in development. Breaking changes are imminent; use it in production at your own risk.
@@ -20,11 +20,11 @@ Laranail packages are not available on Packagist yet. Before requiring the prese
 "repositories": [
     {
         "type": "vcs",
-        "url": "https://github.com/laranail/auth-kit.git"
+        "url": "https://github.com/laranail/authkit.git"
     },
     {
         "type": "vcs",
-        "url": "https://github.com/laranail/auth-preset.git"
+        "url": "https://github.com/laranail/authkit-preset.git"
     },
     {
         "type": "vcs",
@@ -52,13 +52,13 @@ Laranail packages are not available on Packagist yet. Before requiring the prese
 Then install the preset with Composer:
 
 ```bash
-composer require laranail/auth-preset
+composer require laranail/authkit-preset
 ```
 
 Run the installer and follow the prompts:
 
 ```bash
-php artisan laranail:authkit.install
+php artisan laranail::authkit-preset.install
 ```
 
 The installer currently supports the Blade stack. It asks which auth provider should receive authentication traits, then presents one multi-select prompt for authentication features. All available features are selected by default; use the prompt's space key to disable features you do not need. Package routes are registered automatically by default.
@@ -98,7 +98,7 @@ If API authentication is enabled, its routes are available under `/api/auth` and
 The installer can be run non-interactively with explicit options:
 
 ```bash
-php artisan laranail:authkit.install \
+php artisan laranail::authkit-preset.install \
     --password-reset \
     --email-verification \
     --api \
@@ -129,7 +129,7 @@ Supported social providers are `google`, `facebook`, `twitter`, `linkedin`, and 
 
 In interactive mode, the installer asks which auth provider should receive authentication traits immediately after the frontend stack, then asks `Which authentication feature would you like to enable?` and shows a description for every choice. This includes API authentication, which is selected by default and publishes the Sanctum migration. Social login opens a second multi-select for its providers with Google selected by default; enable only providers you plan to configure. The installer reads the `eloquent` providers from `config/auth.php` and applies traits to the selected provider's model when API authentication or passkeys are enabled. In non-interactive mode, only the base web features are enabled unless optional feature flags are supplied; use `--model=<class>` when needed.
 
-The selected model receives `Laravel\Sanctum\HasApiTokens` when API authentication is enabled. When passkeys are enabled, it receives the `Laravel\Fortify\Contracts\PasskeyUser` interface and Auth Kit's `Simtabi\Laranail\Auth\PasskeyAuthenticatable` trait. The model source file must be writable.
+The selected model receives `Laravel\Sanctum\HasApiTokens` when API authentication is enabled. When passkeys are enabled, it receives the `Laravel\Fortify\Contracts\PasskeyUser` interface and authkit's `Simtabi\Laranail\AuthKit\PasskeyAuthenticatable` trait. The model source file must be writable.
 
 When passkeys are enabled, the installer adds `@laravel/passkeys` to `package.json`, copies the passkey browser adapter to `resources/js/passkeys.js`, and imports it from `resources/js/app.js`. Run `npm install` and rebuild your Vite assets after installation. The adapter binds the preset's login, registration, and deletion buttons to Fortify's canonical passkey endpoints; it does not reimplement WebAuthn.
 
@@ -137,10 +137,10 @@ When passkeys are enabled, the installer adds `@laravel/passkeys` to `package.js
 
 The installer publishes both configuration files:
 
-- `config/auth-kit.php` contains backend authentication, Fortify, and social settings.
-- `config/auth-preset.php` controls the frontend stack, bot-protection provider, enabled features, route prefixes, middleware, guard, and redirects.
+- `config/laranail/authkit.php` contains backend authentication, Fortify, and social settings.
+- `config/laranail/authkit-preset.php` controls the frontend stack, bot-protection provider, enabled features, route prefixes, middleware, guard, and redirects.
 
-Enable or disable preset features in `config/auth-preset.php`:
+Enable or disable preset features in `config/laranail/authkit-preset.php`:
 
 ```php
 'features' => [
@@ -167,21 +167,21 @@ Set `CAPTCHA_PROVIDER` to any provider supported by `laranail/captcha`; the Blad
 Passkey support requires both Fortify's server-side routes and the official browser client. Enabling passkeys with the installer performs the frontend wiring automatically:
 
 ```bash
-php artisan laranail:authkit.install --passkeys --model='App\\Models\\User'
+php artisan laranail::authkit-preset.install --passkeys --model='App\\Models\\User'
 npm install
 npm run build
 ```
 
 The generated `resources/js/passkeys.js` uses `@laravel/passkeys` for login, registration, and credential deletion. Keep `resources/js/app.js` in the Vite input list; the preset's Blade layout loads that bundle when the application has a Vite manifest or development server.
 
-Route prefixes and redirects can also be customized through `config/auth-preset.php` or its environment variables:
+Route prefixes and redirects can also be customized through `config/laranail/authkit-preset.php` or its environment variables:
 
 ```env
-AUTH_PRESET_WEB_PREFIX=auth
-AUTH_PRESET_API_PREFIX=api/auth
-AUTH_PRESET_GUARD=web
-AUTH_PRESET_AFTER_LOGIN=/dashboard
-AUTH_PRESET_AFTER_REGISTRATION=/dashboard
+AUTHKIT_PRESET_WEB_PREFIX=auth
+AUTHKIT_PRESET_API_PREFIX=api/auth
+AUTHKIT_PRESET_GUARD=web
+AUTHKIT_PRESET_AFTER_LOGIN=/dashboard
+AUTHKIT_PRESET_AFTER_REGISTRATION=/dashboard
 ```
 
 ## Publish resources independently
@@ -191,14 +191,14 @@ The preset and Auth Kit expose separate Laravel publish tags. Publish only the r
 ### Configuration
 
 ```bash
-php artisan vendor:publish --tag=auth-kit-config
-php artisan vendor:publish --tag=auth-preset-config
+php artisan vendor:publish --tag=laranail::authkit-config
+php artisan vendor:publish --tag=laranail::authkit-preset-config
 ```
 
 Use `--force` to overwrite an existing published file:
 
 ```bash
-php artisan vendor:publish --tag=auth-preset-config --force
+php artisan vendor:publish --tag=laranail::authkit-preset-config --force
 ```
 
 ### Migrations
@@ -206,8 +206,8 @@ php artisan vendor:publish --tag=auth-preset-config --force
 The preset does not add a migration of its own. Auth Kit provides optional migrations for social accounts and passkeys:
 
 ```bash
-php artisan vendor:publish --tag=auth-kit-social-migrations
-php artisan vendor:publish --tag=auth-kit-passkey-migrations
+php artisan vendor:publish --tag=laranail::authkit-social-migrations
+php artisan vendor:publish --tag=laranail::authkit-passkey-migrations
 php artisan migrate
 ```
 
@@ -218,20 +218,20 @@ php artisan vendor:publish --tag=sanctum-migrations
 php artisan migrate
 ```
 
-Only publish the migration groups for features enabled in `config/auth-preset.php`. These migrations are published to the application's `database/migrations` directory because their tables belong to the application's database. If the selected model lives in a module, the model location does not alter the schema; move the published files into the module's migration directory only when that module owns and loads its migrations.
+Only publish the migration groups for features enabled in `config/laranail/authkit-preset.php`. These migrations are published to the application's `database/migrations` directory because their tables belong to the application's database. If the selected model lives in a module, the model location does not alter the schema; move the published files into the module's migration directory only when that module owns and loads its migrations.
 
 ### Routes
 
-Publish the web and API route files to `routes/auth-preset-web.php` and `routes/auth-preset-api.php`:
+Publish the web and API route files to `routes/laranail-authkit-preset-web.php` and `routes/laranail-authkit-preset-api.php`:
 
 ```bash
-php artisan vendor:publish --tag=auth-preset-routes
+php artisan vendor:publish --tag=laranail::authkit-preset-routes
 ```
 
 Set the route mode to `published` so the package stops loading its bundled route files, then register the published files from the application's route bootstrap:
 
 ```php
-// config/auth-preset.php
+// config/laranail/authkit-preset.php
 'routes' => [
     'mode' => 'published',
 ],
@@ -240,23 +240,23 @@ Set the route mode to `published` so the package stops loading its bundled route
 Require the files from the application's route-loading entry point:
 
 ```php
-require base_path('routes/auth-preset-web.php');
-require base_path('routes/auth-preset-api.php');
+require base_path('routes/laranail-authkit-preset-web.php');
+require base_path('routes/laranail-authkit-preset-api.php');
 ```
 
 ### Blade views
 
-Publish the views to `resources/views/vendor/auth-preset`:
+Publish the views to `resources/views/vendor/laranail-authkit-preset`:
 
 ```bash
-php artisan vendor:publish --tag=auth-preset-views
+php artisan vendor:publish --tag=laranail::authkit-preset-views
 ```
 
 The published page views can be edited without modifying the package. They include the login, registration, password, profile, email-verification, and passkey views. The preset's reusable components continue to be loaded from the package namespace.
 
 ## Routes and views without publishing
 
-For the standard setup, leave `auth-preset.routes.mode` as `package`. The service provider loads the package routes automatically and Fortify uses the preset's Blade views. Publish resources only when the application needs to own and customize them.
+For the standard setup, leave `laranail.authkit-preset.routes.mode` as `package`. The service provider loads the package routes automatically and Fortify uses the preset's Blade views. Publish resources only when the application needs to own and customize them.
 
 ## Testing
 

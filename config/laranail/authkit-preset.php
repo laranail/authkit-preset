@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'stack' => env(key: 'AUTH_PRESET_STACK', default: 'blade'),
+    'stack' => env(key: 'AUTHKIT_PRESET_STACK', default: 'blade'),
 
     /*
     |--------------------------------------------------------------------------
@@ -26,19 +26,19 @@ return [
     */
 
     'features' => [
-        \Simtabi\Laranail\AuthPreset\Features::login(),
-        \Simtabi\Laranail\AuthPreset\Features::registration(),
-        \Simtabi\Laranail\AuthPreset\Features::logout(),
-        \Simtabi\Laranail\AuthPreset\Features::updateProfileInformation(),
-        \Simtabi\Laranail\AuthPreset\Features::updatePasswords(),
-        \Simtabi\Laranail\AuthPreset\Features::emailVerification(),
+        \Simtabi\Laranail\AuthKitPreset\Features::login(),
+        \Simtabi\Laranail\AuthKitPreset\Features::registration(),
+        \Simtabi\Laranail\AuthKitPreset\Features::logout(),
+        \Simtabi\Laranail\AuthKitPreset\Features::updateProfileInformation(),
+        \Simtabi\Laranail\AuthKitPreset\Features::updatePasswords(),
+        \Simtabi\Laranail\AuthKitPreset\Features::emailVerification(),
     ],
 
     'routes' => [
-        'mode' => env(key: 'AUTH_PRESET_ROUTES_MODE', default: 'package'),
+        'mode' => env(key: 'AUTHKIT_PRESET_ROUTES_MODE', default: 'package'),
     ],
 
-    'guard' => env(key: 'AUTH_PRESET_GUARD', default: 'web'),
+    'guard' => env(key: 'AUTHKIT_PRESET_GUARD', default: 'web'),
 
     /*
     |--------------------------------------------------------------------------
@@ -47,8 +47,8 @@ return [
     */
 
     'prefix' => [
-        'web' => env(key: 'AUTH_PRESET_WEB_PREFIX', default: 'auth'),
-        'api' => env(key: 'AUTH_PRESET_API_PREFIX', default: 'api/auth'),
+        'web' => env(key: 'AUTHKIT_PRESET_WEB_PREFIX', default: 'auth'),
+        'api' => env(key: 'AUTHKIT_PRESET_API_PREFIX', default: 'api/auth'),
     ],
 
     /*
@@ -76,10 +76,10 @@ return [
     */
 
     'redirects' => [
-        'after_login'        => env(key: 'AUTH_PRESET_AFTER_LOGIN', default: '/dashboard'),
-        'after_registration' => env(key: 'AUTH_PRESET_AFTER_REGISTRATION', default: '/dashboard'),
-        'after_logout'       => env(key: 'AUTH_PRESET_AFTER_LOGOUT', default: '/'),
-        'after_social_login' => env(key: 'AUTH_PRESET_AFTER_SOCIAL_LOGIN', default: '/dashboard'),
+        'after_login'        => env(key: 'AUTHKIT_PRESET_AFTER_LOGIN', default: '/dashboard'),
+        'after_registration' => env(key: 'AUTHKIT_PRESET_AFTER_REGISTRATION', default: '/dashboard'),
+        'after_logout'       => env(key: 'AUTHKIT_PRESET_AFTER_LOGOUT', default: '/'),
+        'after_social_login' => env(key: 'AUTHKIT_PRESET_AFTER_SOCIAL_LOGIN', default: '/dashboard'),
     ],
 
     'social' => [

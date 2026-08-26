@@ -1,25 +1,25 @@
-<x-auth-preset::layout title="Register">
+<x-laranail-authkit-preset::layout title="Register">
     <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900">Create your account</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail-authkit-preset::messages.register.title') }}</h2>
         <p class="mt-2 text-sm text-gray-600">
-            Already have an account?
-            @if (\Simtabi\Laranail\AuthPreset\Features::enabled(\Simtabi\Laranail\AuthPreset\Features::login()))
+            {{ __('laranail-authkit-preset::messages.register.have_account') }}
+            @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::login()))
                 <a href="{{ route('login') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">
-                    Sign in
+                    {{ __('laranail-authkit-preset::messages.register.sign_in') }}
                 </a>
             @endif
         </p>
     </div>
 
-    <x-auth-preset::social-buttons />
+    <x-laranail-authkit-preset::social-buttons />
 
     <form method="POST" action="{{ route('register.store') }}" class="space-y-6">
         @csrf
 
         <div>
-            <x-auth-preset::label for="name" value="Full name" />
+            <x-laranail-authkit-preset::label for="name" value="{{ __('laranail-authkit-preset::messages.register.name') }}" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="name"
                     name="name"
                     type="text"
@@ -30,13 +30,13 @@
                     :error="$errors->has('name')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('name')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('name')" />
         </div>
 
         <div>
-            <x-auth-preset::label for="email" value="Email address" />
+            <x-laranail-authkit-preset::label for="email" value="{{ __('laranail-authkit-preset::messages.register.email') }}" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="email"
                     name="email"
                     type="email"
@@ -46,13 +46,13 @@
                     :error="$errors->has('email')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('email')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('email')" />
         </div>
 
         <div>
-            <x-auth-preset::label for="password" value="Password" />
+            <x-laranail-authkit-preset::label for="password" value="{{ __('laranail-authkit-preset::messages.register.password') }}" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="password"
                     name="password"
                     type="password"
@@ -61,13 +61,13 @@
                     :error="$errors->has('password')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('password')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('password')" />
         </div>
 
         <div>
-            <x-auth-preset::label for="password_confirmation" value="Confirm password" />
+            <x-laranail-authkit-preset::label for="password_confirmation" value="{{ __('laranail-authkit-preset::messages.register.confirm_password') }}" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="password_confirmation"
                     name="password_confirmation"
                     type="password"
@@ -76,10 +76,10 @@
                     :error="$errors->has('password_confirmation')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('password_confirmation')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('password_confirmation')" />
         </div>
 
-        @if (\Simtabi\Laranail\AuthPreset\Features::enabled(\Simtabi\Laranail\AuthPreset\Features::botProtection()))
+        @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::botProtection()))
             <x-captcha />
         @endif
 
@@ -88,8 +88,8 @@
                 type="submit"
                 class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-                Create account
+                {{ __('laranail-authkit-preset::messages.register.submit') }}
             </button>
         </div>
     </form>
-</x-auth-preset::layout>
+</x-laranail-authkit-preset::layout>
