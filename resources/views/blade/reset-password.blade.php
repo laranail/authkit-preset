@@ -55,7 +55,7 @@
             <x-laranail-authkit-preset::input-error :message="$errors->first('password_confirmation')" />
         </div>
 
-        @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::botProtection()))
+        @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::botProtection()))
             <x-captcha />
         @endif
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthKitPreset\Http\Controllers\Api;
+namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Simtabi\Laranail\AuthKit\Enums\AuthStatus;
 use Simtabi\Laranail\AuthKit\Support\AuthResult;
-use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Contracts\LoginUserInterface;
 use Simtabi\Laranail\AuthKit\Contracts\IssueTokenForUserInterface;
 use Simtabi\Laranail\AuthKit\Contracts\AttemptEmailPasswordLoginInterface;

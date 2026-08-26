@@ -2,7 +2,7 @@
     <div class="text-center mb-8">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail-authkit-preset::messages.login.title') }}</h2>
         <p class="mt-2 text-sm text-gray-600">
-            @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::registration()))
+            @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::registration()))
                 {{ __('laranail-authkit-preset::messages.login.no_account') }}
                 <a href="{{ route('register') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">
                     {{ __('laranail-authkit-preset::messages.login.register') }}
@@ -61,14 +61,14 @@
                 <label for="remember" class="ml-3 block text-sm text-gray-700">{{ __('laranail-authkit-preset::messages.login.remember') }}</label>
             </div>
 
-            @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::passwordReset()))
+            @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::passwordReset()))
                 <a href="{{ route('password.request') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
                     {{ __('laranail-authkit-preset::messages.login.forgot') }}
                 </a>
             @endif
         </div>
 
-        @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::botProtection()))
+        @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::botProtection()))
             <x-captcha />
         @endif
 
@@ -82,7 +82,7 @@
         </div>
     </form>
 
-    @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::passkeys()))
+    @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::passkeys()))
         <div
             class="mt-6"
             data-passkey-login

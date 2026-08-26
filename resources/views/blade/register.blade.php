@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail-authkit-preset::messages.register.title') }}</h2>
         <p class="mt-2 text-sm text-gray-600">
             {{ __('laranail-authkit-preset::messages.register.have_account') }}
-            @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::login()))
+            @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::login()))
                 <a href="{{ route('login') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">
                     {{ __('laranail-authkit-preset::messages.register.sign_in') }}
                 </a>
@@ -79,7 +79,7 @@
             <x-laranail-authkit-preset::input-error :message="$errors->first('password_confirmation')" />
         </div>
 
-        @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::botProtection()))
+        @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::botProtection()))
             <x-captcha />
         @endif
 

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthKitPreset\Http\Controllers\Auth;
+namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 
 use Illuminate\View\View;
-use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractAttemptEmailPasswordLoginController;
 
 class LoginController extends AbstractAttemptEmailPasswordLoginController

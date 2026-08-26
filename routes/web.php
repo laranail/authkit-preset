@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Simtabi\Laranail\AuthKitPreset\Features;
-use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
-use Simtabi\Laranail\AuthKitPreset\Http\Controllers\Auth;
-use Simtabi\Laranail\AuthKitPreset\Http\Middleware\ValidateCaptcha;
+use Simtabi\Laranail\AuthKit\Preset\Features;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
+use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
 
 Route::middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
     ->get('/dashboard', fn () => view(AuthPreset::view('dashboard'), ['user' => request()->user()]))

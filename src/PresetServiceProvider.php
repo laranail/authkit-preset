@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthKitPreset;
+namespace Simtabi\Laranail\AuthKit\Preset;
 
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Simtabi\Laranail\Package\Tools\Package;
-use Simtabi\Laranail\AuthKitPreset\Commands\InstallCommand;
-use Simtabi\Laranail\AuthKitPreset\Http\Middleware\ValidateCaptcha;
+use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
+use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
 
-class AuthPresetServiceProvider extends PackageServiceProvider
+class PresetServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {

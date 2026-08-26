@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use Simtabi\Laranail\AuthKitPreset\Features;
+use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\AuthKitServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use Simtabi\Laranail\AuthKitPreset\AuthPresetServiceProvider;
+use Simtabi\Laranail\AuthKit\Preset\PresetServiceProvider;
 use Simtabi\Laranail\Captcha\Providers\CaptchaServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
@@ -20,7 +20,7 @@ abstract class TestCase extends OrchestraTestCase
             \Laravel\Sanctum\SanctumServiceProvider::class,
             AuthKitServiceProvider::class,
             CaptchaServiceProvider::class,
-            AuthPresetServiceProvider::class,
+            PresetServiceProvider::class,
         ];
     }
 

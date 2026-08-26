@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthKitPreset\Support;
+namespace Simtabi\Laranail\AuthKit\Preset\Support;
 
 use LogicException;
 use Illuminate\Support\Facades\Validator;
 use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
-use Simtabi\Laranail\AuthKitPreset\Enums\FrontendStack;
+use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
 
 class AuthPreset
 {

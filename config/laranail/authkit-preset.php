@@ -26,12 +26,12 @@ return [
     */
 
     'features' => [
-        \Simtabi\Laranail\AuthKitPreset\Features::login(),
-        \Simtabi\Laranail\AuthKitPreset\Features::registration(),
-        \Simtabi\Laranail\AuthKitPreset\Features::logout(),
-        \Simtabi\Laranail\AuthKitPreset\Features::updateProfileInformation(),
-        \Simtabi\Laranail\AuthKitPreset\Features::updatePasswords(),
-        \Simtabi\Laranail\AuthKitPreset\Features::emailVerification(),
+        \Simtabi\Laranail\AuthKit\Preset\Features::login(),
+        \Simtabi\Laranail\AuthKit\Preset\Features::registration(),
+        \Simtabi\Laranail\AuthKit\Preset\Features::logout(),
+        \Simtabi\Laranail\AuthKit\Preset\Features::updateProfileInformation(),
+        \Simtabi\Laranail\AuthKit\Preset\Features::updatePasswords(),
+        \Simtabi\Laranail\AuthKit\Preset\Features::emailVerification(),
     ],
 
     'routes' => [
