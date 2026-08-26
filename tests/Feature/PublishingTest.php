@@ -10,7 +10,7 @@ it('publishes Blade views for application customization', function (): void {
         '--tag' => 'laranail::authkit-preset-views',
     ])->assertSuccessful();
 
-    expect(resource_path('views/vendor/auth-preset/login.blade.php'))->toBeFile();
+    expect(resource_path('views/vendor/laranail-authkit-preset/login.blade.php'))->toBeFile();
 });
 
 it('preserves the Auth Preset publish tags and destinations', function (): void {

@@ -90,7 +90,7 @@ class AuthPreset
     {
         return match (self::stack()) {
             FrontendStack::Blade => 'laranail-authkit-preset::blade.' . $page,
-            default              => throw new LogicException('The configured auth-preset stack is not installed.'),
+            default              => throw new LogicException('The configured laranail/authkit-preset stack is not installed.'),
         };
     }
 }

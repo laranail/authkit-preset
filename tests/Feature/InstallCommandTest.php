@@ -133,7 +133,7 @@ it('adds Sanctum and passkey support to a selected model only once', function ()
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureModelFile');
-    $modelPath = tempnam(dirname(__DIR__, 2), 'auth-preset-model-');
+    $modelPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-model-');
 
     file_put_contents(
         $modelPath,
@@ -175,7 +175,7 @@ it('adds the auth-preset Blade source to app.css only once', function (): void {
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureTailwindSource');
-    $cssPath = tempnam(dirname(__DIR__, 2), 'auth-preset-app-css-');
+    $cssPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-app-css-');
 
     file_put_contents(
         $cssPath,
@@ -249,8 +249,8 @@ it('adds selected social and captcha environment variables to both env files wit
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureEnvironment');
-    $envPath = tempnam(dirname(__DIR__, 2), 'auth-preset-env-');
-    $envExamplePath = tempnam(dirname(__DIR__, 2), 'auth-preset-env-example-');
+    $envPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-env-');
+    $envExamplePath = tempnam(dirname(__DIR__, 2), 'authkit-preset-env-example-');
 
     file_put_contents($envPath, "APP_KEY=existing\nAUTHKIT_GOOGLE_CLIENT_ID=existing-client\nCAPTCHA_SITE_KEY=existing-site\n");
     file_put_contents($envExamplePath, "APP_KEY=\n");
