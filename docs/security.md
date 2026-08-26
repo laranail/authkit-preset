@@ -15,3 +15,7 @@ The preset supplies authentication routes, not application authorization. Use HT
 Set the correct web/API prefixes before registering OAuth callbacks, and check the actual routes and middleware after every feature or route-mode change. Treat bearer tokens as secrets: return them only over TLS, do not log them, and revoke them with the API logout route. Confirm the public host, signed URLs, and mail links for password reset and verification. Passkeys require a matching relying-party ID, origin, and TLS configuration.
 
 Review authkit's [security guidance](../../authkit/docs/security.md) for the underlying action behavior, social linking, token revocation, and passkey requirements.
+
+---
+
+[← Docs index](../README.md#documentation)

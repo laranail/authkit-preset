@@ -22,3 +22,7 @@ Authenticated users manage credentials at `GET /auth/user/passkeys` (`user-passk
 Set the relying-party ID and allowed origins in `config/fortify.php`. `APP_URL`, the browser origin, TLS certificate, and relying-party ID must agree; a production credential cannot be used from an unrelated local origin. Keep the Vite entry and CSRF meta tag in the Blade layout, because deletion uses an authenticated CSRF-protected request.
 
 Passkey login creates a web session; it is not a Sanctum API token flow. For migration ownership and WebAuthn implementation requirements, see authkit's [passkey guide](../../authkit/docs/passkeys.md).
+
+---
+
+[← Docs index](../README.md#documentation)

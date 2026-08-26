@@ -22,3 +22,7 @@ The supplied login form renders `<x-captcha />` when the feature is enabled. Con
 Turnstile is the default provider. Use production site and secret keys only on the production origin, clear cached configuration after changing them, and deliberately test a valid and invalid challenge. CAPTCHA complements rather than replaces the explicit route limits: guest authentication and reset submissions are limited to ten requests per minute, verification operations to six, and the API group to sixty.
 
 For production safeguards, see [security](security.md). For package and application verification, see [testing](testing.md).
+
+---
+
+[← Docs index](../README.md#documentation)

@@ -28,3 +28,7 @@ Each route exists only when both `Features::api()` and its named feature are ena
 Send an issued token as `Authorization: Bearer <token>`. A plaintext token is returned only at registration or login; store it using the client platform's secure mechanism, never log it, and remove it when logout succeeds. The package uses fixed token names (`api-register` and `api-login`) without custom abilities; publish routes/controllers if client-specific abilities, token names, validation, or CAPTCHA/anti-abuse policy are required.
 
 Change the prefix with `AUTHKIT_PRESET_API_PREFIX` and adjust `laranail.authkit-preset.middleware.api` for application-wide API policy. Passkey ceremonies remain browser/session flows, not API token authentication. Web URLs and rendered views are documented in each feature guide and [route configuration](route-configuration.md).
+
+---
+
+[← Docs index](../README.md#documentation)

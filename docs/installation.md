@@ -39,3 +39,7 @@ The normal login, registration, logout, profile, and password-update features re
 ## Verify the installation
 
 After migration and asset work, inspect `config/laranail/authkit-preset.php` for the selected guard, features, prefixes, middleware, redirects, social providers, and CAPTCHA provider. Run `php artisan route:list` and confirm that only intended `/auth` and `/api/auth` routes exist. Visit `/auth/register` or `/auth/login`; for API installations, obtain a token through the documented register/login endpoint and exercise a protected request. Review the generated configuration, mail delivery, and CAPTCHA behavior before exposing routes outside a local environment.
+
+---
+
+[← Docs index](../README.md#documentation)

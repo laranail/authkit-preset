@@ -17,3 +17,7 @@ The package also registers `GET /dashboard`, independent of the web prefix, with
 Every feature gate removes its own routes rather than merely hiding a link. `Features::api()` is a top-level gate for all API routes; each API endpoint needs that gate **and** its own feature. Web route/page gates are: login, registration, logout, password reset, profile updates, password updates, email verification, social login, and passkeys. Disabling a feature after publishing views can leave broken links, so update the view navigation and run `php artisan route:list` for both route modes.
 
 For the exact API surface and response expectations, see [API routes](api-routes.md). To replace route behavior or presentation, see [customization](customization.md).
+
+---
+
+[← Docs index](../README.md#documentation)

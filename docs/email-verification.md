@@ -17,3 +17,7 @@ Add Laravel's `verified` middleware to application routes that require a confirm
 With API enabled, the same feature also registers `POST /api/auth/email/verification-notification` and `GET /api/auth/email/verify/{id}/{hash}`. Both require `auth:sanctum`; the verification URL is additionally signed and both endpoints use `throttle:6,1`. API clients must send the bearer token when following the verification link, which is often unsuitable for email clicks; use the web flow or publish the route if a native-client verification design needs different behavior.
 
 For headless controller behavior and mail integration details, see authkit's [email verification guide](../../authkit/docs/email-verification.md).
+
+---
+
+[← Docs index](../README.md#documentation)

@@ -1,5 +1,10 @@
 # laranail/authkit-preset
 
+[![Packagist Version](https://img.shields.io/packagist/v/laranail/authkit-preset.svg?style=flat-square)](https://packagist.org/packages/laranail/authkit-preset)
+[![Tests](https://img.shields.io/github/actions/workflow/status/laranail/authkit-preset/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/laranail/authkit-preset/actions/workflows/tests.yml)
+[![Static analysis](https://img.shields.io/github/actions/workflow/status/laranail/authkit-preset/static.yml?branch=main&label=static%20analysis&style=flat-square)](https://github.com/laranail/authkit-preset/actions/workflows/static.yml)
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+
 Blade authentication scaffolding for Laravel 13+, powered by [`laranail/authkit`](https://github.com/laranail/authkit).
 
 > [!WARNING]
@@ -12,86 +17,62 @@ The preset provides configurable web and API authentication routes, Fortify-back
 - PHP 8.4+
 - Laravel 13.x
 
-## Installation
+## Install
 
-Laranail packages are not available on Packagist yet. Before requiring the preset, add these VCS repositories to the consuming application's `composer.json`:
+`laranail/*` packages resolve through git, not Packagist. Add the repositories block to your
+application's `composer.json` — Composer ignores a dependency's own `repositories`, so it must list
+the whole transitive closure:
 
 ```json
 "repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/laranail/authkit.git"
-    },
-    {
-        "type": "vcs",
-        "url": "https://github.com/laranail/authkit-preset.git"
-    },
-    {
-        "type": "vcs",
-        "url": "https://github.com/laranail/console.git"
-    },
-    {
-        "type": "vcs",
-        "url": "https://github.com/laranail/enumerator.git"
-    },
-    {
-        "type": "vcs",
-        "url": "https://github.com/laranail/package-tools.git"
-    },
-    {
-        "type": "vcs",
-        "url": "https://github.com/laranail/captcha.git"
-    },
-    {
-        "type": "vcs",
-        "url": "https://github.com/laranail/db-tools.git"
-    }
+    { "type": "vcs", "url": "https://github.com/laranail/authkit.git" },
+    { "type": "vcs", "url": "https://github.com/laranail/console.git" },
+    { "type": "vcs", "url": "https://github.com/laranail/enumerator.git" },
+    { "type": "vcs", "url": "https://github.com/laranail/package-tools.git" },
+    { "type": "vcs", "url": "https://github.com/laranail/captcha.git" },
+    { "type": "vcs", "url": "https://github.com/laranail/db-tools.git" }
 ]
 ```
 
-Then install the preset with Composer:
+Then:
 
 ```bash
 composer require laranail/authkit-preset
-```
-
-Run the installer and follow the prompts:
-
-```bash
 php artisan laranail::authkit-preset.install
 ```
 
-The installer currently supports the Blade stack. It asks which auth provider should receive authentication traits, then presents one multi-select prompt for authentication features. All available features are selected by default; use the prompt's space key to disable features you do not need. Package routes are registered automatically by default.
+See [installation](docs/installation.md) for the full walkthrough.
 
-After installation, the default web routes are available under `/auth`:
+## <a name="documentation"></a>Documentation
 
-```text
-/auth/login
-/auth/register
-/auth/forgot-password
-/auth/reset-password/{token}
-```
+Full documentation: <https://opensource.simtabi.com/documentation/laranail/authkit-preset/>
 
-If API authentication is enabled, its routes are available under `/api/auth` and use Sanctum tokens.
+### Guides
 
-## Documentation
+- [Installation](docs/installation.md) — the repositories block, the installer, what it publishes
+- [Getting started](docs/getting-started.md) — the shortest path to a working auth UI
+- [Configuration](docs/configuration.md) — features, prefixes, guard, redirects, bot protection
+- [Route configuration](docs/route-configuration.md) — package routes vs published routes
+- [Architecture](docs/architecture.md) — what belongs here and what belongs in the core
+- [Security](docs/security.md) — CSRF, throttling, captcha coverage
+- [Release](docs/release.md) — versioning, and why the core is tagged first
 
-- [Installation](docs/installation.md)
-- [Registration](docs/registration.md)
-- [Login](docs/login.md)
-- [Logout](docs/logout.md)
-- [Password reset](docs/password-reset.md)
-- [Profile management](docs/profile-management.md)
-- [Password updates](docs/password-updates.md)
-- [Email verification](docs/email-verification.md)
-- [Social login](docs/social-login.md)
-- [Passkeys](docs/passkeys.md)
-- [API routes](docs/api-routes.md)
+### Reference
+
+- [Login](docs/login.md) · [Registration](docs/registration.md) · [Logout](docs/logout.md)
+- [Password reset](docs/password-reset.md) · [Password updates](docs/password-updates.md)
+- [Profile management](docs/profile-management.md) · [Email verification](docs/email-verification.md)
+- [Social login](docs/social-login.md) · [Passkeys](docs/passkeys.md) · [API routes](docs/api-routes.md)
 - [Bot protection](docs/bot-protection.md)
-- [Security](docs/security.md)
-- [Testing](docs/testing.md)
-- [Route configuration](docs/route-configuration.md)
-- [Customization](docs/customization.md)
+
+### Recipes
+
+- [Customization](docs/customization.md) — publishing views, layouts and translations
+
+### Project
+
+- [Testing](docs/testing.md) — how the suite is arranged and what it does not cover
+- [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
 
 ## Installer options
 
@@ -266,6 +247,24 @@ From the package directory:
 composer test
 composer lint
 ```
+
+## Sister packages
+
+| Package | Role |
+|---|---|
+| [`laranail/authkit`](https://github.com/laranail/authkit) | Headless core — actions, contracts, result objects, REST API |
+| [`laranail/authkit-preset`](https://github.com/laranail/authkit-preset) | Blade scaffolding on top of the core |
+| `laranail/authkit-sso` | SAML 2.0 and OIDC single sign-on |
+| `laranail/authkit-oauth` | OAuth and social identity |
+| `laranail/authkit-tenancy` | Multi-tenancy |
+| `laranail/authkit-ldap` | LDAP and Active Directory |
+
+The family shares one root namespace, `Simtabi\Laranail\AuthKit\`, with each sibling a segment
+under it.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues privately — [SECURITY.md](SECURITY.md).
 
 ## License
 

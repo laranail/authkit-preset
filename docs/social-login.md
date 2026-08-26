@@ -29,3 +29,7 @@ With the social feature enabled, guests use `GET /auth/social/{provider}` (`soci
 The preset delegates identity handling to Auth Kit. Existing provider identities are reused; an already authenticated user may link a provider identity. For guests, a matching email is auto-linked only when the provider supplies a trusted verified-email claim. Google, LinkedIn, and PayPal are trusted for that purpose; Facebook and X/Twitter are not. Missing or unverified email claims do not silently link an existing local account.
 
 The migration stores access and refresh tokens, so treat the `socials` table as sensitive data and do not serialize it in APIs. For scopes, PayPal sandbox configuration, custom providers, and the complete identity-resolution rules, read authkit's [social login guide](../../authkit/docs/social-login.md).
+
+---
+
+[← Docs index](../README.md#documentation)
