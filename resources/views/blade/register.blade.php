@@ -1,11 +1,11 @@
 <x-laranail-authkit-preset::layout title="Register">
     <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail-authkit-preset::messages.register.title') }}</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail/authkit-preset::messages.register.title') }}</h2>
         <p class="mt-2 text-sm text-gray-600">
-            {{ __('laranail-authkit-preset::messages.register.have_account') }}
+            {{ __('laranail/authkit-preset::messages.register.have_account') }}
             @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::login()))
                 <a href="{{ route('login') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">
-                    {{ __('laranail-authkit-preset::messages.register.sign_in') }}
+                    {{ __('laranail/authkit-preset::messages.register.sign_in') }}
                 </a>
             @endif
         </p>
@@ -17,7 +17,7 @@
         @csrf
 
         <div>
-            <x-laranail-authkit-preset::label for="name" value="{{ __('laranail-authkit-preset::messages.register.name') }}" />
+            <x-laranail-authkit-preset::label for="name" value="{{ __('laranail/authkit-preset::messages.register.name') }}" />
             <div class="mt-2">
                 <x-laranail-authkit-preset::input
                     id="name"
@@ -34,7 +34,7 @@
         </div>
 
         <div>
-            <x-laranail-authkit-preset::label for="email" value="{{ __('laranail-authkit-preset::messages.register.email') }}" />
+            <x-laranail-authkit-preset::label for="email" value="{{ __('laranail/authkit-preset::messages.register.email') }}" />
             <div class="mt-2">
                 <x-laranail-authkit-preset::input
                     id="email"
@@ -50,7 +50,7 @@
         </div>
 
         <div>
-            <x-laranail-authkit-preset::label for="password" value="{{ __('laranail-authkit-preset::messages.register.password') }}" />
+            <x-laranail-authkit-preset::label for="password" value="{{ __('laranail/authkit-preset::messages.register.password') }}" />
             <div class="mt-2">
                 <x-laranail-authkit-preset::input
                     id="password"
@@ -65,7 +65,7 @@
         </div>
 
         <div>
-            <x-laranail-authkit-preset::label for="password_confirmation" value="{{ __('laranail-authkit-preset::messages.register.confirm_password') }}" />
+            <x-laranail-authkit-preset::label for="password_confirmation" value="{{ __('laranail/authkit-preset::messages.register.confirm_password') }}" />
             <div class="mt-2">
                 <x-laranail-authkit-preset::input
                     id="password_confirmation"
@@ -88,7 +88,7 @@
                 type="submit"
                 class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-                {{ __('laranail-authkit-preset::messages.register.submit') }}
+                {{ __('laranail/authkit-preset::messages.register.submit') }}
             </button>
         </div>
     </form>

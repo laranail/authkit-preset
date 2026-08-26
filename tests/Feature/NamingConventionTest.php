@@ -15,20 +15,31 @@ use Illuminate\Contracts\Console\Kernel;
  * These assertions read the LIVE registries on a booted application rather than grepping the
  * provider, so they keep their teeth through any refactor of the registration code.
  */
-it('registers its view namespace under the vendor-scoped prefix', function (): void {
-    expect(View::getFinder()->getHints())->toHaveKey('laranail-authkit-preset')
+it('registers its view namespace as the composer package name', function (): void {
+    expect(View::getFinder()->getHints())->toHaveKey('laranail/authkit-preset')
         ->and(View::getFinder()->getHints())->not->toHaveKey('auth-preset');
+});
+
+it('aliases the hyphen form over the same paths, because Blade tags cannot hold a slash', function (): void {
+    // Blade's component-tag pattern is x[-\:]([\w\-\:\.]*) -- no forward slash -- so
+    // <x-laranail/authkit-preset::layout /> truncates at the slash and is never compiled. The alias
+    // must resolve the *same* paths, or a published override would be found under one spelling and
+    // not the other.
+    $hints = View::getFinder()->getHints();
+
+    expect($hints)->toHaveKey('laranail-authkit-preset')
+        ->and($hints['laranail-authkit-preset'])->toBe($hints['laranail/authkit-preset']);
 });
 
 it('registers its translation namespace under the same prefix as its views', function (): void {
     // Laravel resolves published overrides from lang/vendor/{namespace}; a mismatch between the
     // namespace and the publish destination is silent, and the packaged default keeps answering.
-    expect(Lang::getLoader()->namespaces())->toHaveKey('laranail-authkit-preset');
+    expect(Lang::getLoader()->namespaces())->toHaveKey('laranail/authkit-preset');
 });
 
 it('resolves its translation keys', function (): void {
-    expect(__('laranail-authkit-preset::messages.login.title'))->toBe('Sign in to your account')
-        ->and(__('laranail-authkit-preset::messages.dashboard.title'))->toBe('Dashboard');
+    expect(__('laranail/authkit-preset::messages.login.title'))->toBe('Sign in to your account')
+        ->and(__('laranail/authkit-preset::messages.dashboard.title'))->toBe('Dashboard');
 });
 
 it('names its Artisan command laranail::<slug>.<command>', function (): void {

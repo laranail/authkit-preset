@@ -1,11 +1,11 @@
 <x-laranail-authkit-preset::layout title="Login">
     <div class="text-center mb-8">
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail-authkit-preset::messages.login.title') }}</h2>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail/authkit-preset::messages.login.title') }}</h2>
         <p class="mt-2 text-sm text-gray-600">
             @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::registration()))
-                {{ __('laranail-authkit-preset::messages.login.no_account') }}
+                {{ __('laranail/authkit-preset::messages.login.no_account') }}
                 <a href="{{ route('register') }}" class="font-semibold text-indigo-600 hover:text-indigo-500">
-                    {{ __('laranail-authkit-preset::messages.login.register') }}
+                    {{ __('laranail/authkit-preset::messages.login.register') }}
                 </a>
             @endif
         </p>
@@ -17,7 +17,7 @@
         @csrf
 
         <div>
-            <x-laranail-authkit-preset::label for="email" value="{{ __('laranail-authkit-preset::messages.login.email') }}" />
+            <x-laranail-authkit-preset::label for="email" value="{{ __('laranail/authkit-preset::messages.login.email') }}" />
             <div class="mt-2">
                 <x-laranail-authkit-preset::input
                     id="email"
@@ -34,7 +34,7 @@
         </div>
 
         <div>
-            <x-laranail-authkit-preset::label for="password" value="{{ __('laranail-authkit-preset::messages.login.password') }}" />
+            <x-laranail-authkit-preset::label for="password" value="{{ __('laranail/authkit-preset::messages.login.password') }}" />
             <div class="mt-2">
                 <x-laranail-authkit-preset::input
                     id="password"
@@ -58,12 +58,12 @@
                     {{ old('remember') ? 'checked' : '' }}
                     class="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                 >
-                <label for="remember" class="ml-3 block text-sm text-gray-700">{{ __('laranail-authkit-preset::messages.login.remember') }}</label>
+                <label for="remember" class="ml-3 block text-sm text-gray-700">{{ __('laranail/authkit-preset::messages.login.remember') }}</label>
             </div>
 
             @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::passwordReset()))
                 <a href="{{ route('password.request') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
-                    {{ __('laranail-authkit-preset::messages.login.forgot') }}
+                    {{ __('laranail/authkit-preset::messages.login.forgot') }}
                 </a>
             @endif
         </div>
@@ -77,7 +77,7 @@
                 type="submit"
                 class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-                {{ __('laranail-authkit-preset::messages.login.submit') }}
+                {{ __('laranail/authkit-preset::messages.login.submit') }}
             </button>
         </div>
     </form>
@@ -95,7 +95,7 @@
                 class="flex w-full justify-center rounded-md border border-indigo-600 px-3 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50"
                 data-passkey-login-button
             >
-                {{ __('laranail-authkit-preset::messages.login.passkey') }}
+                {{ __('laranail/authkit-preset::messages.login.passkey') }}
             </button>
         </div>
     @endif

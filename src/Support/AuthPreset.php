@@ -6,8 +6,8 @@ namespace Simtabi\Laranail\AuthKit\Preset\Support;
 
 use LogicException;
 use Illuminate\Support\Facades\Validator;
-use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
+use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
 use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
 
 class AuthPreset
@@ -89,7 +89,7 @@ class AuthPreset
     public static function view(string $page): string
     {
         return match (self::stack()) {
-            FrontendStack::Blade => 'laranail-authkit-preset::blade.' . $page,
+            FrontendStack::Blade => 'laranail/authkit-preset::blade.' . $page,
             default              => throw new LogicException('The configured laranail/authkit-preset stack is not installed.'),
         };
     }

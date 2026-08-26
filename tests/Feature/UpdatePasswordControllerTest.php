@@ -35,7 +35,7 @@ it(description: 'renders the password update form for authenticated users', clos
     $this->actingAs($user)
         ->get(route('user-password.edit'))
         ->assertOk()
-        ->assertViewIs('laranail-authkit-preset::blade.update-password');
+        ->assertViewIs('laranail/authkit-preset::blade.update-password');
 });
 
 it(description: 'updates a password through the web route', closure: function (): void {

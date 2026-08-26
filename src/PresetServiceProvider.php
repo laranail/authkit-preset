@@ -13,6 +13,14 @@ use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
 
 class PresetServiceProvider extends PackageServiceProvider
 {
+    /** The canonical namespace: the composer package name, so a reader can trace a key to a package. */
+    public const string VIEW_NAMESPACE = 'laranail/authkit-preset';
+
+    public const string TRANSLATION_NAMESPACE = 'laranail/authkit-preset';
+
+    /** Blade component tags cannot contain a forward slash; this alias resolves the same paths. */
+    public const string COMPONENT_NAMESPACE = 'laranail-authkit-preset';
+
     public function configurePackage(Package $package): void
     {
         $package
@@ -30,11 +38,11 @@ class PresetServiceProvider extends PackageServiceProvider
                 'laranail::authkit-preset-routes',
             )
             ->publish(
-                ['resources/views/blade' => resource_path('views/vendor/laranail-authkit-preset')],
+                ['resources/views/blade' => resource_path('views/vendor/laranail/authkit-preset')],
                 'laranail::authkit-preset-views',
             )
             ->publish(
-                ['lang' => lang_path('vendor/laranail-authkit-preset')],
+                ['lang' => lang_path('vendor/laranail/authkit-preset')],
                 'laranail::authkit-preset-lang',
             );
     }
@@ -96,16 +104,30 @@ class PresetServiceProvider extends PackageServiceProvider
         ]);
     }
 
+    /**
+     * The canonical namespace is the composer package name: laranail/authkit-preset.
+     *
+     * Blade's component-tag parser cannot use it. Its name pattern is x[-\:]([\w\-\:\.]*), which
+     * has no forward slash, so <x-laranail/authkit-preset::layout /> truncates at the slash and is
+     * emitted as literal text rather than compiled. The hyphen form is therefore registered as an
+     * alias over the *same resolved paths* -- including the application's published override
+     * directory -- so component tags keep working and both spellings find the same file.
+     */
     private function loadViews(): void
     {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laranail-authkit-preset');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', self::VIEW_NAMESPACE);
+
+        $this->app['view']->addNamespace(
+            self::COMPONENT_NAMESPACE,
+            $this->app['view']->getFinder()->getHints()[self::VIEW_NAMESPACE] ?? [],
+        );
     }
 
     private function loadTranslations(): void
     {
         // Laravel resolves overrides from lang/vendor/{namespace}, so the namespace and the
         // publish destination must agree exactly.
-        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'laranail-authkit-preset');
+        $this->loadTranslationsFrom(__DIR__ . '/../lang', self::TRANSLATION_NAMESPACE);
     }
 
     private function loadRoutes(): void
