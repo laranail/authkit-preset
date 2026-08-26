@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset;
+namespace Simtabi\Laranail\AuthKitPreset;
 
-use Simtabi\Laranail\AuthPreset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\AuthKitPreset\Enums\AuthenticationFeature;
 
 final class Features
 {
     public static function enabled(string $feature): bool
     {
-        return in_array(needle: $feature, haystack: config(key: 'auth-preset.features', default: []), strict: true);
+        return in_array(needle: $feature, haystack: config(key: 'laranail.authkit-preset.features', default: []), strict: true);
     }
 
     public static function login(): string

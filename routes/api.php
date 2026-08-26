@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Simtabi\Laranail\AuthPreset\Features;
-use Simtabi\Laranail\AuthPreset\Support\AuthPreset;
-use Simtabi\Laranail\AuthPreset\Http\Controllers\Api;
+use Simtabi\Laranail\AuthKitPreset\Features;
+use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKitPreset\Http\Controllers\Api;
 
 if (Features::enabled(Features::api())) {
     Route::prefix(AuthPreset::apiPrefix())

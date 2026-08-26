@@ -2,24 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset\Commands;
+namespace Simtabi\Laranail\AuthKitPreset\Commands;
 
 use ReflectionClass;
 use Illuminate\Support\Str;
-use Illuminate\Console\Command;
+use Simtabi\Laranail\Console\Tools\Commands\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
-use Simtabi\Laranail\Auth\Enums\SocialProvider;
+use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
-use Simtabi\Laranail\AuthPreset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\AuthKitPreset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
 
 class InstallCommand extends Command
 {
-    private const string TAILWIND_BLADE_SOURCE = "@source '../../vendor/laravel/laranail/**/*.blade.php';";
+    use SupportsNamespacedNames;
+
+    private const string TAILWIND_BLADE_SOURCE = "@source '../../vendor/laranail/*/resources/views/**/*.blade.php';";
 
     private const string PASSKEYS_NPM_PACKAGE = '@laravel/passkeys';
 
-    protected $signature = 'laranail:authkit.install
+    protected $signature = 'laranail::authkit-preset.install
         {--stack= : The frontend stack to install}
         {--social=* : Social providers to enable (google, facebook, twitter, linkedin, paypal)}
         {--api : Enable API authentication with Sanctum tokens}
@@ -32,7 +35,7 @@ class InstallCommand extends Command
         {--publish-views : Publish Blade views for application ownership}
         {--force : Overwrite existing published files}';
 
-    protected $description = 'Install the Blade auth-preset resources';
+    protected $description = 'Install the laranail/authkit-preset Blade resources';
 
     public function handle(): int
     {
@@ -80,8 +83,8 @@ class InstallCommand extends Command
             return self::FAILURE;
         }
 
-        $this->publish(tag: 'auth-kit-config');
-        $this->publish(tag: 'auth-preset-config');
+        $this->publish(tag: 'laranail::authkit-config');
+        $this->publish(tag: 'laranail::authkit-preset-config');
         $this->configureTailwindSource();
 
         if ($wantsPasskeys) {
@@ -89,21 +92,25 @@ class InstallCommand extends Command
         }
 
         if (count(value: $socialProviders) > 0) {
-            $this->publish(tag: 'auth-kit-social-migrations');
-            $this->newLine();
-            $this->info(string: 'Social login migration published. Run `php artisan migrate` to create the socials table.');
+            if ($this->publishMigrations(tag: 'laranail::authkit-social-migrations', name: 'create_socials_table')) {
+                $this->newLine();
+                $this->info(string: 'Social login migration published. Run `php artisan migrate` to create the socials table.');
+            }
         }
 
         if ($wantsApi) {
-            $this->publish(tag: 'sanctum-migrations');
-            $this->newLine();
-            $this->info(string: 'Sanctum token migration published. Run `php artisan migrate` to create the personal_access_tokens table.');
+            if ($this->publishMigrations(tag: 'sanctum-migrations', name: 'create_personal_access_tokens_table')) {
+                $this->newLine();
+                $this->info(string: 'Sanctum token migration published. Run `php artisan migrate` to create the personal_access_tokens table.');
+            }
         }
 
         if ($wantsPasskeys) {
-            $this->publish(tag: 'auth-kit-passkey-migrations');
-            $this->newLine();
-            $this->info(string: 'Passkeys migration published. Run `php artisan migrate` to create the passkeys table.');
+            if ($this->publishMigrations(tag: 'laranail::authkit-passkey-migrations', name: 'create_passkeys_table')) {
+                $this->newLine();
+                $this->info(string: 'Passkeys migration published. Run `php artisan migrate` to create the passkeys table.');
+            }
+
             $this->line(string: 'The @laravel/passkeys browser client and Blade event handlers were added to resources/js. Run `npm install` and rebuild your frontend assets.');
         }
 
@@ -117,17 +124,17 @@ class InstallCommand extends Command
         }
 
         if ($this->option(key: 'publish-routes')) {
-            $this->publish(tag: 'auth-preset-routes');
+            $this->publish(tag: 'laranail::authkit-preset-routes');
         }
 
         if ($this->option(key: 'publish-views')) {
-            $this->publish(tag: 'auth-preset-views');
+            $this->publish(tag: 'laranail::authkit-preset-views');
         }
 
         $this->configureFeatures(features: $features, providers: $socialProviders);
 
-        $this->info(string: 'auth-preset is ready. Package routes are registered automatically.');
-        $this->line(string: 'Visit /auth/register or /auth/login. Review config/auth-preset.php to enable or disable features.');
+        $this->info(string: 'laranail/authkit-preset is ready. Package routes are registered automatically.');
+        $this->line(string: 'Visit /auth/register or /auth/login. Review config/laranail/authkit-preset.php to enable or disable features.');
 
         if ($wantsApi) {
             $this->line(string: 'API routes are enabled at /api/auth. Use Sanctum tokens for authentication.');
@@ -364,7 +371,7 @@ class InstallCommand extends Command
 
         if ($wantsPasskeys) {
             $contents = $this->addModelImport(contents: $contents, import: 'Laravel\\Fortify\\Contracts\\PasskeyUser');
-            $contents = $this->addModelImport(contents: $contents, import: 'Simtabi\\Laranail\\Auth\\PasskeyAuthenticatable');
+            $contents = $this->addModelImport(contents: $contents, import: 'Simtabi\\Laranail\\AuthKit\\PasskeyAuthenticatable');
             $contents = $this->addModelInterface(contents: $contents, className: $className, interface: 'PasskeyUser');
             $contents = $this->addModelTrait(contents: $contents, className: $className, trait: 'PasskeyAuthenticatable');
         }
@@ -402,7 +409,9 @@ class InstallCommand extends Command
             pattern: '/(\\bclass\\s+' . preg_quote(str: $className, delimiter: '/') . '\\b)([^\\{]*)(\\{)/',
             callback: static function (array $matches) use ($interface): string {
                 if (str_contains(haystack: $matches[2], needle: $interface)) {
-                    return implode(separator: '', array: $matches);
+                    // $matches[0] is the whole match; imploding the array would emit it AND its
+                    // three capture groups, duplicating the class declaration on a second run.
+                    return $matches[0];
                 }
 
                 if (preg_match(pattern: '/implements\\s+([^\\{]+)/', subject: $matches[2]) === 1) {
@@ -537,7 +546,7 @@ class InstallCommand extends Command
      */
     private function configureFeatures(array $features, array $providers, ?string $configPath = null): void
     {
-        $configPath ??= config_path(path: 'auth-preset.php');
+        $configPath ??= config_path(path: 'laranail/authkit-preset.php');
 
         if (! file_exists(filename: $configPath)) {
             return;
@@ -561,7 +570,7 @@ class InstallCommand extends Command
 
         foreach ($featureMethods as $feature => $method) {
             if (in_array(needle: $feature, haystack: $features, strict: true) && ($feature !== 'social' || count(value: $providers) > 0)) {
-                $featureLines[] = "        \\Simtabi\\Laranail\\AuthPreset\\Features::{$method}(),";
+                $featureLines[] = "        \\Simtabi\\Laranail\\AuthKitPreset\\Features::{$method}(),";
             }
         }
 
@@ -593,9 +602,9 @@ class InstallCommand extends Command
 
         foreach ($providers as $provider) {
             $upper = Str::upper(value: $provider);
-            $variables["AUTH_KIT_{$upper}_CLIENT_ID"] = '';
-            $variables["AUTH_KIT_{$upper}_CLIENT_SECRET"] = '';
-            $variables["AUTH_KIT_{$upper}_REDIRECT"] = url(path: "/auth/social/{$provider}/callback");
+            $variables["AUTHKIT_{$upper}_CLIENT_ID"] = '';
+            $variables["AUTHKIT_{$upper}_CLIENT_SECRET"] = '';
+            $variables["AUTHKIT_{$upper}_REDIRECT"] = url(path: "/auth/social/{$provider}/callback");
         }
 
         if ($wantsBotProtection) {
@@ -658,5 +667,39 @@ class InstallCommand extends Command
         }
 
         $this->call(command: 'vendor:publish', arguments: $parameters);
+    }
+
+    /**
+     * Publish a migration group only when the application does not already have it.
+     *
+     * `vendor:publish` stamps a fresh timestamp onto a migration's destination on every run, so
+     * publishing the same group twice leaves two files declaring the same table and `migrate`
+     * dies with "table already exists". Laravel has no built-in guard for a re-run, so the
+     * installer checks for the migration by name before publishing it.
+     */
+    private function publishMigrations(string $tag, string $name, ?string $migrationPath = null): bool
+    {
+        if ($this->migrationExists(name: $name, migrationPath: $migrationPath)) {
+            $this->newLine();
+            $this->line(string: "Skipped [{$name}]: the application already has this migration.");
+
+            return false;
+        }
+
+        $this->publish(tag: $tag);
+
+        return true;
+    }
+
+    private function migrationExists(string $name, ?string $migrationPath = null): bool
+    {
+        $migrationPath ??= database_path(path: 'migrations');
+
+        if (! is_dir(filename: $migrationPath)) {
+            return false;
+        }
+
+        // Published migrations are prefixed with a timestamp, so match on the trailing name.
+        return glob(pattern: $migrationPath . '/*_' . $name . '.php') !== [];
     }
 }

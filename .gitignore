@@ -6,3 +6,6 @@
 /.vscode
 laravel-fortify-auth-packages.md
 .DS_Store
+/composer.lock
+/authkit-preset-*
+/auth-preset-*

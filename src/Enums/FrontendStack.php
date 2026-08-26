@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset\Enums;
+namespace Simtabi\Laranail\AuthKitPreset\Enums;
 
 enum FrontendStack: string
 {

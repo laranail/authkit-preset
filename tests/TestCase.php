@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use Simtabi\Laranail\AuthPreset\Features;
-use Simtabi\Laranail\Auth\AuthKitServiceProvider;
+use Simtabi\Laranail\AuthKitPreset\Features;
+use Simtabi\Laranail\AuthKit\AuthKitServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use Simtabi\Laranail\AuthPreset\AuthPresetServiceProvider;
+use Simtabi\Laranail\AuthKitPreset\AuthPresetServiceProvider;
 use Simtabi\Laranail\Captcha\Providers\CaptchaServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
@@ -36,10 +36,10 @@ abstract class TestCase extends OrchestraTestCase
         ]);
 
         $app['config']->set('auth.providers.users.model', \Workbench\App\Models\User::class);
-        $app['config']->set('auth-kit.user_model', \Workbench\App\Models\User::class);
+        $app['config']->set('laranail.authkit.user_model', \Workbench\App\Models\User::class);
 
-        $app['config']->set('auth-preset.stack', 'blade');
-        $app['config']->set('auth-preset.features', [
+        $app['config']->set('laranail.authkit-preset.stack', 'blade');
+        $app['config']->set('laranail.authkit-preset.features', [
             Features::login(),
             Features::registration(),
             Features::logout(),
@@ -55,16 +55,12 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function defineDatabaseMigrations(): void
     {
-        $authKitPasskeyMigrations = dirname(__DIR__) . '/vendor/laranail/auth-kit/database/migrations/passkeys';
-
-        if (! is_dir($authKitPasskeyMigrations)) {
-            $authKitPasskeyMigrations = dirname(__DIR__, 2) . '/laranail-auth-kit/database/migrations/passkeys';
-        }
+        $authKitPasskeyMigrations = dirname(__DIR__) . '/vendor/laranail/authkit/database/migrations/passkeys';
 
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/orchestra/testbench-core/laravel/migrations');
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/fortify/database/migrations');
         $this->loadMigrationsFrom($authKitPasskeyMigrations);
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/sanctum/database/migrations');
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laranail/auth-kit/database/migrations/social');
+        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laranail/authkit/database/migrations/social');
     }
 }

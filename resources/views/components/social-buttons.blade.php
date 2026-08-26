@@ -1,5 +1,5 @@
 @php
-    $providers = \Simtabi\Laranail\AuthPreset\Support\AuthPreset::enabledSocialProviders();
+    $providers = \Simtabi\Laranail\AuthKitPreset\Support\AuthPreset::enabledSocialProviders();
 @endphp
 
 @if (count($providers) > 0)

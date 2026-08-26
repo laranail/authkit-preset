@@ -1,4 +1,4 @@
-<x-auth-preset::layout title="Update password">
+<x-laranail-authkit-preset::layout title="Update password">
     @php($passwordErrors = $errors->getBag('updatePassword'))
     <div class="text-center mb-8">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Update your password</h2>
@@ -10,9 +10,9 @@
         @method('PUT')
 
         <div>
-            <x-auth-preset::label for="current_password" value="Current password" />
+            <x-laranail-authkit-preset::label for="current_password" value="Current password" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="current_password"
                     name="current_password"
                     type="password"
@@ -22,13 +22,13 @@
                     :error="$passwordErrors->has('current_password')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$passwordErrors->first('current_password')" />
+            <x-laranail-authkit-preset::input-error :message="$passwordErrors->first('current_password')" />
         </div>
 
         <div>
-            <x-auth-preset::label for="password" value="New password" />
+            <x-laranail-authkit-preset::label for="password" value="New password" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="password"
                     name="password"
                     type="password"
@@ -37,13 +37,13 @@
                     :error="$passwordErrors->has('password')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$passwordErrors->first('password')" />
+            <x-laranail-authkit-preset::input-error :message="$passwordErrors->first('password')" />
         </div>
 
         <div>
-            <x-auth-preset::label for="password_confirmation" value="Confirm new password" />
+            <x-laranail-authkit-preset::label for="password_confirmation" value="Confirm new password" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="password_confirmation"
                     name="password_confirmation"
                     type="password"
@@ -52,7 +52,7 @@
                     :error="$passwordErrors->has('password_confirmation')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$passwordErrors->first('password_confirmation')" />
+            <x-laranail-authkit-preset::input-error :message="$passwordErrors->first('password_confirmation')" />
         </div>
 
         <div>
@@ -64,4 +64,4 @@
             </button>
         </div>
     </form>
-</x-auth-preset::layout>
+</x-laranail-authkit-preset::layout>

@@ -1,6 +1,6 @@
 @props(['title' => 'Dashboard'])
 
-<x-auth-preset::layout
+<x-laranail-authkit-preset::layout
     :$title
     body-class="bg-gray-100 font-sans text-gray-900 antialiased"
     main-class="contents"
@@ -14,7 +14,7 @@
                 @if (\Illuminate\Support\Facades\Route::has('user-profile-information.edit'))
                     <a href="{{ route('user-profile-information.edit') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Profile</a>
                 @endif
-                @if (\Simtabi\Laranail\AuthPreset\Features::enabled(\Simtabi\Laranail\AuthPreset\Features::passkeys()) && \Illuminate\Support\Facades\Route::has('user-passkeys.index'))
+                @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::passkeys()) && \Illuminate\Support\Facades\Route::has('user-passkeys.index'))
                     <a href="{{ route('user-passkeys.index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Passkeys</a>
                 @endif
             </div>
@@ -23,4 +23,4 @@
     </nav>
 
     {{ $slot }}
-</x-auth-preset::layout>
+</x-laranail-authkit-preset::layout>

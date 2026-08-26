@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Simtabi\Laranail\AuthPreset\Features;
-use Simtabi\Laranail\AuthPreset\Support\AuthPreset;
-use Simtabi\Laranail\AuthPreset\Enums\FrontendStack;
-use Simtabi\Laranail\AuthPreset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\AuthKitPreset\Features;
+use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKitPreset\Enums\FrontendStack;
+use Simtabi\Laranail\AuthKitPreset\Enums\AuthenticationFeature;
 
 it(description: 'returns default blade stack', closure: function (): void {
     expect(AuthPreset::stack())->toBe(FrontendStack::Blade);
@@ -18,7 +18,7 @@ it(description: 'reads features from the Fortify-style feature list', closure: f
 });
 
 it(description: 'can disable a feature by omitting it from the list', closure: function (): void {
-    config()->set('auth-preset.features', [Features::login()]);
+    config()->set('laranail.authkit-preset.features', [Features::login()]);
 
     expect(Features::enabled(Features::login()))->toBeTrue()
         ->and(Features::enabled(Features::registration()))->toBeFalse()
@@ -38,8 +38,8 @@ it('exposes Enumerator metadata for authentication features', function (): void 
 });
 
 it('ignores invalid configured social providers before checking credentials', function (): void {
-    config()->set('auth-preset.social.providers', ['google', 123, 'github']);
-    config()->set('auth-kit.social.google.client_id', 'client-id');
+    config()->set('laranail.authkit-preset.social.providers', ['google', 123, 'github']);
+    config()->set('laranail.authkit.social.google.client_id', 'client-id');
 
     expect(AuthPreset::enabledSocialProviders())->toBe(['google']);
 });

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Workbench\App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
-use Simtabi\Laranail\Auth\Models\Social;
-use Simtabi\Laranail\Auth\Enums\SocialProvider;
+use Simtabi\Laranail\AuthKit\Models\Social;
+use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 beforeEach(closure: function (): void {

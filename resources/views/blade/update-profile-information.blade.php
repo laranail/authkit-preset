@@ -1,4 +1,4 @@
-<x-auth-preset::dashboard-layout title="Update profile information">
+<x-laranail-authkit-preset::dashboard-layout title="Update profile information">
     <div class="py-12">
         <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
             <div class="overflow-hidden bg-white px-8 py-10 sm:rounded-lg">
@@ -13,9 +13,9 @@
                     @method('PUT')
 
                     <div>
-                        <x-auth-preset::label for="name" value="Full name" />
+                        <x-laranail-authkit-preset::label for="name" value="Full name" />
                         <div class="mt-2">
-                            <x-auth-preset::input
+                            <x-laranail-authkit-preset::input
                                 id="name"
                                 name="name"
                                 type="text"
@@ -26,13 +26,13 @@
                                 :error="$profileErrors->has('name')"
                             />
                         </div>
-                        <x-auth-preset::input-error :message="$profileErrors->first('name')" />
+                        <x-laranail-authkit-preset::input-error :message="$profileErrors->first('name')" />
                     </div>
 
                     <div>
-                        <x-auth-preset::label for="email" value="Email address" />
+                        <x-laranail-authkit-preset::label for="email" value="Email address" />
                         <div class="mt-2">
-                            <x-auth-preset::input
+                            <x-laranail-authkit-preset::input
                                 id="email"
                                 name="email"
                                 type="email"
@@ -42,7 +42,7 @@
                                 :error="$profileErrors->has('email')"
                             />
                         </div>
-                        <x-auth-preset::input-error :message="$profileErrors->first('email')" />
+                        <x-laranail-authkit-preset::input-error :message="$profileErrors->first('email')" />
                     </div>
 
                     <div>
@@ -57,4 +57,4 @@
             </div>
         </div>
     </div>
-</x-auth-preset::dashboard-layout>
+</x-laranail-authkit-preset::dashboard-layout>

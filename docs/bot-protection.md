@@ -8,7 +8,7 @@ CAPTCHA_SITE_KEY=
 CAPTCHA_SECRET_KEY=
 ```
 
-The provider is selected through `auth-preset.bot_protection.provider`; the service provider configures `laranail/captcha` to use it and validates the required `captcha` request input on the server. The preset attaches `ValidateCaptcha` to the named package web submissions below after routes load, so it applies even though only the login route declares it inline:
+The provider is selected through `laranail.authkit-preset.bot_protection.provider`; the service provider configures `laranail/captcha` to use it and validates the required `captcha` request input on the server. The preset attaches `ValidateCaptcha` to the named package web submissions below after routes load, so it applies even though only the login route declares it inline:
 
 | Protected route              | Feature required |
 |------------------------------|------------------|

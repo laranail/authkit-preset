@@ -1,4 +1,4 @@
-<x-auth-preset::dashboard-layout title="Dashboard">
+<x-laranail-authkit-preset::dashboard-layout title="Dashboard">
     <header class="bg-white">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 class="text-xl font-semibold leading-tight text-gray-800">Dashboard</h1>
@@ -14,4 +14,4 @@
             </div>
         </div>
     </div>
-</x-auth-preset::dashboard-layout>
+</x-laranail-authkit-preset::dashboard-layout>

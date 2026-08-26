@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthPreset\Http\Controllers\Api;
+namespace Simtabi\Laranail\AuthKitPreset\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Simtabi\Laranail\AuthPreset\Support\AuthPreset;
-use Simtabi\Laranail\Auth\Contracts\LogoutUserInterface;
-use Simtabi\Laranail\Auth\Http\Controllers\AbstractLogoutController;
+use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Contracts\LogoutUserInterface;
+use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractLogoutController;
 
 class LogoutController extends AbstractLogoutController
 {

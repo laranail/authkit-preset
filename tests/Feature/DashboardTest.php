@@ -10,7 +10,7 @@ it(description: 'renders the dashboard for authenticated users', closure: functi
     $this->actingAs($user)
         ->get('/dashboard')
         ->assertOk()
-        ->assertViewIs('auth-preset::blade.dashboard')
+        ->assertViewIs('laranail-authkit-preset::blade.dashboard')
         ->assertSee('Dashboard')
         ->assertSee(value: route('user-passkeys.index'), escape: false)
         ->assertSee('Passkeys')
@@ -18,8 +18,8 @@ it(description: 'renders the dashboard for authenticated users', closure: functi
 });
 
 it(description: 'hides the passkeys navigation link when the feature is disabled', closure: function (): void {
-    config()->set(key: 'auth-preset.features', value: array_values(array_filter(
-        array: config('auth-preset.features'),
+    config()->set(key: 'laranail.authkit-preset.features', value: array_values(array_filter(
+        array: config('laranail.authkit-preset.features'),
         callback: fn (string $feature): bool => $feature !== 'passkeys',
     )));
 

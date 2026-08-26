@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laranail/auth-preset",
+    "name": "laranail/authkit-preset",
     "type": "library",
-    "description": "Blade authentication preset for laranail/auth-kit.",
+    "description": "Blade frontend scaffolding for laranail/authkit.",
     "keywords": [
         "laravel",
         "authentication",
@@ -21,7 +21,7 @@
     "require": {
         "php": "^8.4 | ^8.5",
         "laravel/framework": "^13.0",
-        "laranail/auth-kit": "dev-main",
+        "laranail/authkit": "dev-main",
         "laranail/captcha": "dev-main",
         "laranail/console": "dev-main",
         "laranail/enumerator": "dev-main",
@@ -35,7 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Simtabi\\Laranail\\AuthPreset\\": "src/"
+            "Simtabi\\Laranail\\AuthKitPreset\\": "src/"
         }
     },
     "autoload-dev": {
@@ -48,8 +48,11 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Simtabi\\Laranail\\AuthPreset\\AuthPresetServiceProvider"
+                "Simtabi\\Laranail\\AuthKitPreset\\AuthPresetServiceProvider"
             ]
+        },
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
         }
     },
     "scripts": {
@@ -73,15 +76,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/laranail/auth-kit.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/laranail/captcha.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/laranail/db-tools.git"
+            "url": "https://github.com/laranail/authkit.git"
         },
         {
             "type": "vcs",
@@ -94,6 +89,14 @@
         {
             "type": "vcs",
             "url": "https://github.com/laranail/package-tools.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/laranail/captcha.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/laranail/db-tools.git"
         }
     ],
     "archive": {

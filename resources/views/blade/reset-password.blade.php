@@ -1,4 +1,4 @@
-<x-auth-preset::layout title="Reset Password">
+<x-laranail-authkit-preset::layout title="Reset Password">
     <div class="text-center mb-8">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">Set a new password</h2>
     </div>
@@ -9,9 +9,9 @@
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
         <div>
-            <x-auth-preset::label for="email" value="Email address" />
+            <x-laranail-authkit-preset::label for="email" value="Email address" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="email"
                     name="email"
                     type="email"
@@ -22,13 +22,13 @@
                     :error="$errors->has('email')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('email')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('email')" />
         </div>
 
         <div>
-            <x-auth-preset::label for="password" value="New password" />
+            <x-laranail-authkit-preset::label for="password" value="New password" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="password"
                     name="password"
                     type="password"
@@ -37,13 +37,13 @@
                     :error="$errors->has('password')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('password')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('password')" />
         </div>
 
         <div>
-            <x-auth-preset::label for="password_confirmation" value="Confirm password" />
+            <x-laranail-authkit-preset::label for="password_confirmation" value="Confirm password" />
             <div class="mt-2">
-                <x-auth-preset::input
+                <x-laranail-authkit-preset::input
                     id="password_confirmation"
                     name="password_confirmation"
                     type="password"
@@ -52,10 +52,10 @@
                     :error="$errors->has('password_confirmation')"
                 />
             </div>
-            <x-auth-preset::input-error :message="$errors->first('password_confirmation')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('password_confirmation')" />
         </div>
 
-        @if (\Simtabi\Laranail\AuthPreset\Features::enabled(\Simtabi\Laranail\AuthPreset\Features::botProtection()))
+        @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::botProtection()))
             <x-captcha />
         @endif
 
@@ -68,4 +68,4 @@
             </button>
         </div>
     </form>
-</x-auth-preset::layout>
+</x-laranail-authkit-preset::layout>
