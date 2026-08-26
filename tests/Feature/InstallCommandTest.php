@@ -315,3 +315,38 @@ PHP;
         ->and($twice)->toBe($source)
         ->and(substr_count($twice, 'class User extends'))->toBe(1);
 });
+
+it('does not publish a migration the application already has', function (): void {
+    // INST-06: vendor:publish stamps a fresh timestamp onto a migration destination on every run,
+    // so a second install used to leave two files declaring the same table and `migrate` died with
+    // "table personal_access_tokens already exists".
+    $migrations = sys_get_temp_dir() . '/authkit-preset-migrations-' . bin2hex(random_bytes(4));
+    mkdir($migrations, 0755, true);
+
+    $reflection = new ReflectionClass(InstallCommand::class);
+    $exists = $reflection->getMethod('migrationExists');
+    $command = app(InstallCommand::class);
+
+    try {
+        expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeFalse();
+
+        touch($migrations . '/2026_07_27_000000_create_socials_table.php');
+
+        expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeTrue()
+            ->and($exists->invoke($command, 'create_passkeys_table', $migrations))->toBeFalse();
+
+        // A differently timestamped copy of the same migration still counts as present.
+        expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeTrue();
+    } finally {
+        array_map('unlink', glob($migrations . '/*') ?: []);
+        rmdir($migrations);
+    }
+});
+
+it('treats a missing migrations directory as nothing published', function (): void {
+    $reflection = new ReflectionClass(InstallCommand::class);
+    $exists = $reflection->getMethod('migrationExists');
+
+    expect($exists->invoke(app(InstallCommand::class), 'create_socials_table', '/nonexistent/path'))
+        ->toBeFalse();
+});

@@ -92,21 +92,25 @@ class InstallCommand extends Command
         }
 
         if (count(value: $socialProviders) > 0) {
-            $this->publish(tag: 'laranail::authkit-social-migrations');
-            $this->newLine();
-            $this->info(string: 'Social login migration published. Run `php artisan migrate` to create the socials table.');
+            if ($this->publishMigrations(tag: 'laranail::authkit-social-migrations', name: 'create_socials_table')) {
+                $this->newLine();
+                $this->info(string: 'Social login migration published. Run `php artisan migrate` to create the socials table.');
+            }
         }
 
         if ($wantsApi) {
-            $this->publish(tag: 'sanctum-migrations');
-            $this->newLine();
-            $this->info(string: 'Sanctum token migration published. Run `php artisan migrate` to create the personal_access_tokens table.');
+            if ($this->publishMigrations(tag: 'sanctum-migrations', name: 'create_personal_access_tokens_table')) {
+                $this->newLine();
+                $this->info(string: 'Sanctum token migration published. Run `php artisan migrate` to create the personal_access_tokens table.');
+            }
         }
 
         if ($wantsPasskeys) {
-            $this->publish(tag: 'laranail::authkit-passkey-migrations');
-            $this->newLine();
-            $this->info(string: 'Passkeys migration published. Run `php artisan migrate` to create the passkeys table.');
+            if ($this->publishMigrations(tag: 'laranail::authkit-passkey-migrations', name: 'create_passkeys_table')) {
+                $this->newLine();
+                $this->info(string: 'Passkeys migration published. Run `php artisan migrate` to create the passkeys table.');
+            }
+
             $this->line(string: 'The @laravel/passkeys browser client and Blade event handlers were added to resources/js. Run `npm install` and rebuild your frontend assets.');
         }
 
@@ -663,5 +667,39 @@ class InstallCommand extends Command
         }
 
         $this->call(command: 'vendor:publish', arguments: $parameters);
+    }
+
+    /**
+     * Publish a migration group only when the application does not already have it.
+     *
+     * `vendor:publish` stamps a fresh timestamp onto a migration's destination on every run, so
+     * publishing the same group twice leaves two files declaring the same table and `migrate`
+     * dies with "table already exists". Laravel has no built-in guard for a re-run, so the
+     * installer checks for the migration by name before publishing it.
+     */
+    private function publishMigrations(string $tag, string $name, ?string $migrationPath = null): bool
+    {
+        if ($this->migrationExists(name: $name, migrationPath: $migrationPath)) {
+            $this->newLine();
+            $this->line(string: "Skipped [{$name}]: the application already has this migration.");
+
+            return false;
+        }
+
+        $this->publish(tag: $tag);
+
+        return true;
+    }
+
+    private function migrationExists(string $name, ?string $migrationPath = null): bool
+    {
+        $migrationPath ??= database_path(path: 'migrations');
+
+        if (! is_dir(filename: $migrationPath)) {
+            return false;
+        }
+
+        // Published migrations are prefixed with a timestamp, so match on the trailing name.
+        return glob(pattern: $migrationPath . '/*_' . $name . '.php') !== [];
     }
 }
