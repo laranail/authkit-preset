@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use Simtabi\Laranail\AuthKit\Preset\Features;
-use Simtabi\Laranail\AuthKit\AuthKitServiceProvider;
+use Simtabi\Laranail\AuthKit\Providers\AuthKitServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Simtabi\Laranail\Captcha\Providers\CaptchaServiceProvider;
 use Simtabi\Laranail\AuthKit\Preset\Providers\PresetServiceProvider;
