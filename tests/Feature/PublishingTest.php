@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
-use Simtabi\Laranail\AuthKit\Preset\PresetServiceProvider;
+use Simtabi\Laranail\AuthKit\Preset\Providers\PresetServiceProvider;
 
 /**
  * vendor:publish writes into the testbench workbench, which is not cleaned between runs. A directory

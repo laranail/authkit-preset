@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthKit\Preset;
+namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Simtabi\Laranail\Package\Tools\Package;
+use Simtabi\Laranail\AuthKit\Preset\Support;
+use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
@@ -49,7 +51,7 @@ class PresetServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/laranail/authkit-preset.php', 'laranail.authkit-preset');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/laranail/authkit-preset.php', 'laranail.authkit-preset');
 
         config()->set('laranail.authkit.turnstile.enabled', false);
         config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
@@ -115,7 +117,7 @@ class PresetServiceProvider extends PackageServiceProvider
      */
     private function loadViews(): void
     {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', self::VIEW_NAMESPACE);
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', self::VIEW_NAMESPACE);
 
         $this->app['view']->addNamespace(
             self::COMPONENT_NAMESPACE,
@@ -127,7 +129,7 @@ class PresetServiceProvider extends PackageServiceProvider
     {
         // Laravel resolves overrides from lang/vendor/{namespace}, so the namespace and the
         // publish destination must agree exactly.
-        $this->loadTranslationsFrom(__DIR__ . '/../lang', self::TRANSLATION_NAMESPACE);
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', self::TRANSLATION_NAMESPACE);
     }
 
     private function loadRoutes(): void
@@ -141,8 +143,8 @@ class PresetServiceProvider extends PackageServiceProvider
             return;
         }
 
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
     }
 
     private function registerCaptchaMiddleware(): void

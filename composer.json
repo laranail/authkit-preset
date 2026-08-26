@@ -48,7 +48,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Simtabi\\Laranail\\AuthKit\\Preset\\PresetServiceProvider"
+                "Simtabi\\Laranail\\AuthKit\\Preset\\Providers\\PresetServiceProvider"
             ]
         },
         "branch-alias": {

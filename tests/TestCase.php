@@ -7,8 +7,8 @@ namespace Tests;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\AuthKitServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use Simtabi\Laranail\AuthKit\Preset\PresetServiceProvider;
 use Simtabi\Laranail\Captcha\Providers\CaptchaServiceProvider;
+use Simtabi\Laranail\AuthKit\Preset\Providers\PresetServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
 {
