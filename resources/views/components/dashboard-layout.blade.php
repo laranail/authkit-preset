@@ -14,7 +14,7 @@
                 @if (\Illuminate\Support\Facades\Route::has('user-profile-information.edit'))
                     <a href="{{ route('user-profile-information.edit') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Profile</a>
                 @endif
-                @if (\Simtabi\Laranail\AuthKitPreset\Features::enabled(\Simtabi\Laranail\AuthKitPreset\Features::passkeys()) && \Illuminate\Support\Facades\Route::has('user-passkeys.index'))
+                @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::passkeys()) && \Illuminate\Support\Facades\Route::has('user-passkeys.index'))
                     <a href="{{ route('user-passkeys.index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Passkeys</a>
                 @endif
             </div>

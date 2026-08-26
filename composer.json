@@ -35,7 +35,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Simtabi\\Laranail\\AuthKitPreset\\": "src/"
+            "Simtabi\\Laranail\\AuthKit\\Preset\\": "src/"
         }
     },
     "autoload-dev": {
@@ -48,7 +48,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Simtabi\\Laranail\\AuthKitPreset\\AuthPresetServiceProvider"
+                "Simtabi\\Laranail\\AuthKit\\Preset\\PresetServiceProvider"
             ]
         },
         "branch-alias": {

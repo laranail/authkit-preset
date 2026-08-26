@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Simtabi\Laranail\AuthKitPreset\Features;
-use Simtabi\Laranail\AuthKitPreset\Support\AuthPreset;
-use Simtabi\Laranail\AuthKitPreset\Enums\FrontendStack;
-use Simtabi\Laranail\AuthKitPreset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\AuthKit\Preset\Features;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
+use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 
 it(description: 'returns default blade stack', closure: function (): void {
     expect(AuthPreset::stack())->toBe(FrontendStack::Blade);

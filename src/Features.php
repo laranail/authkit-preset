@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthKitPreset;
+namespace Simtabi\Laranail\AuthKit\Preset;
 
-use Simtabi\Laranail\AuthKitPreset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 
 final class Features
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Simtabi\Laranail\AuthKitPreset\Commands;
+namespace Simtabi\Laranail\AuthKit\Preset\Commands;
 
 use ReflectionClass;
 use Illuminate\Support\Str;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
-use Simtabi\Laranail\AuthKitPreset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
 
 class InstallCommand extends Command
@@ -570,7 +570,7 @@ class InstallCommand extends Command
 
         foreach ($featureMethods as $feature => $method) {
             if (in_array(needle: $feature, haystack: $features, strict: true) && ($feature !== 'social' || count(value: $providers) > 0)) {
-                $featureLines[] = "        \\Simtabi\\Laranail\\AuthKitPreset\\Features::{$method}(),";
+                $featureLines[] = "        \\Simtabi\\Laranail\\AuthKit\\Preset\\Features::{$method}(),";
             }
         }
 

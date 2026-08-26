@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Input\ArrayInput;
-use Simtabi\Laranail\AuthKitPreset\Commands\InstallCommand;
+use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
 
 it('offers one feature selection with API, passkeys, and bot protection choices', function (): void {
     $command = Artisan::all()['laranail::authkit-preset.install'];
