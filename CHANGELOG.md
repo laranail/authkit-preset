@@ -9,6 +9,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Breaking.** The view and translation namespaces are now the composer package name,
+  `laranail/authkit-preset`, so `view('laranail/authkit-preset::blade.login')` and
+  `__('laranail/authkit-preset::messages.login.title')` name the package that ships the file.
+  Published files follow into `resources/views/vendor/laranail/authkit-preset` and
+  `lang/vendor/laranail/authkit-preset`, which is where Laravel reads them from.
+
+  **Blade component tags keep the hyphen** — `<x-laranail-authkit-preset::layout />` — because
+  Blade's tag parser admits no forward slash and would truncate the prefix at `laranail`, rendering
+  the tag as literal text with no error. The provider registers that prefix as an alias over the
+  same resolved paths, published override directory included, so both spellings find the same file.
+
+### Changed
+
 - **Breaking.** Renamed from `laranail/auth-preset` to
   `laranail/authkit-preset`, and the namespace moved to `Simtabi\Laranail\AuthKit\Preset\`. The family now shares one root
   namespace with each sibling as a segment under it.
@@ -31,7 +44,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   application, rather than the provider source, so the guard survives a refactor.
 - A translation namespace. The package previously shipped none, so every user-facing string was
   hardcoded English with no override point. 67 keys now live under
-  `laranail-authkit-preset::messages`, publishable to `lang/vendor/laranail-authkit-preset`.
+  `laranail/authkit-preset::messages`, publishable to `lang/vendor/laranail-authkit-preset`.
 
 ### Fixed
 

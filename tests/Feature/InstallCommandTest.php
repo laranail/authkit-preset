@@ -313,7 +313,7 @@ PHP;
 
     expect($once)->toBe($source)
         ->and($twice)->toBe($source)
-        ->and(substr_count($twice, 'class User extends'))->toBe(1);
+        ->and(mb_substr_count($twice, 'class User extends'))->toBe(1);
 });
 
 it('does not publish a migration the application already has', function (): void {

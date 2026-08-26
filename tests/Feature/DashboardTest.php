@@ -10,7 +10,7 @@ it(description: 'renders the dashboard for authenticated users', closure: functi
     $this->actingAs($user)
         ->get('/dashboard')
         ->assertOk()
-        ->assertViewIs('laranail-authkit-preset::blade.dashboard')
+        ->assertViewIs('laranail/authkit-preset::blade.dashboard')
         ->assertSee('Dashboard')
         ->assertSee(value: route('user-passkeys.index'), escape: false)
         ->assertSee('Passkeys')

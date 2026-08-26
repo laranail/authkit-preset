@@ -16,7 +16,7 @@ it(description: 'renders an empty passkey management page for authenticated user
     $this->actingAs($user)
         ->get(route('user-passkeys.index'))
         ->assertOk()
-        ->assertViewIs('laranail-authkit-preset::blade.passkeys')
+        ->assertViewIs('laranail/authkit-preset::blade.passkeys')
         ->assertSee(value: 'data-passkey-management', escape: false)
         ->assertSee('No passkeys registered yet.')
         ->assertSee(value: route('passkey.registration-options'), escape: false)
