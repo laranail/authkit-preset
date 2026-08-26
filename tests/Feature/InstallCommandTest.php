@@ -171,7 +171,7 @@ PHP
     }
 });
 
-it('adds the auth-preset Blade source to app.css only once', function (): void {
+it('adds the authkit-preset Blade source to app.css only once', function (): void {
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureTailwindSource');
