@@ -9,6 +9,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- The PHP floor is `^8.4.1`, up from `^8.4`. `laranail/package-tools` and `laranail/console`
+  are `^8.4.1`, so a resolver that took the manifest at its word and pinned the platform to
+  8.4.0 could not install them. Dependabot does exactly that, and had been failing on it.
+
 - **Breaking.** The view and translation namespaces are now the composer package name,
   `laranail/authkit-preset`, so `view('laranail/authkit-preset::blade.login')` and
   `__('laranail/authkit-preset::messages.login.title')` name the package that ships the file.
