@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
-use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Api\LoginController as ApiLoginController;
+use Simtabi\Laranail\AuthKit\Http\Controllers\Api\LoginController as ApiLoginController;
 use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth\LoginController as WebLoginController;
-use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Api\RegisterController as ApiRegisterController;
+use Simtabi\Laranail\AuthKit\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth\RegisterController as WebRegisterController;
 
 it(description: 'registers the dashboard route', closure: function (): void {

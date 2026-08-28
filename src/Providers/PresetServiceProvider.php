@@ -38,10 +38,6 @@ class PresetServiceProvider extends PackageServiceProvider
                 'laranail::authkit-preset-routes',
             )
             ->publish(
-                ['routes/api.php' => base_path('routes/laranail-authkit-preset-api.php')],
-                'laranail::authkit-preset-routes',
-            )
-            ->publish(
                 ['resources/views/blade' => resource_path('views/vendor/laranail/authkit-preset')],
                 'laranail::authkit-preset-views',
             )
@@ -198,7 +194,6 @@ class PresetServiceProvider extends PackageServiceProvider
         }
 
         $this->loadRoutesFrom($this->packagePath('routes/web.php'));
-        $this->loadRoutesFrom($this->packagePath('routes/api.php'));
     }
 
 }
