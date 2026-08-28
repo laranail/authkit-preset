@@ -39,7 +39,7 @@ it('exposes Enumerator metadata for authentication features', function (): void 
 
 it('ignores invalid configured social providers before checking credentials', function (): void {
     config()->set('laranail.authkit-preset.social.providers', ['google', 123, 'github']);
-    config()->set('laranail.authkit.social.google.client_id', 'client-id');
+    config()->set('laranail.authkit-social.google.client_id', 'client-id');
 
     expect(AuthPreset::enabledSocialProviders())->toBe(['google']);
 });

@@ -7,7 +7,7 @@ namespace Simtabi\Laranail\AuthKit\Preset\Support;
 use LogicException;
 use Illuminate\Support\Facades\Validator;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
-use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
+use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
 
 class AuthPreset
@@ -81,7 +81,7 @@ class AuthPreset
                     return false;
                 }
 
-                return (bool) config(key: "laranail.authkit.social.{$provider}.client_id");
+                return (bool) config(key: "laranail.authkit-social.{$provider}.client_id");
             },
         ));
     }

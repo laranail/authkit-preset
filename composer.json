@@ -20,12 +20,13 @@
     ],
     "require": {
         "php": "^8.4.1 || ^8.5",
-        "laravel/framework": "^13.0",
         "laranail/authkit": "^0.1",
+        "laranail/authkit-social": "^0.1",
         "laranail/captcha": "^0.1",
         "laranail/console": "^0.1",
         "laranail/enumerator": "^0.1",
-        "laranail/package-tools": "^0.1"
+        "laranail/package-tools": "^0.1",
+        "laravel/framework": "^13.0"
     },
     "require-dev": {
         "pestphp/pest": "^4.0",
@@ -97,6 +98,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/laranail/db-tools.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/laranail/authkit-social.git"
         }
     ],
     "archive": {

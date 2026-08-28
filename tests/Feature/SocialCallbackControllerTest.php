@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Workbench\App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
-use Simtabi\Laranail\AuthKit\Models\Social;
+use Simtabi\Laranail\AuthKit\Social\Models\Social;
 use Laravel\Socialite\Two\User as SocialiteUser;
-use Simtabi\Laranail\AuthKit\Enums\SocialProvider;
+use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 
 beforeEach(closure: function (): void {
     $this->socialiteUser = new SocialiteUser();

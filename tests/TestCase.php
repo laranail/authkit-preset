@@ -19,6 +19,7 @@ abstract class TestCase extends OrchestraTestCase
             \Laravel\Fortify\FortifyServiceProvider::class,
             \Laravel\Sanctum\SanctumServiceProvider::class,
             AuthKitServiceProvider::class,
+            \Simtabi\Laranail\AuthKit\Social\Providers\SocialServiceProvider::class,
             CaptchaServiceProvider::class,
             PresetServiceProvider::class,
         ];
@@ -61,6 +62,6 @@ abstract class TestCase extends OrchestraTestCase
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/fortify/database/migrations');
         $this->loadMigrationsFrom($authKitPasskeyMigrations);
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/sanctum/database/migrations');
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laranail/authkit/database/migrations/social');
+        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laranail/authkit-social/database/migrations/social');
     }
 }
