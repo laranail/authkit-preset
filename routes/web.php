@@ -3,217 +3,32 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Laravel\Passkeys\Http\Controllers\PasskeyLoginController;
-use Laravel\Fortify\Http\Controllers\VerifyEmailController as FortifyVerifyEmailController;
-use Laravel\Passkeys\Http\Controllers\PasskeyConfirmationController;
-use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
-use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
-use Laravel\Fortify\Http\Controllers\ConfirmedPasswordStatusController;
-use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController as FortifyEmailVerificationNotificationController;
-use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
-use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
-use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
-use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
-
-Route::middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
-    ->get('/dashboard', fn () => view(AuthPreset::view('dashboard'), ['user' => request()->user()]))
-    ->name('dashboard');
-
-Route::prefix(AuthPreset::webPrefix())
-    ->middleware([...AuthPreset::webMiddleware(), 'guest:' . AuthPreset::guard()])
-    ->group(function (): void {
-        if (Features::enabled(Features::registration())) {
-            Route::get('/register', [Auth\RegisterController::class, 'create'])->name('register');
-            Route::post('/register', [Auth\RegisterController::class, 'store'])
-                ->middleware(['throttle:10,1', ValidateCaptcha::class])
-                ->name('register.store');
-        }
-
-        if (Features::enabled(Features::login())) {
-            Route::get('/login', [Auth\LoginController::class, 'create'])->name('login');
-            Route::post('/login', [Auth\LoginController::class, 'store'])
-                ->middleware(['throttle:10,1', ValidateCaptcha::class])
-                ->name('login.store');
-        }
-
-        if (Features::enabled(Features::social())) {
-            Route::get('/social/{provider}', Auth\SocialRedirectController::class)->name('social.redirect');
-            // Apple requests the `name` and `email` scopes, which forces response_mode=form_post,
-            // so Apple POSTs this callback rather than redirecting to it. A GET-only route answers
-            // Apple with a 405 and the sign-in dies with nothing in the log to explain it, so the
-            // callback accepts both verbs.
-            //
-            // CSRF is excluded because the request originates at Apple and carries no session token
-            // by construction. The OAuth `state` parameter Socialite round-trips is what protects
-            // this endpoint; CSRF never did. PreventRequestForgery is named directly because it is
-            // what the `web` group actually registers -- VerifyCsrfToken and ValidateCsrfToken are
-            // deprecated subclasses, and excluding either silently does nothing.
-            Route::match(['GET', 'POST'], '/social/{provider}/callback', Auth\SocialCallbackController::class)
-                ->withoutMiddleware(PreventRequestForgery::class)
-                ->name('social.callback');
-        }
-
-        if (Features::enabled(Features::passwordReset())) {
-            Route::get('/forgot-password', [Auth\PasswordResetLinkController::class, 'create'])
-                ->name('password.request');
-
-            Route::post('/forgot-password', [Auth\PasswordResetLinkController::class, 'store'])
-                ->middleware(['throttle:10,1', ValidateCaptcha::class])
-                ->name('password.email');
-
-            Route::get('/reset-password/{token}', [Auth\NewPasswordController::class, 'create'])
-                ->name('password.reset');
-
-            Route::post('/reset-password', [Auth\NewPasswordController::class, 'store'])
-                ->middleware(['throttle:10,1', ValidateCaptcha::class])
-                ->name('password.update');
-        }
-    });
-
-if (Features::enabled(Features::logout())) {
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
-        ->group(function (): void {
-            Route::post('/logout', Auth\LogoutController::class)->name('logout');
-        });
-}
-
-if (Features::enabled(Features::updatePasswords())) {
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
-        ->group(function (): void {
-            Route::get('/user/password', [Auth\UpdatePasswordController::class, 'create'])
-                ->name('user-password.edit');
-
-            Route::put('/user/password', [Auth\UpdatePasswordController::class, 'update'])
-                ->name('user-password.update');
-        });
-}
-
-if (Features::enabled(Features::updateProfileInformation())) {
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
-        ->group(function (): void {
-            Route::get('/user/profile-information', [Auth\UpdateProfileInformationController::class, 'create'])
-                ->name('user-profile-information.edit');
-
-            Route::put('/user/profile-information', [Auth\UpdateProfileInformationController::class, 'update'])
-                ->name('user-profile-information.update');
-        });
-}
-
-if (Features::enabled(Features::passkeys())) {
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
-        ->group(function (): void {
-            Route::get('/user/passkeys', [Auth\PasskeysController::class, 'index'])
-                ->name('user-passkeys.index');
-        });
-}
-
-if (Features::enabled(Features::emailVerification())) {
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
-        ->group(function (): void {
-            Route::get('/email/verify', Auth\EmailVerificationPromptController::class)
-                ->name('verification.notice');
-
-            Route::get('/email/verify/{id}/{hash}', Auth\VerifyEmailController::class)
-                ->middleware(['signed', 'throttle:6,1'])
-                ->name('verification.verify');
-
-            Route::post('/email/verification-notification', [Auth\EmailVerificationNotificationController::class, 'store'])
-                ->middleware(['throttle:6,1'])
-                ->name('verification.send');
-        });
-}
 
 /*
 |--------------------------------------------------------------------------
-| Endpoints Fortify owns, mounted under this package's prefix
+| Web routes, mounted once per user population
 |--------------------------------------------------------------------------
 |
-| Fortify's own route registration is switched off in PresetServiceProvider, because it mounts
-| these at the application root where they escape this package's prefix, captcha and throttle.
-| They are re-mounted here rather than reimplemented: the controllers below are Fortify's and
-| Laravel Passkeys' own, so no credential or ceremony logic is duplicated -- only the mounting
-| point moves.
+| An application with more than one kind of user -- customers on the `web` guard, staff on an
+| `admin` guard -- needs the same authentication routes for each, separated by URL and by route
+| name. Previously the guard was a scalar and the group was registered once, so a second
+| population had nowhere to mount: the actions already take a $guard and are guard-agnostic, and
+| only this wiring was single-guard.
 |
-| Passkeys is the one that was actually broken rather than merely misplaced: the management page
-| is served from this package under the configured prefix, while the ceremony endpoints it posts
-| to sat at the application root, so the two halves of the same feature lived at different paths.
+| Each mount requires the same file rather than duplicating it, so a route added for one
+| population cannot be forgotten for the others.
 |
 */
 
-if (Features::enabled(Features::emailVerification())) {
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware(AuthPreset::webMiddleware())
-        ->group(function (): void {
-            Route::get('/email/verify/{id}/{hash}', FortifyVerifyEmailController::class)
-                ->middleware(['auth:' . AuthPreset::guard(), 'signed', 'throttle:6,1'])
-                ->name('verification.verify');
+foreach (AuthPreset::mounts() as $mount) {
+    $prefix = $mount['prefix'];
+    $guard = $mount['guard'];
 
-            Route::post('/email/verification-notification', [FortifyEmailVerificationNotificationController::class, 'store'])
-                ->middleware(['auth:' . AuthPreset::guard(), 'throttle:6,1'])
-                ->name('verification.send');
-        });
-}
-
-Route::prefix(AuthPreset::webPrefix())
-    ->middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard()])
-    ->group(function (): void {
-        Route::get('/user/confirm-password', [ConfirmablePasswordController::class, 'show'])
-            ->name('password.confirm');
-
-        Route::post('/user/confirm-password', [ConfirmablePasswordController::class, 'store'])
-            ->name('password.confirm.store');
-
-        Route::get('/user/confirmed-password-status', [ConfirmedPasswordStatusController::class, 'show'])
-            ->name('password.confirmation');
+    // Positional, not named: Route::name() resolves through RouteRegistrar::__call, which reads
+    // $parameters[0]. A named argument leaves that slot empty and the value degrades to true, so
+    // every route silently gained a "1" name prefix -- route('login') became route('1login').
+    Route::name($mount['name'])->group(function () use ($prefix, $guard): void {
+        require __DIR__ . '/web-mount.php';
     });
-
-if (Features::enabled(Features::passkeys())) {
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware([...AuthPreset::webMiddleware(), 'guest:' . AuthPreset::guard(), 'throttle:10,1'])
-        ->group(function (): void {
-            Route::get('/passkeys/login/options', [PasskeyLoginController::class, 'index'])
-                ->name('passkey.login-options');
-
-            Route::post('/passkeys/login', [PasskeyLoginController::class, 'store'])
-                ->name('passkey.login');
-        });
-
-    // The confirmation ceremony is how a user satisfies password.confirm with a passkey, so it
-    // cannot itself sit behind password.confirm.
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware([...AuthPreset::webMiddleware(), 'auth:' . AuthPreset::guard(), 'throttle:10,1'])
-        ->group(function (): void {
-            Route::get('/passkeys/confirm/options', [PasskeyConfirmationController::class, 'index'])
-                ->name('passkey.confirm-options');
-
-            Route::post('/passkeys/confirm', [PasskeyConfirmationController::class, 'store'])
-                ->name('passkey.confirm');
-        });
-
-    // Managing passkeys re-authenticates, mirroring Fortify: adding or deleting a credential is
-    // a change to how the account can be signed into, so a hijacked session must not be enough.
-    // The toggle is Fortify's own, so an application that has already turned it off keeps that.
-    Route::prefix(AuthPreset::webPrefix())
-        ->middleware(array_values(array_filter([
-            ...AuthPreset::webMiddleware(),
-            'auth:' . AuthPreset::guard(),
-            config('fortify-options.passkeys.confirmPassword', true) ? 'password.confirm' : null,
-            'throttle:10,1',
-        ])))
-        ->group(function (): void {
-            Route::get('/user/passkeys/options', [PasskeyRegistrationController::class, 'index'])
-                ->name('passkey.registration-options');
-
-            Route::post('/user/passkeys', [PasskeyRegistrationController::class, 'store'])
-                ->name('passkey.store');
-
-            Route::delete('/user/passkeys/{passkey}', [PasskeyRegistrationController::class, 'destroy'])
-                ->name('passkey.destroy');
-        });
 }

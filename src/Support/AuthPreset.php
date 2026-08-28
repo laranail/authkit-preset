@@ -42,6 +42,46 @@ class AuthPreset
         return config(key: 'laranail.authkit-preset.middleware.api', default: ['api', 'throttle:60,1']);
     }
 
+    /**
+     * Every user population these routes are mounted for.
+     *
+     * The first entry is the primary one and keeps the bare route names -- `login`, `dashboard`,
+     * `password.request` -- because Laravel and Fortify resolve those by exact name: the
+     * framework's own guest redirect calls route('login'), and the verified middleware resolves
+     * verification.notice. Renaming them breaks the framework, which is why they are not
+     * vendor-scoped.
+     *
+     * Additional populations are configured under `guards` and each gets its own URL prefix and
+     * route-name prefix, so `admin.login` sits beside `login` without either shadowing the other.
+     *
+     * @return array<int, array{guard: string, prefix: string, name: string}>
+     */
+    public static function mounts(): array
+    {
+        $mounts = [[
+            'guard'  => self::guard(),
+            'prefix' => self::webPrefix(),
+            'name'   => '',
+        ]];
+
+        /** @var array<string, array{prefix?: string, name?: string}> $additional */
+        $additional = config(key: 'laranail.authkit-preset.guards', default: []);
+
+        foreach ($additional as $guard => $options) {
+            if (! is_string($guard) || $guard === self::guard()) {
+                continue;
+            }
+
+            $mounts[] = [
+                'guard'  => $guard,
+                'prefix' => (string) ($options['prefix'] ?? $guard . '/' . self::webPrefix()),
+                'name'   => (string) ($options['name'] ?? $guard . '.'),
+            ];
+        }
+
+        return $mounts;
+    }
+
     public static function afterLoginRedirect(): string
     {
         return config(key: 'laranail.authkit-preset.redirects.after_login', default: '/dashboard');

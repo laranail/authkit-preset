@@ -42,6 +42,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Additional user populations
+    |--------------------------------------------------------------------------
+    |
+    | The routes above are mounted once for the primary guard. An application with a second kind
+    | of user -- staff on an `admin` guard alongside customers on `web` -- lists it here and gets
+    | the same authentication routes again, under their own URL prefix and route-name prefix.
+    |
+    |     'guards' => [
+    |         'admin' => ['prefix' => 'admin/auth', 'name' => 'admin.'],
+    |     ],
+    |
+    | Both keys are optional and default to '<guard>/<web prefix>' and '<guard>.'. The guard
+    | itself must exist in config/auth.php.
+    |
+    */
+
+    'guards' => [],
+
+    /*
+    |--------------------------------------------------------------------------
     | Route Prefixes
     |--------------------------------------------------------------------------
     */
