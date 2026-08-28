@@ -7,6 +7,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Removed
+
+- **The Facebook social button and provider key.** `laranail/authkit-social` no longer ships
+  `SocialProvider::FACEBOOK` — Facebook asserts no email-verification claim, so it could never sign
+  in — and the button, the `--social=` help text, and the documented provider list follow it.
+  Breaking for any application listing `facebook` in `laranail.authkit-preset.social.providers`:
+  remove it, or the login page renders a button for a provider that returns a 404.
+
+
 ### Changed
 
 - The PHP floor is `^8.4.1`, up from `^8.4`. `laranail/package-tools` and `laranail/console`

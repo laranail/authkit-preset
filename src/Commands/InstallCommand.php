@@ -24,7 +24,7 @@ class InstallCommand extends Command
 
     protected $signature = 'laranail::authkit-preset.install
         {--stack= : The frontend stack to install}
-        {--social=* : Social providers to enable (google, facebook, twitter, linkedin, paypal)}
+        {--social=* : Social providers to enable (google, twitter, linkedin, paypal)}
         {--api : Enable API authentication with Sanctum tokens}
         {--password-reset : Enable password reset flow}
         {--email-verification : Enable email verification flow}
