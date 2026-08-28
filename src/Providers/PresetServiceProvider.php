@@ -6,6 +6,7 @@ namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
+use Simtabi\Laranail\AuthKit\Support\AuthKit;
 use Simtabi\Laranail\Package\Tools\Package;
 use Simtabi\Laranail\AuthKit\Preset\Support;
 use Simtabi\Laranail\AuthKit\Preset\Features;
@@ -69,6 +70,14 @@ class PresetServiceProvider extends PackageServiceProvider
         // any provider's boot(), so this lands before Fortify::configureRoutes() reads the flag
         // whatever order the providers resolve in.
         Fortify::ignoreRoutes();
+
+        // This package ships the routes and views, so its redirect keys are the ones an
+        // application sets. The core reads its own key, so without this the preset's
+        // redirects.* block was inert -- documented, configurable, and ignored. Resolved at
+        // read time so a value set after boot still applies; null defers to the core.
+        AuthKit::resolveRedirectsUsing(
+            fn (string $key): ?string => config(key: "laranail.authkit-preset.redirects.{$key}"),
+        );
 
         config()->set('laranail.authkit.turnstile.enabled', false);
         config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
