@@ -60,6 +60,7 @@ class InstallCommand extends Command
         $wantsApi = in_array(needle: 'api', haystack: $features, strict: true);
         $wantsPasskeys = in_array(needle: 'passkeys', haystack: $features, strict: true);
         $wantsBotProtection = in_array(needle: 'bot-protection', haystack: $features, strict: true);
+        $wantsEmailVerification = in_array(needle: 'email-verification', haystack: $features, strict: true);
 
         if (count(value: $socialProviders) === 0) {
             $features = array_values(array: array_diff($features, ['social']));
@@ -67,19 +68,25 @@ class InstallCommand extends Command
             $features[] = 'social';
         }
 
+        // Email verification belongs in this set: Laravel's SendEmailVerificationNotification
+        // listener checks the model for MustVerifyEmail, so without that interface registration
+        // sends nothing, the verified middleware lets everyone through, and the whole feature is
+        // silently inert -- installed, configured, and doing nothing.
+        $needsModel = $wantsApi || $wantsPasskeys || $wantsEmailVerification;
+
         if (! $this->input->isInteractive()) {
             $authModel = $this->resolveAuthModel(wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys);
-        } elseif (($wantsApi || $wantsPasskeys) && $authModel === null) {
+        } elseif ($needsModel && $authModel === null) {
             $authModel = $this->resolveAuthModel(wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys);
-        } elseif (! $wantsApi && ! $wantsPasskeys) {
+        } elseif (! $needsModel) {
             $authModel = null;
         }
 
-        if (($wantsApi || $wantsPasskeys) && $authModel === null) {
+        if ($needsModel && $authModel === null) {
             return self::FAILURE;
         }
 
-        if ($authModel !== null && ! $this->configureAuthModel(model: $authModel, wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys)) {
+        if ($authModel !== null && ! $this->configureAuthModel(model: $authModel, wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys, wantsEmailVerification: $wantsEmailVerification)) {
             return self::FAILURE;
         }
 
@@ -327,7 +334,7 @@ class InstallCommand extends Command
         return $models;
     }
 
-    private function configureAuthModel(string $model, bool $wantsApi, bool $wantsPasskeys): bool
+    private function configureAuthModel(string $model, bool $wantsApi, bool $wantsPasskeys, bool $wantsEmailVerification = false): bool
     {
         if (! class_exists(class: $model)) {
             $this->error(string: "The configured authentication model [{$model}] could not be loaded.");
@@ -344,10 +351,10 @@ class InstallCommand extends Command
             return false;
         }
 
-        return $this->configureModelFile(file: $file, className: $reflection->getShortName(), wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys);
+        return $this->configureModelFile(file: $file, className: $reflection->getShortName(), wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys, wantsEmailVerification: $wantsEmailVerification);
     }
 
-    private function configureModelFile(string $file, string $className, bool $wantsApi, bool $wantsPasskeys): bool
+    private function configureModelFile(string $file, string $className, bool $wantsApi, bool $wantsPasskeys, bool $wantsEmailVerification = false): bool
     {
         if (! is_file(filename: $file) || ! is_readable(filename: $file) || ! is_writable(filename: $file)) {
             $this->error(string: "The authentication model file [{$file}] must be readable and writable.");

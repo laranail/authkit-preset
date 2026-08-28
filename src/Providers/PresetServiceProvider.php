@@ -53,6 +53,23 @@ class PresetServiceProvider extends PackageServiceProvider
     {
         $this->mergeConfigFrom($this->packagePath('config/laranail/authkit-preset.php'), 'laranail.authkit-preset');
 
+        // Fortify registers its own POST endpoints at the application root -- /login, /logout,
+        // /forgot-password, /reset-password, /user/* -- in parallel with the ones this package
+        // mounts under its configured prefix. That is not cosmetic duplication:
+        //
+        //  - Route names are a flat global registry, so login.store, logout, password.email and
+        //    password.update were each claimed twice and route() resolved to whichever won.
+        //  - The root copies carried neither the captcha nor the throttle this package attaches,
+        //    so POST /login took unlimited un-throttled, un-captcha'd credential attempts while
+        //    the /auth copy was correctly protected.
+        //  - Disabling a feature removed only this package's routes; Fortify's shadow stayed
+        //    reachable and answered 302 where the application expected 404.
+        //
+        // Registered here rather than in boot() because every provider's register() runs before
+        // any provider's boot(), so this lands before Fortify::configureRoutes() reads the flag
+        // whatever order the providers resolve in.
+        Fortify::ignoreRoutes();
+
         config()->set('laranail.authkit.turnstile.enabled', false);
         config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
         config()->set('laranail.captcha.credentials.source', 'config');
@@ -66,9 +83,6 @@ class PresetServiceProvider extends PackageServiceProvider
         $this->loadTranslations();
         $this->registerFortifyViews();
         $this->loadRoutes();
-        $this->app->booted(function (): void {
-            $this->registerCaptchaMiddleware();
-        });
     }
 
     private function registerFortifyViews(): void
@@ -147,14 +161,4 @@ class PresetServiceProvider extends PackageServiceProvider
         $this->loadRoutesFrom($this->packagePath('routes/api.php'));
     }
 
-    private function registerCaptchaMiddleware(): void
-    {
-        foreach (['login.store', 'register.store', 'password.email', 'password.update'] as $name) {
-            $route = app('router')->getRoutes()->getByName($name);
-
-            if ($route !== null && in_array('web', $route->middleware(), true)) {
-                $route->middleware(ValidateCaptcha::class);
-            }
-        }
-    }
 }
