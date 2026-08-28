@@ -30,13 +30,16 @@ use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
 
+// The landing page sits outside the prefix, at a bare /dashboard, so it can only belong to one
+// mount: a second population registering it again would claim the same URI behind its own guard
+// and take the page away from the first. Additional populations land on their own prefixed page.
 Route::middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
-    ->get('/dashboard', fn () => view(AuthPreset::view('dashboard'), ['user' => request()->user()]))
+    ->get($isPrimaryMount ? '/dashboard' : $prefix . '/dashboard', fn () => view(AuthPreset::view('dashboard'), ['user' => request()->user()]))
     ->name('dashboard');
 
 Route::prefix($prefix)
     ->middleware([...AuthPreset::webMiddleware(), 'guest:' . $guard])
-    ->group(function () use ($prefix, $guard): void {
+    ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
         if (Features::enabled(Features::registration())) {
             Route::get('/register', [Auth\RegisterController::class, 'create'])->name('register');
             Route::post('/register', [Auth\RegisterController::class, 'store'])
@@ -88,7 +91,7 @@ Route::prefix($prefix)
 if (Features::enabled(Features::logout())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::post('/logout', Auth\LogoutController::class)->name('logout');
         });
 }
@@ -96,7 +99,7 @@ if (Features::enabled(Features::logout())) {
 if (Features::enabled(Features::updatePasswords())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/user/password', [Auth\UpdatePasswordController::class, 'create'])
                 ->name('user-password.edit');
 
@@ -108,7 +111,7 @@ if (Features::enabled(Features::updatePasswords())) {
 if (Features::enabled(Features::updateProfileInformation())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/user/profile-information', [Auth\UpdateProfileInformationController::class, 'create'])
                 ->name('user-profile-information.edit');
 
@@ -120,7 +123,7 @@ if (Features::enabled(Features::updateProfileInformation())) {
 if (Features::enabled(Features::passkeys())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/user/passkeys', [Auth\PasskeysController::class, 'index'])
                 ->name('user-passkeys.index');
         });
@@ -129,7 +132,7 @@ if (Features::enabled(Features::passkeys())) {
 if (Features::enabled(Features::emailVerification())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/email/verify', Auth\EmailVerificationPromptController::class)
                 ->name('verification.notice');
 
@@ -163,7 +166,7 @@ if (Features::enabled(Features::emailVerification())) {
 if (Features::enabled(Features::emailVerification())) {
     Route::prefix($prefix)
         ->middleware(AuthPreset::webMiddleware())
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/email/verify/{id}/{hash}', FortifyVerifyEmailController::class)
                 ->middleware(['auth:' . $guard, 'signed', 'throttle:6,1'])
                 ->name('verification.verify');
@@ -176,7 +179,7 @@ if (Features::enabled(Features::emailVerification())) {
 
 Route::prefix($prefix)
     ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
-    ->group(function () use ($prefix, $guard): void {
+    ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
         Route::get('/user/confirm-password', [ConfirmablePasswordController::class, 'show'])
             ->name('password.confirm');
 
@@ -190,7 +193,7 @@ Route::prefix($prefix)
 if (Features::enabled(Features::passkeys())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'guest:' . $guard, 'throttle:10,1'])
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/passkeys/login/options', [PasskeyLoginController::class, 'index'])
                 ->name('passkey.login-options');
 
@@ -202,7 +205,7 @@ if (Features::enabled(Features::passkeys())) {
     // cannot itself sit behind password.confirm.
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard, 'throttle:10,1'])
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/passkeys/confirm/options', [PasskeyConfirmationController::class, 'index'])
                 ->name('passkey.confirm-options');
 
@@ -220,7 +223,7 @@ if (Features::enabled(Features::passkeys())) {
             config('fortify-options.passkeys.confirmPassword', true) ? 'password.confirm' : null,
             'throttle:10,1',
         ])))
-        ->group(function () use ($prefix, $guard): void {
+        ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
             Route::get('/user/passkeys/options', [PasskeyRegistrationController::class, 'index'])
                 ->name('passkey.registration-options');
 

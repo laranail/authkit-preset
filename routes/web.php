@@ -24,11 +24,12 @@ use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 foreach (AuthPreset::mounts() as $mount) {
     $prefix = $mount['prefix'];
     $guard = $mount['guard'];
+    $isPrimaryMount = $mount['name'] === '';
 
     // Positional, not named: Route::name() resolves through RouteRegistrar::__call, which reads
     // $parameters[0]. A named argument leaves that slot empty and the value degrades to true, so
     // every route silently gained a "1" name prefix -- route('login') became route('1login').
-    Route::name($mount['name'])->group(function () use ($prefix, $guard): void {
+    Route::name($mount['name'])->group(function () use ($prefix, $guard, $isPrimaryMount): void {
         require __DIR__ . '/web-mount.php';
     });
 }
