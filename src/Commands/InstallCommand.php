@@ -13,6 +13,7 @@ use Simtabi\Laranail\Console\Tools\Commands\Command;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 
 class InstallCommand extends Command
 {
@@ -606,11 +607,24 @@ class InstallCommand extends Command
         $envExamplePath ??= base_path(path: '.env.example');
         $variables = [];
 
+        // Written true because that is the value production needs and the one a developer is
+        // least likely to remember to add. A secure cookie is not sent over plain HTTP, so a
+        // local install served over http:// must set this to false -- the comment written above
+        // it in .env says so. The reverse default fails silently and in the dangerous direction:
+        // a session cookie travelling in clear text over a shared network.
+        $variables['SESSION_SECURE_COOKIE'] = 'true';
+
         foreach ($providers as $provider) {
             $upper = Str::upper(value: $provider);
             $variables["AUTHKIT_{$upper}_CLIENT_ID"] = '';
             $variables["AUTHKIT_{$upper}_CLIENT_SECRET"] = '';
-            $variables["AUTHKIT_{$upper}_REDIRECT"] = url(path: "/auth/social/{$provider}/callback");
+            // The prefix is configurable, so reading it here is what keeps the callback URL and
+            // the route that serves it in agreement. Hardcoding '/auth' wrote a URL into .env --
+            // and from there into a provider's developer console -- that pointed at nothing as
+            // soon as an application changed the prefix, and OAuth callbacks fail in a way that
+            // looks like a credentials problem.
+            $prefix = mb_trim(string: AuthPreset::webPrefix(), characters: '/');
+            $variables["AUTHKIT_{$upper}_REDIRECT"] = url(path: "/{$prefix}/social/{$provider}/callback");
         }
 
         if ($wantsBotProtection) {

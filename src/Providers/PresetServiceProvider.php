@@ -12,6 +12,7 @@ use Simtabi\Laranail\AuthKit\Preset\Support;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
+use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\PreventAuthenticatedPageCaching;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
 
 class PresetServiceProvider extends PackageServiceProvider
@@ -79,6 +80,24 @@ class PresetServiceProvider extends PackageServiceProvider
             fn (string $key): ?string => config(key: "laranail.authkit-preset.redirects.{$key}"),
         );
 
+        // Fortify derives several destinations from fortify.home, whose default is '/home' -- a
+        // route Laravel has not shipped since Breeze replaced the old make:auth scaffolding.
+        // Passkey sign-in reads it through Fortify::redirects('login'), so a successful passkey
+        // login redirected to a URL that does not exist while password login went to the right
+        // place. Point it at the same destination the rest of this package uses.
+        config()->set('fortify.home', Support\AuthPreset::afterLoginRedirect());
+        config()->set('passkeys.redirect', Support\AuthPreset::afterLoginRedirect());
+
+        // laravel/passkeys derives the relying-party id from the host of app.url. WebAuthn
+        // forbids an IP address there, so on a host like 127.0.0.1 -- which is exactly what a
+        // local install writes -- the browser rejects every ceremony with an opaque
+        // SecurityError. 'localhost' is a valid RP id and is what such a host means in practice.
+        $host = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if (is_string($host) && filter_var($host, FILTER_VALIDATE_IP) !== false) {
+            config()->set('passkeys.relying_party_id', 'localhost');
+        }
+
         config()->set('laranail.authkit.turnstile.enabled', false);
         config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
         config()->set('laranail.captcha.credentials.source', 'config');
@@ -90,6 +109,11 @@ class PresetServiceProvider extends PackageServiceProvider
         $this->registerCommands();
         $this->loadViews();
         $this->loadTranslations();
+        // Applied to the whole web group rather than to this package's routes alone, because the
+        // pages that leak are the application's own -- a dashboard, an account page -- not the
+        // login form. The middleware returns early for a guest, so public pages stay cacheable.
+        $this->app->make('router')->pushMiddlewareToGroup('web', PreventAuthenticatedPageCaching::class);
+
         $this->registerFortifyViews();
         $this->loadRoutes();
     }
