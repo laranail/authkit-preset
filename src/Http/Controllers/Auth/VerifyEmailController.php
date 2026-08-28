@@ -6,6 +6,4 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 
 use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractVerifyEmailController;
 
-class VerifyEmailController extends AbstractVerifyEmailController
-{
-}
+class VerifyEmailController extends AbstractVerifyEmailController {}

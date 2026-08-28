@@ -8,7 +8,8 @@ use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 
 function bindProfileInformationUpdater(): void
 {
-    app()->instance(abstract: UpdatesUserProfileInformation::class, instance: new class () implements UpdatesUserProfileInformation {
+    app()->instance(abstract: UpdatesUserProfileInformation::class, instance: new class implements UpdatesUserProfileInformation
+    {
         public function update($user, array $input): void
         {
             $user->forceFill([
@@ -21,7 +22,8 @@ function bindProfileInformationUpdater(): void
 
 function bindFailingProfileInformationUpdater(): void
 {
-    app()->instance(abstract: UpdatesUserProfileInformation::class, instance: new class () implements UpdatesUserProfileInformation {
+    app()->instance(abstract: UpdatesUserProfileInformation::class, instance: new class implements UpdatesUserProfileInformation
+    {
         public function update($user, array $input): void
         {
             throw ValidationException::withMessages([

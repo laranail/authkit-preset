@@ -19,8 +19,7 @@ class LoginController extends AbstractAttemptEmailPasswordLoginController
 {
     public function __construct(
         private IssueTokenForUserInterface $issuer,
-    ) {
-    }
+    ) {}
 
     public function store(
         AttemptEmailPasswordLoginRequest $request,

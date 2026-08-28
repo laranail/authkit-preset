@@ -20,7 +20,7 @@ class ValidateCaptcha
 
         Validator::make(
             data: $request->all(),
-            rules: ['captcha' => ['required', new Captcha()]],
+            rules: ['captcha' => ['required', new Captcha]],
         )->validate();
 
         return $next($request);

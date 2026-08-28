@@ -53,7 +53,7 @@ it(description: 'validates captcha on web login submissions', closure: function 
 it(description: 'registers Fortify password reset routes when feature is enabled', closure: function (): void {
     config()->set(key: 'laranail.authkit-preset.features', value: array_merge(
         config(key: 'laranail.authkit-preset.features'),
-        [Features::passwordReset()]
+        [Features::passwordReset()],
     ));
 
     $routes = Route::getRoutes()->getRoutesByName();
@@ -66,7 +66,7 @@ it(description: 'registers Fortify password reset routes when feature is enabled
 it(description: 'registers Fortify email verification routes when feature is enabled', closure: function (): void {
     config()->set(key: 'laranail.authkit-preset.features', value: array_merge(
         config(key: 'laranail.authkit-preset.features'),
-        [Features::emailVerification()]
+        [Features::emailVerification()],
     ));
 
     $routes = Route::getRoutes()->getRoutesByName();

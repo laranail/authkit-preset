@@ -9,8 +9,8 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
-use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\Console\Tools\Commands\Command;
+use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
 
@@ -157,7 +157,6 @@ class InstallCommand extends Command
 
         return self::SUCCESS;
     }
-
 
     /** @return array<int, string> */
     private function resolveFeatures(): array

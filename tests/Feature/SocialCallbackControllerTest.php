@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use Workbench\App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
-use Simtabi\Laranail\AuthKit\Social\Models\Social;
 use Laravel\Socialite\Two\User as SocialiteUser;
+use Simtabi\Laranail\AuthKit\Social\Models\Social;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 
 beforeEach(closure: function (): void {
-    $this->socialiteUser = new SocialiteUser();
+    $this->socialiteUser = new SocialiteUser;
     $this->socialiteUser->map(attributes: [
         'id'             => '112837291294199545470',
         'name'           => 'Amos Njogu',
@@ -58,7 +58,7 @@ it(description: 'returns existing user when social account already exists', clos
 });
 
 it(description: 'redirects to login on failed social login', closure: function (): void {
-    $noEmailUser = new SocialiteUser();
+    $noEmailUser = new SocialiteUser;
     $noEmailUser->map(attributes: [
         'id'       => '112837291294199545470',
         'name'     => 'No Email',
@@ -77,7 +77,7 @@ it(description: 'redirects to login on failed social login', closure: function (
 it(description: 'does not auto-link by email when provider has not verified it (B1 regression)', closure: function (): void {
     $existingUser = User::factory()->create(attributes: ['email' => 'amos@example.com']);
 
-    $unverifiedUser = new SocialiteUser();
+    $unverifiedUser = new SocialiteUser;
     $raw = [
         'id'             => '112837291294199545470',
         'name'           => 'Attacker',

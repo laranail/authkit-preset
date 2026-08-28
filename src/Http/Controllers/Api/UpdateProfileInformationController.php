@@ -6,6 +6,4 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Api;
 
 use Laravel\Fortify\Http\Controllers\ProfileInformationController;
 
-class UpdateProfileInformationController extends ProfileInformationController
-{
-}
+class UpdateProfileInformationController extends ProfileInformationController {}

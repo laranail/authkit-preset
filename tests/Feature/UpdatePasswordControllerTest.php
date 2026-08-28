@@ -9,7 +9,8 @@ use Laravel\Fortify\Contracts\UpdatesUserPasswords;
 
 function bindPasswordUpdater(): void
 {
-    app()->instance(abstract: UpdatesUserPasswords::class, instance: new class () implements UpdatesUserPasswords {
+    app()->instance(abstract: UpdatesUserPasswords::class, instance: new class implements UpdatesUserPasswords
+    {
         public function update($user, array $input): void
         {
             $user->forceFill(['password' => Hash::make($input['password'])])->save();
@@ -19,7 +20,8 @@ function bindPasswordUpdater(): void
 
 function bindFailingPasswordUpdater(): void
 {
-    app()->instance(abstract: UpdatesUserPasswords::class, instance: new class () implements UpdatesUserPasswords {
+    app()->instance(abstract: UpdatesUserPasswords::class, instance: new class implements UpdatesUserPasswords
+    {
         public function update($user, array $input): void
         {
             throw ValidationException::withMessages([

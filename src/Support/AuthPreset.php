@@ -7,8 +7,8 @@ namespace Simtabi\Laranail\AuthKit\Preset\Support;
 use LogicException;
 use Illuminate\Support\Facades\Validator;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
-use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
+use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 
 class AuthPreset
 {

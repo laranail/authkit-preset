@@ -18,8 +18,7 @@ class RegisterController extends AbstractRegisterController
 {
     public function __construct(
         private IssueTokenForUserInterface $issuer,
-    ) {
-    }
+    ) {}
 
     public function store(
         Request $request,

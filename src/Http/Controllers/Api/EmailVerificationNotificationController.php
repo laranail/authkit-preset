@@ -6,6 +6,4 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Api;
 
 use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractEmailVerificationNotificationController;
 
-class EmailVerificationNotificationController extends AbstractEmailVerificationNotificationController
-{
-}
+class EmailVerificationNotificationController extends AbstractEmailVerificationNotificationController {}
