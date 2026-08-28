@@ -88,15 +88,6 @@ class PresetServiceProvider extends PackageServiceProvider
         config()->set('fortify.home', Support\AuthPreset::afterLoginRedirect());
         config()->set('passkeys.redirect', Support\AuthPreset::afterLoginRedirect());
 
-        // laravel/passkeys derives the relying-party id from the host of app.url. WebAuthn
-        // forbids an IP address there, so on a host like 127.0.0.1 -- which is exactly what a
-        // local install writes -- the browser rejects every ceremony with an opaque
-        // SecurityError. 'localhost' is a valid RP id and is what such a host means in practice.
-        $host = parse_url((string) config('app.url'), PHP_URL_HOST);
-
-        if (is_string($host) && filter_var($host, FILTER_VALIDATE_IP) !== false) {
-            config()->set('passkeys.relying_party_id', 'localhost');
-        }
 
         config()->set('laranail.authkit.turnstile.enabled', false);
         config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
@@ -109,13 +100,29 @@ class PresetServiceProvider extends PackageServiceProvider
         $this->registerCommands();
         $this->loadViews();
         $this->loadTranslations();
-        // Applied to the whole web group rather than to this package's routes alone, because the
-        // pages that leak are the application's own -- a dashboard, an account page -- not the
-        // login form. The middleware returns early for a guest, so public pages stay cacheable.
-        $this->app->make('router')->pushMiddlewareToGroup('web', PreventAuthenticatedPageCaching::class);
-
         $this->registerFortifyViews();
         $this->loadRoutes();
+
+        $this->app->booted(function (): void {
+            // Both of these have to wait for boot. laravel/passkeys merges its own config in its
+            // provider, and the web middleware group is assembled from the application's
+            // bootstrap, so setting either during register() is overwritten or lands nowhere.
+
+            // laravel/passkeys derives the WebAuthn relying-party id from the host of app.url,
+            // and WebAuthn forbids an IP address there. A local install writes 127.0.0.1, so
+            // every ceremony fails in the browser with an opaque SecurityError. 'localhost' is a
+            // valid relying-party id and is what such a host means in practice.
+            $host = parse_url((string) config(key: 'app.url'), PHP_URL_HOST);
+
+            if (is_string($host) && filter_var($host, FILTER_VALIDATE_IP) !== false) {
+                config()->set('passkeys.relying_party_id', 'localhost');
+            }
+
+            // Applied to the whole web group rather than to this package's routes alone, because
+            // the pages that leak are the application's own -- a dashboard, an account page --
+            // not the login form. The middleware returns early for a guest.
+            $this->app->make('router')->pushMiddlewareToGroup('web', PreventAuthenticatedPageCaching::class);
+        });
     }
 
     private function registerFortifyViews(): void
