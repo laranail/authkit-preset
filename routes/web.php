@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
@@ -31,7 +32,19 @@ Route::prefix(AuthPreset::webPrefix())
 
         if (Features::enabled(Features::social())) {
             Route::get('/social/{provider}', Auth\SocialRedirectController::class)->name('social.redirect');
-            Route::get('/social/{provider}/callback', Auth\SocialCallbackController::class)->name('social.callback');
+            // Apple requests the `name` and `email` scopes, which forces response_mode=form_post,
+            // so Apple POSTs this callback rather than redirecting to it. A GET-only route answers
+            // Apple with a 405 and the sign-in dies with nothing in the log to explain it, so the
+            // callback accepts both verbs.
+            //
+            // CSRF is excluded because the request originates at Apple and carries no session token
+            // by construction. The OAuth `state` parameter Socialite round-trips is what protects
+            // this endpoint; CSRF never did. PreventRequestForgery is named directly because it is
+            // what the `web` group actually registers -- VerifyCsrfToken and ValidateCsrfToken are
+            // deprecated subclasses, and excluding either silently does nothing.
+            Route::match(['GET', 'POST'], '/social/{provider}/callback', Auth\SocialCallbackController::class)
+                ->withoutMiddleware(PreventRequestForgery::class)
+                ->name('social.callback');
         }
 
         if (Features::enabled(Features::passwordReset())) {

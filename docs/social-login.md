@@ -6,7 +6,7 @@ Enable only providers that have credentials and an approved callback configured:
 php artisan laranail::authkit-preset.install --social=google --social=linkedin
 ```
 
-Supported provider keys are `google`, `twitter`, `linkedin`, and `paypal`. The installer adds selected keys to `laranail.authkit-preset.social.providers`, publishes authkit's social migration, and enables the social feature. Run the migration before exposing the buttons:
+Supported provider keys are `google`, `apple`, `twitter`, `linkedin`, and `paypal`. The installer adds selected keys to `laranail.authkit-preset.social.providers`, publishes authkit's social migration, and enables the social feature. Run the migration before exposing the buttons:
 
 ```bash
 php artisan migrate
@@ -26,7 +26,9 @@ With the social feature enabled, guests use `GET /auth/social/{provider}` (`soci
 
 ## Account-linking safety
 
-The preset delegates identity handling to Auth Kit. Existing provider identities are reused; an already authenticated user may link a provider identity. For guests, a matching email is auto-linked only when the provider supplies a trusted verified-email claim. Every provider Auth Kit ships asserts that claim, each through its own key — `email_verified` for Google, LinkedIn, and PayPal, `confirmed_email` for X. Facebook is not shipped, because it asserts nothing. Missing or unverified email claims do not silently link an existing local account.
+The preset delegates identity handling to Auth Kit. Existing provider identities are reused; an already authenticated user may link a provider identity. For guests, a matching email is auto-linked only when the provider supplies a trusted verified-email claim. Every provider Auth Kit ships asserts that claim, each through its own key — `email_verified` for Google, Apple, LinkedIn, and PayPal, `confirmed_email` for X.
+
+Apple is the one provider whose callback arrives as a **POST**: requesting the `name` and `email` scopes forces `response_mode=form_post`. The preset's `social.callback` route accepts both verbs and is excluded from CSRF for that reason — the request comes from Apple's servers and carries no session token, and the OAuth `state` parameter is what protects it. If you replace these routes, carry that across or Apple sign-in answers 405 or 419 with nothing in the log to explain it. Facebook is not shipped, because it asserts nothing. Missing or unverified email claims do not silently link an existing local account.
 
 The migration stores access and refresh tokens, so treat the `socials` table as sensitive data and do not serialize it in APIs. For scopes, PayPal sandbox configuration, custom providers, and the complete identity-resolution rules, read authkit's [social login guide](../../authkit/docs/social-login.md).
 

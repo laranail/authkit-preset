@@ -7,6 +7,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Apple sign-in support.** An Apple button in the social-buttons component, `apple` accepted by
+  `--social=`, and — the part that is not cosmetic — the `social.callback` route now accepts **POST**
+  as well as GET and is excluded from CSRF.
+
+  Apple requests the `name` and `email` scopes, which forces `response_mode=form_post`, so Apple POSTs
+  the callback from its own servers with no session and no CSRF token. The previous GET-only route
+  answered 405. The exclusion names `PreventRequestForgery` because that is what Laravel's `web` group
+  actually registers; `VerifyCsrfToken` and `ValidateCsrfToken` are deprecated subclasses and
+  excluding either would silently do nothing.
+
 ### Removed
 
 - **The Facebook social button and provider key.** `laranail/authkit-social` no longer ships

@@ -100,3 +100,28 @@ it(description: 'does not auto-link by email when provider has not verified it (
     expect(value: auth()->check())->toBeFalse()
         ->and(value: auth()->id())->not->toBe(expected: $existingUser->id);
 });
+
+it(description: 'accepts the POST callback Apple sends, and exempts it from CSRF', closure: function (): void {
+    // Apple requests the name and email scopes, which forces response_mode=form_post, so it
+    // POSTs this endpoint from its own servers with no session and no CSRF token. A GET-only
+    // route answers 405 and a CSRF-protected one answers 419; either kills Apple sign-in with
+    // nothing in the log to explain it.
+    Socialite::fake(driver: SocialProvider::APPLE->value, user: $this->socialiteUser);
+
+    // The verb, asserted through a real request.
+    expect(value: $this->post(uri: '/auth/social/apple/callback')->getStatusCode())->not->toBe(405);
+
+    // The CSRF exemption, asserted against the registered route rather than a response, because
+    // PreventRequestForgery skips validation outright while running unit tests -- a 419 can never
+    // be observed here, so asserting on the status code would pin nothing.
+    //
+    // PreventRequestForgery is what the `web` group actually registers; VerifyCsrfToken and
+    // ValidateCsrfToken are deprecated subclasses of it, and excluding either would silently
+    // do nothing.
+    $route = app('router')->getRoutes()->getByName('social.callback');
+
+    expect(value: $route)->not->toBeNull()
+        ->and($route->methods())->toContain('POST')
+        ->and($route->excludedMiddleware())
+        ->toContain(Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class);
+});
