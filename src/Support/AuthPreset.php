@@ -43,6 +43,33 @@ class AuthPreset
     }
 
     /**
+     * The CSRF middleware class this Laravel version actually registers in the `web` group.
+     *
+     * Laravel 13 renamed it to PreventRequestForgery and kept ValidateCsrfToken and
+     * VerifyCsrfToken as deprecated subclasses; Laravel 12 registers ValidateCsrfToken. Excluding
+     * a class the group does not hold is a silent no-op -- the route stays CSRF-protected and
+     * Apple's POST callback answers 419 with nothing in the log to explain it -- so this resolves
+     * whichever one is really there rather than naming one and hoping.
+     *
+     * Order matters: on Laravel 13 all three classes exist, and only the first is registered.
+     */
+    public static function csrfMiddleware(): string
+    {
+        foreach ([
+            'Illuminate\\Foundation\\Http\\Middleware\\PreventRequestForgery',
+            'Illuminate\\Foundation\\Http\\Middleware\\ValidateCsrfToken',
+            'Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken',
+        ] as $class) {
+            if (class_exists($class)) {
+                return $class;
+            }
+        }
+
+        // Unreachable on any supported version; returning the current name keeps the type honest.
+        return 'Illuminate\\Foundation\\Http\\Middleware\\PreventRequestForgery';
+    }
+
+    /**
      * The prefix every route name carries.
      *
      * See the config block for why this is not empty by default, and what this package rewires so

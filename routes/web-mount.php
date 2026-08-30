@@ -24,7 +24,6 @@ use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
 use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
 use Laravel\Fortify\Http\Controllers\ConfirmedPasswordStatusController;
 use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController as FortifyEmailVerificationNotificationController;
-use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
@@ -67,7 +66,7 @@ Route::prefix($prefix)
             // what the `web` group actually registers -- VerifyCsrfToken and ValidateCsrfToken are
             // deprecated subclasses, and excluding either silently does nothing.
             Route::match(['GET', 'POST'], '/social/{provider}/callback', Auth\SocialCallbackController::class)
-                ->withoutMiddleware(PreventRequestForgery::class)
+                ->withoutMiddleware(AuthPreset::csrfMiddleware())
                 ->name('social.callback');
         }
 

@@ -116,13 +116,13 @@ it(description: 'accepts the POST callback Apple sends, and exempts it from CSRF
     // PreventRequestForgery skips validation outright while running unit tests -- a 419 can never
     // be observed here, so asserting on the status code would pin nothing.
     //
-    // PreventRequestForgery is what the `web` group actually registers; VerifyCsrfToken and
-    // ValidateCsrfToken are deprecated subclasses of it, and excluding either would silently
-    // do nothing.
+    // The class differs by Laravel version -- 13 registers PreventRequestForgery, 12 registers
+    // ValidateCsrfToken -- so the assertion asks for whichever is really registered rather than
+    // naming one, which would pass on one version and silently mean nothing on the other.
     $route = app('router')->getRoutes()->getByName(AuthPreset::routeName('social.callback'));
 
     expect(value: $route)->not->toBeNull()
         ->and($route->methods())->toContain('POST')
         ->and($route->excludedMiddleware())
-        ->toContain(Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class);
+        ->toContain(AuthPreset::csrfMiddleware());
 });

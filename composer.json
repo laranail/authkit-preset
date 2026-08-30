@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "php": "^8.5",
+        "php": "^8.4.1 || ^8.5",
         "laranail/authkit": "^0.1",
         "laranail/authkit-social": "^0.1",
         "laranail/captcha": "^0.1",
