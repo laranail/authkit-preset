@@ -63,6 +63,7 @@ Full documentation: <https://opensource.simtabi.com/documentation/laranail/authk
 - [Password reset](docs/password-reset.md) · [Password updates](docs/password-updates.md)
 - [Profile management](docs/profile-management.md) · [Email verification](docs/email-verification.md)
 - [Social login](docs/social-login.md) · [Passkeys](docs/passkeys.md) · [API routes](docs/api-routes.md)
+- [Connected accounts](docs/connected-accounts.md) — listing and removing linked providers, and the rule that stops a lockout
 - [Bot protection](docs/bot-protection.md)
 
 ### Recipes
