@@ -7,6 +7,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Social buttons are configuration, not Blade.** `AuthPreset::socialProviders()` returns
+  render-ready descriptors and the component loops over them, so adding or restyling a provider is a
+  `social.ui` entry rather than an edit to `social-buttons.blade.php`. Icons moved to individual
+  views under `icons/`, which an application can override one at a time.
+
+  This also fixes a real gap: the previous resolver validated a slug against the `SocialProvider`
+  enum, so a provider contributed through the identity-provider registry was filtered out and could
+  never render however correctly it had been registered.
+
+  `enabledSocialProviders()` keeps returning slugs and is unchanged for published views.
+
+
 ### Changed
 
 - **The Twitter button is now X**, matching `laranail/authkit-social`'s slug change from `twitter`

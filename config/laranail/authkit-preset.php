@@ -136,6 +136,19 @@ return [
         'providers' => [
             'google',
         ],
+
+        /*
+         * Per-provider button presentation. Every key is optional: `label` falls back to the
+         * provider's own name, `icon` to laranail/authkit-preset::icons.<slug>, `class` to nothing
+         * and `order` to 0. This lives here rather than in laranail/authkit-social because
+         * presentation is a preset concern -- the headless package carries no button styling.
+         *
+         *     'ui' => [
+         *         'google' => ['label' => 'Continue with Google', 'order' => 10],
+         *         'okta'   => ['icon' => 'icons.okta', 'order' => 20],
+         *     ],
+         */
+        'ui' => [],
     ],
 
 ];

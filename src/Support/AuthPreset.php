@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
 use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
+use Simtabi\Laranail\AuthKit\Contracts\IdentityProviderRegistryInterface;
 
 class AuthPreset
 {
@@ -145,27 +146,73 @@ class AuthPreset
     }
 
     /** @return array<int, string> */
+    /**
+     * The configured providers that are actually usable, as slugs.
+     *
+     * Kept as-is because published views call it: it is a public seam, so its face does not change.
+     * socialProviders() is the richer form the button component uses.
+     *
+     * @return array<int, string>
+     */
     public static function enabledSocialProviders(): array
     {
-        $providers = config(key: 'laranail.authkit-preset.social.providers', default: []);
+        return array_column(self::socialProviders(), 'slug');
+    }
 
-        if (! is_array($providers)) {
+    /**
+     * The configured providers as render-ready descriptors, ordered.
+     *
+     * Resolves a slug through the SocialProvider enum first and the identity-provider registry
+     * second, so a provider contributed by a sub-package renders a button. The previous
+     * implementation validated against the enum alone, which meant a registered provider was
+     * filtered out here and could never appear however correctly it had been registered.
+     *
+     * Label, icon, ordering and classes come from this package's `social.ui` block rather than from
+     * laranail/authkit-social's provider config: presentation is a preset concern, and the headless
+     * package should not carry button styling. Every key is optional and falls back to the
+     * provider's own label and a conventional icon view.
+     *
+     * @return array<int, array{slug: string, label: string, icon: string, class: string, order: int}>
+     */
+    public static function socialProviders(): array
+    {
+        $configured = config(key: 'laranail.authkit-preset.social.providers', default: []);
+
+        if (! is_array($configured)) {
             return [];
         }
 
-        return array_values(array_filter(
-            array: $providers,
-            callback: function (mixed $provider): bool {
-                if (! is_string($provider) || ! Validator::make(
-                    data: ['provider' => $provider],
-                    rules: ['provider' => [new EnumValue(SocialProvider::class)]],
-                )->passes()) {
-                    return false;
-                }
+        $registry = app(abstract: IdentityProviderRegistryInterface::class);
+        $descriptors = [];
 
-                return (bool) config(key: "laranail.authkit-social.{$provider}.client_id");
-            },
-        ));
+        foreach ($configured as $slug) {
+            if (! is_string($slug)) {
+                continue;
+            }
+
+            $provider = SocialProvider::tryFrom($slug) ?? $registry->get($slug);
+
+            // Credentials are what make a provider usable; a configured one without them would
+            // render a button that fails at the provider.
+            if ($provider === null || ! config(key: "laranail.authkit-social.{$slug}.client_id")) {
+                continue;
+            }
+
+            $ui = config(key: "laranail.authkit-preset.social.ui.{$slug}", default: []);
+            $ui = is_array($ui) ? $ui : [];
+
+            $descriptors[] = [
+                'slug'  => $slug,
+                'label' => (string) ($ui['label'] ?? $provider->label()),
+                'icon'  => (string) ($ui['icon'] ?? 'laranail/authkit-preset::icons.' . $slug),
+                'class' => (string) ($ui['class'] ?? ''),
+                'order' => (int) ($ui['order'] ?? 0),
+            ];
+        }
+
+        usort($descriptors, static fn (array $a, array $b): int => $a['order'] <=> $b['order']);
+
+        return $descriptors;
     }
 
     public static function view(string $page): string
