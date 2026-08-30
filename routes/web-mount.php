@@ -123,6 +123,12 @@ if (Features::enabled(Features::passkeys())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
         ->group(function () use ($prefix, $guard, $isPrimaryMount): void {
+            Route::get('/user/social-accounts', [Auth\SocialAccountsController::class, 'index'])
+                ->name('user-social-accounts.index');
+
+            Route::delete('/user/social-accounts/{provider}', [Auth\SocialAccountsController::class, 'destroy'])
+                ->name('user-social-accounts.destroy');
+
             Route::get('/user/passkeys', [Auth\PasskeysController::class, 'index'])
                 ->name('user-passkeys.index');
         });
