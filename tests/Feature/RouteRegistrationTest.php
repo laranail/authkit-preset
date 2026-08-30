@@ -9,9 +9,11 @@ use Simtabi\Laranail\AuthKit\Http\Controllers\Api\LoginController as ApiLoginCon
 use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth\LoginController as WebLoginController;
 use Simtabi\Laranail\AuthKit\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth\RegisterController as WebRegisterController;
+use Simtabi\Laranail\AuthKit\Support\AuthKit;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 
 it(description: 'registers the dashboard route', closure: function (): void {
-    $route = Route::getRoutes()->getByName('dashboard');
+    $route = Route::getRoutes()->getByName(AuthPreset::routeName('dashboard'));
 
     expect($route)->not->toBeNull()
         ->and($route->uri())->toBe('dashboard')
@@ -21,12 +23,12 @@ it(description: 'registers the dashboard route', closure: function (): void {
 it(description: 'registers login, registration, and API routes when features are enabled', closure: function (): void {
     $routes = Route::getRoutes()->getRoutesByName();
 
-    expect(value: $routes)->toHaveKey(key: 'login')
-        ->and(value: $routes)->toHaveKey(key: 'login.store')
-        ->and(value: $routes)->toHaveKey(key: 'register')
-        ->and(value: $routes)->toHaveKey(key: 'register.store')
-        ->and(value: $routes)->toHaveKey(key: 'api.login')
-        ->and(value: $routes)->toHaveKey(key: 'api.register');
+    expect(value: $routes)->toHaveKey(key: AuthPreset::routeName('login'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('login.store'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('register'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('register.store'))
+        ->and(value: $routes)->toHaveKey(key: AuthKit::apiRouteNamePrefix() . 'login')
+        ->and(value: $routes)->toHaveKey(key: AuthKit::apiRouteNamePrefix() . 'register');
 });
 
 it(description: 'throttles sensitive authentication submissions', closure: function (): void {
@@ -58,9 +60,9 @@ it(description: 'registers Fortify password reset routes when feature is enabled
 
     $routes = Route::getRoutes()->getRoutesByName();
 
-    expect(value: $routes)->toHaveKey(key: 'password.request')
-        ->and(value: $routes)->toHaveKey(key: 'password.email')
-        ->and(value: $routes)->toHaveKey(key: 'password.reset');
+    expect(value: $routes)->toHaveKey(key: AuthPreset::routeName('password.request'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('password.email'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('password.reset'));
 });
 
 it(description: 'registers Fortify email verification routes when feature is enabled', closure: function (): void {
@@ -71,37 +73,37 @@ it(description: 'registers Fortify email verification routes when feature is ena
 
     $routes = Route::getRoutes()->getRoutesByName();
 
-    expect(value: $routes)->toHaveKey(key: 'verification.notice')
-        ->and(value: $routes)->toHaveKey(key: 'verification.verify')
-        ->and(value: $routes)->toHaveKey(key: 'verification.send');
+    expect(value: $routes)->toHaveKey(key: AuthPreset::routeName('verification.notice'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('verification.verify'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('verification.send'));
 });
 
 it(description: 'registers password update routes when feature is enabled', closure: function (): void {
     $routes = Route::getRoutes()->getRoutesByName();
 
-    expect(value: $routes)->toHaveKey(key: 'user-password.edit')
-        ->and(value: $routes)->toHaveKey(key: 'user-password.update')
-        ->and(value: $routes)->toHaveKey(key: 'api.user-password.update');
+    expect(value: $routes)->toHaveKey(key: AuthPreset::routeName('user-password.edit'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('user-password.update'))
+        ->and(value: $routes)->toHaveKey(key: AuthKit::apiRouteNamePrefix() . 'user-password.update');
 });
 
 it(description: 'registers profile information update routes when feature is enabled', closure: function (): void {
     $routes = Route::getRoutes()->getRoutesByName();
 
-    expect(value: $routes)->toHaveKey(key: 'user-profile-information.edit')
-        ->and(value: $routes)->toHaveKey(key: 'user-profile-information.update')
-        ->and(value: $routes)->toHaveKey(key: 'api.user-profile-information.update');
+    expect(value: $routes)->toHaveKey(key: AuthPreset::routeName('user-profile-information.edit'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('user-profile-information.update'))
+        ->and(value: $routes)->toHaveKey(key: AuthKit::apiRouteNamePrefix() . 'user-profile-information.update');
 });
 
 it(description: 'registers the passkey management page and Fortify passkey routes', closure: function (): void {
     $routes = Route::getRoutes()->getRoutesByName();
 
-    expect(value: $routes)->toHaveKey(key: 'user-passkeys.index')
-        ->and(value: $routes)->toHaveKey(key: 'passkey.login-options')
-        ->and(value: $routes)->toHaveKey(key: 'passkey.login')
-        ->and(value: $routes)->toHaveKey(key: 'passkey.confirm-options')
-        ->and(value: $routes)->toHaveKey(key: 'passkey.confirm')
-        ->and(value: $routes)->toHaveKey(key: 'passkey.registration-options')
-        ->and(value: $routes)->toHaveKey(key: 'passkey.store')
-        ->and(value: $routes)->toHaveKey(key: 'passkey.destroy')
-        ->and(value: $routes)->not->toHaveKey(key: 'api.passkey.login');
+    expect(value: $routes)->toHaveKey(key: AuthPreset::routeName('user-passkeys.index'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('passkey.login-options'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('passkey.login'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('passkey.confirm-options'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('passkey.confirm'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('passkey.registration-options'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('passkey.store'))
+        ->and(value: $routes)->toHaveKey(key: AuthPreset::routeName('passkey.destroy'))
+        ->and(value: $routes)->not->toHaveKey(key: AuthKit::apiRouteNamePrefix() . 'passkey.login');
 });

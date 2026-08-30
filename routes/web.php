@@ -24,7 +24,7 @@ use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 foreach (AuthPreset::mounts() as $mount) {
     $prefix = $mount['prefix'];
     $guard = $mount['guard'];
-    $isPrimaryMount = $mount['name'] === '';
+    $isPrimaryMount = $mount['primary'];
 
     // Positional, not named: Route::name() resolves through RouteRegistrar::__call, which reads
     // $parameters[0]. A named argument leaves that slot empty and the value degrades to true, so

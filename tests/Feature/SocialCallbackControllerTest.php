@@ -7,6 +7,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Simtabi\Laranail\AuthKit\Social\Models\Social;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 
 beforeEach(closure: function (): void {
     $this->socialiteUser = new SocialiteUser;
@@ -118,7 +119,7 @@ it(description: 'accepts the POST callback Apple sends, and exempts it from CSRF
     // PreventRequestForgery is what the `web` group actually registers; VerifyCsrfToken and
     // ValidateCsrfToken are deprecated subclasses of it, and excluding either would silently
     // do nothing.
-    $route = app('router')->getRoutes()->getByName('social.callback');
+    $route = app('router')->getRoutes()->getByName(AuthPreset::routeName('social.callback'));
 
     expect(value: $route)->not->toBeNull()
         ->and($route->methods())->toContain('POST')

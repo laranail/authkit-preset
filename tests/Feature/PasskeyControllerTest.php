@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Workbench\App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Contracts\PasskeyUser;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 
 it(description: 'requires the workbench user to implement the passkey contract', closure: function (): void {
     expect(User::factory()->create())->toBeInstanceOf(PasskeyUser::class);
@@ -53,7 +54,7 @@ it(description: 'renders multiple registered passkeys with deletion hooks', clos
 });
 
 it(description: 'protects the passkey management page with the configured guard', closure: function (): void {
-    $route = Route::getRoutes()->getByName('user-passkeys.index');
+    $route = Route::getRoutes()->getByName(AuthPreset::routeName('user-passkeys.index'));
 
     expect($route->middleware())->toContain('web')
         ->and($route->middleware())->toContain('auth:web');

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 
-it('mounts once for the primary guard, keeping the bare route names', function (): void {
-    // The bare names are load-bearing: Laravel's own guest redirect calls route('login') and the
-    // verified middleware resolves verification.notice, so the primary mount must not prefix them.
+it('mounts once for the primary guard, under the vendor-scoped name prefix', function (): void {
+    // The bare names are load-bearing -- Laravel's guest redirect calls route('login') and the
+    // verified middleware resolves verification.notice -- but they are resolved through the
+    // missing-name hook rather than registered bare, so a second package cannot claim them.
     expect(AuthPreset::mounts())->toBe([
-        ['guard' => 'web', 'prefix' => 'auth', 'name' => ''],
+        ['guard' => 'web', 'prefix' => 'auth', 'name' => 'laranail-auth.', 'primary' => true],
     ]);
 });
 
@@ -18,8 +19,8 @@ it('adds a mount per configured user population', function (): void {
     ]);
 
     expect(AuthPreset::mounts())->toBe([
-        ['guard' => 'web',   'prefix' => 'auth',       'name' => ''],
-        ['guard' => 'admin', 'prefix' => 'admin/auth', 'name' => 'admin.'],
+        ['guard' => 'web',   'prefix' => 'auth',       'name' => 'laranail-auth.',       'primary' => true],
+        ['guard' => 'admin', 'prefix' => 'admin/auth', 'name' => 'laranail-auth.admin.', 'primary' => false],
     ]);
 });
 
@@ -27,7 +28,7 @@ it('derives a prefix and name prefix when none are given', function (): void {
     config()->set('laranail.authkit-preset.guards', ['admin' => []]);
 
     expect(AuthPreset::mounts()[1])
-        ->toBe(['guard' => 'admin', 'prefix' => 'admin/auth', 'name' => 'admin.']);
+        ->toBe(['guard' => 'admin', 'prefix' => 'admin/auth', 'name' => 'laranail-auth.admin.', 'primary' => false]);
 });
 
 it('never mounts the primary guard twice', function (): void {

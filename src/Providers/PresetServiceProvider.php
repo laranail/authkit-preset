@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Fortify;
 use Simtabi\Laranail\AuthKit\Support\AuthKit;
 use Simtabi\Laranail\Package\Tools\Package;
@@ -97,6 +99,8 @@ class PresetServiceProvider extends PackageServiceProvider
         $this->loadViews();
         $this->loadTranslations();
         $this->registerFortifyViews();
+        $this->resolveBareRouteNames();
+
         $this->loadRoutes();
 
         $this->app->booted(function (): void {
@@ -185,6 +189,64 @@ class PresetServiceProvider extends PackageServiceProvider
     private function loadRoutes(): void
     {
         $this->registerRoutes();
+    }
+
+    /**
+     * Let a bare route name still resolve to this package's vendor-scoped one.
+     *
+     * Route names are a flat global registry, so this package registers `laranail-auth.login`
+     * rather than `login`, where a second claimant would silently win. A great deal of code
+     * resolves the bare names regardless, and most of it is not ours to edit: Laravel's own guest
+     * redirect calls route('login'), the verified middleware resolves verification.notice, the
+     * password-reset and email-verification notifications build their links from password.reset
+     * and verification.verify, and any third-party package may do the same.
+     *
+     * Rewiring each of those one by one would cover only the ones that can be enumerated. This
+     * hook is consulted by the URL generator when a name is *not* found, so it covers every
+     * caller, including ones that do not exist yet.
+     *
+     * It cannot shadow anything: a name that resolves normally never reaches this, so an
+     * application's own `login` route keeps winning. Returning null defers.
+     */
+    private function resolveBareRouteNames(): void
+    {
+        URL::resolveMissingNamedRoutesUsing(
+            function (string $name, mixed $parameters, ?bool $absolute): ?string {
+                foreach ($this->routeNameCandidates($name) as $candidate) {
+                    if (Route::has($candidate)) {
+                        return URL::route($candidate, $parameters ?? [], $absolute ?? true);
+                    }
+                }
+
+                return null;
+            },
+        );
+    }
+
+    /**
+     * The vendor-scoped names a bare one might have been written as.
+     *
+     * @return array<int, string>
+     */
+    private function routeNameCandidates(string $name): array
+    {
+        $candidates = [];
+
+        $web = Support\AuthPreset::routeNamePrefix();
+
+        if ($web !== '' && ! str_starts_with($name, $web)) {
+            $candidates[] = $web . $name;
+        }
+
+        // `api.login` was the old bare name; the API now registers under its own prefix without
+        // that segment, so the two have to be reconciled here rather than at every call site.
+        $api = AuthKit::apiRouteNamePrefix();
+
+        if ($api !== '' && ! str_starts_with($name, $api)) {
+            $candidates[] = $api . (str_starts_with($name, 'api.') ? substr($name, 4) : $name);
+        }
+
+        return $candidates;
     }
 
     private function registerRoutes(): void

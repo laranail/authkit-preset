@@ -43,6 +43,23 @@ class AuthPreset
     }
 
     /**
+     * The prefix every route name carries.
+     *
+     * See the config block for why this is not empty by default, and what this package rewires so
+     * that scoping the names does not break the framework flows that resolve them.
+     */
+    public static function routeNamePrefix(): string
+    {
+        return (string) config(key: 'laranail.authkit-preset.route_name_prefix', default: 'laranail-auth.');
+    }
+
+    /** A fully-qualified route name, for anything that has to resolve one by name. */
+    public static function routeName(string $name): string
+    {
+        return self::routeNamePrefix() . $name;
+    }
+
+    /**
      * Every user population these routes are mounted for.
      *
      * The first entry is the primary one and keeps the bare route names -- `login`, `dashboard`,
@@ -59,9 +76,10 @@ class AuthPreset
     public static function mounts(): array
     {
         $mounts = [[
-            'guard'  => self::guard(),
-            'prefix' => self::webPrefix(),
-            'name'   => '',
+            'guard'   => self::guard(),
+            'prefix'  => self::webPrefix(),
+            'name'    => self::routeNamePrefix(),
+            'primary' => true,
         ]];
 
         /** @var array<string, array{prefix?: string, name?: string}> $additional */
@@ -73,9 +91,10 @@ class AuthPreset
             }
 
             $mounts[] = [
-                'guard'  => $guard,
-                'prefix' => (string) ($options['prefix'] ?? $guard . '/' . self::webPrefix()),
-                'name'   => (string) ($options['name'] ?? $guard . '.'),
+                'guard'   => $guard,
+                'prefix'  => (string) ($options['prefix'] ?? $guard . '/' . self::webPrefix()),
+                'name'    => self::routeNamePrefix() . (string) ($options['name'] ?? $guard . '.'),
+                'primary' => false,
             ];
         }
 

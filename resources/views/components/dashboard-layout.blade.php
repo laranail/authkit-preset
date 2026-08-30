@@ -11,10 +11,10 @@
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-8">
                 <a href="{{ route('dashboard') }}" class="text-sm font-medium text-gray-900">Dashboard</a>
-                @if (\Illuminate\Support\Facades\Route::has('user-profile-information.edit'))
+                @if (\Illuminate\Support\Facades\Route::has(\Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset::routeName('user-profile-information.edit')))
                     <a href="{{ route('user-profile-information.edit') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Profile</a>
                 @endif
-                @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::passkeys()) && \Illuminate\Support\Facades\Route::has('user-passkeys.index'))
+                @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::passkeys()) && \Illuminate\Support\Facades\Route::has(\Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset::routeName('user-passkeys.index')))
                     <a href="{{ route('user-passkeys.index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Passkeys</a>
                 @endif
             </div>
