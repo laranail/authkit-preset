@@ -106,7 +106,7 @@ Available options:
 | `--publish-views`      | Publish Blade views for application customization.                       |
 | `--force`              | Overwrite existing published files.                                      |
 
-Supported social providers are `google`, `apple`, `twitter`, `linkedin`, and `paypal`.
+Supported social providers are `google`, `apple`, `x`, `linkedin`, and `paypal`.
 
 In interactive mode, the installer asks which auth provider should receive authentication traits immediately after the frontend stack, then asks `Which authentication feature would you like to enable?` and shows a description for every choice. This includes API authentication, which is selected by default and publishes the Sanctum migration. Social login opens a second multi-select for its providers with Google selected by default; enable only providers you plan to configure. The installer reads the `eloquent` providers from `config/auth.php` and applies traits to the selected provider's model when API authentication or passkeys are enabled. In non-interactive mode, only the base web features are enabled unless optional feature flags are supplied; use `--model=<class>` when needed.
 

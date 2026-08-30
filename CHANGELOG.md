@@ -7,6 +7,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **The Twitter button is now X**, matching `laranail/authkit-social`'s slug change from `twitter`
+  to `x`. Breaking for any application listing `twitter` in
+  `laranail.authkit-preset.social.providers`: the button renders nothing and the route returns 404.
+
+
 ### Added
 
 - **Apple sign-in support.** An Apple button in the social-buttons component, `apple` accepted by

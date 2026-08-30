@@ -6,7 +6,7 @@ Enable only providers that have credentials and an approved callback configured:
 php artisan laranail::authkit-preset.install --social=google --social=linkedin
 ```
 
-Supported provider keys are `google`, `apple`, `twitter`, `linkedin`, and `paypal`. The installer adds selected keys to `laranail.authkit-preset.social.providers`, publishes authkit's social migration, and enables the social feature. Run the migration before exposing the buttons:
+Supported provider keys are `google`, `apple`, `x`, `linkedin`, and `paypal`. The installer adds selected keys to `laranail.authkit-preset.social.providers`, publishes authkit's social migration, and enables the social feature. Run the migration before exposing the buttons:
 
 ```bash
 php artisan migrate
