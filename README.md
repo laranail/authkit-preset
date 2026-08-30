@@ -159,7 +159,6 @@ Route prefixes and redirects can also be customized through `config/laranail/aut
 
 ```env
 AUTHKIT_PRESET_WEB_PREFIX=auth
-AUTHKIT_PRESET_API_PREFIX=api/auth
 AUTHKIT_PRESET_GUARD=web
 AUTHKIT_PRESET_AFTER_LOGIN=/dashboard
 AUTHKIT_PRESET_AFTER_REGISTRATION=/dashboard

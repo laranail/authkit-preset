@@ -45,8 +45,7 @@ it('ignores invalid configured social providers before checking credentials', fu
 });
 
 it(description: 'returns correct prefix values', closure: function (): void {
-    expect(AuthPreset::webPrefix())->toBe('auth')
-        ->and(AuthPreset::apiPrefix())->toBe('api/auth');
+    expect(AuthPreset::webPrefix())->toBe('auth');
 });
 
 it(description: 'returns correct redirects', closure: function (): void {

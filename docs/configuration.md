@@ -50,7 +50,7 @@ Removing an entry removes that flow's routes and the UI that links to it.
 |---|---|
 | `AUTHKIT_PRESET_STACK` | `stack` |
 | `AUTHKIT_PRESET_GUARD` | `guard` |
-| `AUTHKIT_PRESET_WEB_PREFIX` · `AUTHKIT_PRESET_API_PREFIX` | `prefix.*` |
+| `AUTHKIT_PRESET_WEB_PREFIX` | `prefix.web` |
 | `AUTHKIT_PRESET_ROUTES_MODE` | `routes.mode` |
 | `AUTHKIT_PRESET_AFTER_LOGIN` and siblings | `redirects.*` |
 | `CAPTCHA_PROVIDER` · `CAPTCHA_SITE_KEY` · `CAPTCHA_SECRET_KEY` | bot protection |

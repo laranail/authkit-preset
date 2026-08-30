@@ -100,7 +100,6 @@ return [
 
     'prefix' => [
         'web' => env(key: 'AUTHKIT_PRESET_WEB_PREFIX', default: 'auth'),
-        'api' => env(key: 'AUTHKIT_PRESET_API_PREFIX', default: 'api/auth'),
     ],
 
     /*
@@ -111,7 +110,6 @@ return [
 
     'middleware' => [
         'web' => ['web'],
-        'api' => ['api', 'throttle:60,1'],
     ],
 
     'bot_protection' => [

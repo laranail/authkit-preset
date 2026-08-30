@@ -12,6 +12,10 @@ use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 
 class AuthPreset
 {
+    // apiPrefix()/apiMiddleware() are deliberately absent. The REST API ships from
+    // laranail/authkit, which reads laranail.authkit.api.*; accessors here would have been keys an
+    // application could set with no effect.
+
     public static function stack(): FrontendStack
     {
         return FrontendStack::from(value: config(key: 'laranail.authkit-preset.stack', default: 'blade'));
@@ -27,20 +31,12 @@ class AuthPreset
         return config(key: 'laranail.authkit-preset.prefix.web', default: 'auth');
     }
 
-    public static function apiPrefix(): string
-    {
-        return config(key: 'laranail.authkit-preset.prefix.api', default: 'api/auth');
-    }
 
     public static function webMiddleware(): array
     {
         return config(key: 'laranail.authkit-preset.middleware.web', default: ['web']);
     }
 
-    public static function apiMiddleware(): array
-    {
-        return config(key: 'laranail.authkit-preset.middleware.api', default: ['api', 'throttle:60,1']);
-    }
 
     /**
      * The CSRF middleware class this Laravel version actually registers in the `web` group.
