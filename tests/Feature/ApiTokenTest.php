@@ -9,12 +9,12 @@ it(description: 'returns a token on API login', closure: function (): void {
     $password = Str::random(length: 16);
 
     User::factory()->create(attributes: [
-        'email'    => 'ada@example.com',
+        'email' => 'ada@example.com',
         'password' => bcrypt(value: $password),
     ]);
 
     $response = $this->postJson(uri: route(name: 'api.login'), data: [
-        'email'    => 'ada@example.com',
+        'email' => 'ada@example.com',
         'password' => $password,
     ]);
 
@@ -25,12 +25,12 @@ it(description: 'returns a token on API login', closure: function (): void {
 
 it(description: 'returns 422 on API login with wrong credentials', closure: function (): void {
     User::factory()->create(attributes: [
-        'email'    => 'ada@example.com',
+        'email' => 'ada@example.com',
         'password' => bcrypt(value: 'correct-password'),
     ]);
 
     $response = $this->postJson(uri: route(name: 'api.login'), data: [
-        'email'    => 'ada@example.com',
+        'email' => 'ada@example.com',
         'password' => 'wrong-password',
     ]);
 
@@ -43,9 +43,9 @@ it(description: 'returns a token on API registration', closure: function (): voi
     $password = Str::password(length: 12);
 
     $response = $this->postJson(uri: route(name: 'api.register'), data: [
-        'name'                  => 'Ada Lovelace',
-        'email'                 => 'ada@example.com',
-        'password'              => $password,
+        'name' => 'Ada Lovelace',
+        'email' => 'ada@example.com',
+        'password' => $password,
         'password_confirmation' => $password,
     ]);
 

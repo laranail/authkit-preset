@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Console\Input\ArrayInput;
 use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
+use Symfony\Component\Console\Input\ArrayInput;
+use Workbench\App\Models\User;
 
 it('offers one feature selection with API, passkeys, and bot protection choices', function (): void {
     $command = Artisan::all()['laranail::authkit-preset.install'];
@@ -30,11 +31,11 @@ it('offers one feature selection with API, passkeys, and bot protection choices'
     ]);
 
     $inputProperty->setValue($command, new ArrayInput([
-        '--api'                => true,
-        '--passkeys'           => true,
-        '--bot-protection'     => true,
+        '--api' => true,
+        '--passkeys' => true,
+        '--bot-protection' => true,
         '--email-verification' => true,
-        '--password-reset'     => true,
+        '--password-reset' => true,
     ], $command->getDefinition()));
     $inputProperty->getValue($command)->setInteractive(false);
 
@@ -52,7 +53,7 @@ it('uses Enumerator feature metadata for interactive feature choices', function 
     $descriptions = $reflection->getMethod('featureDescriptions');
 
     expect($features->invoke($command))->toMatchArray([
-        'login'  => 'Login',
+        'login' => 'Login',
         'social' => 'Social login',
     ])
         ->and($descriptions->invoke($command)['social'])
@@ -60,7 +61,7 @@ it('uses Enumerator feature metadata for interactive feature choices', function 
 });
 
 it('uses the laranail console prompter for interactive selections', function (): void {
-    $source = file_get_contents(dirname(__DIR__, 2) . '/src/Commands/InstallCommand.php');
+    $source = file_get_contents(dirname(__DIR__, 2).'/src/Commands/InstallCommand.php');
 
     expect(function_exists('prompter'))->toBeTrue()
         ->and(prompter()->getPrompts()->has('select'))->toBeTrue()
@@ -79,7 +80,7 @@ it('writes the selected feature set without retaining deselected features', func
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureFeatures');
     $configPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-config-');
-    $source = file_get_contents(dirname(__DIR__, 2) . '/config/laranail/authkit-preset.php');
+    $source = file_get_contents(dirname(__DIR__, 2).'/config/laranail/authkit-preset.php');
 
     file_put_contents($configPath, $source);
 
@@ -108,25 +109,25 @@ it('selects the configured Eloquent model and supports explicit non-interactive 
     config()->set('auth.providers', [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => Workbench\App\Models\User::class,
+            'model' => User::class,
         ],
         'admins' => [
             'driver' => 'database',
-            'table'  => 'admins',
+            'table' => 'admins',
         ],
     ]);
 
     $inputProperty->setValue($command, new ArrayInput([], $command->getDefinition()));
     $inputProperty->getValue($command)->setInteractive(false);
 
-    expect($resolver->invoke($command, true, false))->toBe(Workbench\App\Models\User::class);
+    expect($resolver->invoke($command, true, false))->toBe(User::class);
 
     $inputProperty->setValue($command, new ArrayInput([
-        '--model' => Workbench\App\Models\User::class,
+        '--model' => User::class,
     ], $command->getDefinition()));
     $inputProperty->getValue($command)->setInteractive(false);
 
-    expect($resolver->invoke($command, false, true))->toBe(Workbench\App\Models\User::class);
+    expect($resolver->invoke($command, false, true))->toBe(User::class);
 });
 
 it('adds Sanctum and passkey support to a selected model only once', function (): void {
@@ -211,10 +212,10 @@ it('installs the passkey browser client and app entrypoint idempotently', functi
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $installer = $reflection->getMethod('installPasskeyFrontend');
-    $directory = dirname(__DIR__, 2) . '/.tmp-passkey-frontend-' . uniqid();
-    $packagePath = $directory . '/package.json';
-    $appJsPath = $directory . '/resources/js/app.js';
-    $passkeysJsPath = $directory . '/resources/js/passkeys.js';
+    $directory = dirname(__DIR__, 2).'/.tmp-passkey-frontend-'.uniqid();
+    $packagePath = $directory.'/package.json';
+    $appJsPath = $directory.'/resources/js/app.js';
+    $passkeysJsPath = $directory.'/resources/js/passkeys.js';
 
     mkdir(dirname($appJsPath), 0755, true);
     file_put_contents($packagePath, "{\n    \"private\": true,\n    \"devDependencies\": {}\n}\n");
@@ -320,7 +321,7 @@ it('does not publish a migration the application already has', function (): void
     // INST-06: vendor:publish stamps a fresh timestamp onto a migration destination on every run,
     // so a second install used to leave two files declaring the same table and `migrate` died with
     // "table personal_access_tokens already exists".
-    $migrations = sys_get_temp_dir() . '/authkit-preset-migrations-' . bin2hex(random_bytes(4));
+    $migrations = sys_get_temp_dir().'/authkit-preset-migrations-'.bin2hex(random_bytes(4));
     mkdir($migrations, 0755, true);
 
     $reflection = new ReflectionClass(InstallCommand::class);
@@ -330,7 +331,7 @@ it('does not publish a migration the application already has', function (): void
     try {
         expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeFalse();
 
-        touch($migrations . '/2026_07_27_000000_create_socials_table.php');
+        touch($migrations.'/2026_07_27_000000_create_socials_table.php');
 
         expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeTrue()
             ->and($exists->invoke($command, 'create_passkeys_table', $migrations))->toBeFalse();
@@ -338,7 +339,7 @@ it('does not publish a migration the application already has', function (): void
         // A differently timestamped copy of the same migration still counts as present.
         expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeTrue();
     } finally {
-        array_map('unlink', glob($migrations . '/*') ?: []);
+        array_map('unlink', glob($migrations.'/*') ?: []);
         rmdir($migrations);
     }
 });

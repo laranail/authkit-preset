@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Simtabi\Laranail\AuthKit\Preset\Features;
 
 return [
 
@@ -26,12 +27,12 @@ return [
     */
 
     'features' => [
-        Simtabi\Laranail\AuthKit\Preset\Features::login(),
-        Simtabi\Laranail\AuthKit\Preset\Features::registration(),
-        Simtabi\Laranail\AuthKit\Preset\Features::logout(),
-        Simtabi\Laranail\AuthKit\Preset\Features::updateProfileInformation(),
-        Simtabi\Laranail\AuthKit\Preset\Features::updatePasswords(),
-        Simtabi\Laranail\AuthKit\Preset\Features::emailVerification(),
+        Features::login(),
+        Features::registration(),
+        Features::logout(),
+        Features::updateProfileInformation(),
+        Features::updatePasswords(),
+        Features::emailVerification(),
     ],
 
     'routes' => [
@@ -126,9 +127,9 @@ return [
     */
 
     'redirects' => [
-        'after_login'        => env(key: 'AUTHKIT_PRESET_AFTER_LOGIN', default: '/dashboard'),
+        'after_login' => env(key: 'AUTHKIT_PRESET_AFTER_LOGIN', default: '/dashboard'),
         'after_registration' => env(key: 'AUTHKIT_PRESET_AFTER_REGISTRATION', default: '/dashboard'),
-        'after_logout'       => env(key: 'AUTHKIT_PRESET_AFTER_LOGOUT', default: '/'),
+        'after_logout' => env(key: 'AUTHKIT_PRESET_AFTER_LOGOUT', default: '/'),
         'after_social_login' => env(key: 'AUTHKIT_PRESET_AFTER_SOCIAL_LOGIN', default: '/dashboard'),
     ],
 
