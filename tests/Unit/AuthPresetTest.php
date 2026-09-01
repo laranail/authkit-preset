@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
-use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
-use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 
 it(description: 'returns default blade stack', closure: function (): void {
     expect(AuthPreset::stack())->toBe(FrontendStack::Blade);
@@ -31,9 +31,9 @@ it('exposes Enumerator metadata for authentication features', function (): void 
         ->and(AuthenticationFeature::SOCIAL->description())
         ->toBe('Adds OAuth callback routes for the providers selected next.')
         ->and(AuthenticationFeature::options())->toMatchArray([
-            'login'        => 'Login',
+            'login' => 'Login',
             'registration' => 'Registration',
-            'social'       => 'Social login',
+            'social' => 'Social login',
         ]);
 });
 

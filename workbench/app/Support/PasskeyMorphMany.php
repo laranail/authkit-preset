@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Workbench\App\Support;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PasskeyMorphMany extends HasMany

@@ -30,6 +30,6 @@ foreach (AuthPreset::mounts() as $mount) {
     // $parameters[0]. A named argument leaves that slot empty and the value degrades to true, so
     // every route silently gained a "1" name prefix -- route('login') became route('1login').
     Route::name($mount['name'])->group(function () use ($prefix, $guard, $isPrimaryMount): void {
-        require __DIR__ . '/web-mount.php';
+        require __DIR__.'/web-mount.php';
     });
 }

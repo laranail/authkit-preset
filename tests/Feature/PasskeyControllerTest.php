@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Workbench\App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
+use Workbench\App\Models\User;
 
 it(description: 'requires the workbench user to implement the passkey contract', closure: function (): void {
     expect(User::factory()->create())->toBeInstanceOf(PasskeyUser::class);
@@ -32,14 +32,14 @@ it(description: 'renders multiple registered passkeys with deletion hooks', clos
     $user = User::factory()->create();
 
     $first = $user->passkeys()->create([
-        'name'          => 'MacBook Pro',
+        'name' => 'MacBook Pro',
         'credential_id' => 'credential-one',
-        'credential'    => ['public-key' => 'one'],
+        'credential' => ['public-key' => 'one'],
     ]);
     $second = $user->passkeys()->create([
-        'name'          => 'iPhone',
+        'name' => 'iPhone',
         'credential_id' => 'credential-two',
-        'credential'    => ['public-key' => 'two'],
+        'credential' => ['public-key' => 'two'],
     ]);
 
     $this->actingAs($user)

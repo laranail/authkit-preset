@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Console\Kernel;
 
 /**
  * Every public name this package registers lands in a flat, global registry. A second package

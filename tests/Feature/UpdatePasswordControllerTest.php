@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Workbench\App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\UpdatesUserPasswords;
+use Workbench\App\Models\User;
 
 function bindPasswordUpdater(): void
 {
@@ -47,8 +47,8 @@ it(description: 'updates a password through the web route', closure: function ()
 
     $this->actingAs($user)
         ->put(uri: route('user-password.update'), data: [
-            'current_password'      => 'old-password',
-            'password'              => 'new-password',
+            'current_password' => 'old-password',
+            'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ])
         ->assertRedirect();
@@ -64,8 +64,8 @@ it(description: 'returns password validation errors in the Fortify error bag', c
     $this->actingAs($user)
         ->from(route('user-password.edit'))
         ->put(uri: route('user-password.update'), data: [
-            'current_password'      => 'invalid-password',
-            'password'              => 'new-password',
+            'current_password' => 'invalid-password',
+            'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ])
         ->assertRedirect(route('user-password.edit'))
@@ -80,8 +80,8 @@ it(description: 'updates a password through the Sanctum API route', closure: fun
 
     $this->withToken($token->plainTextToken)
         ->putJson(uri: route('api.user-password.update'), data: [
-            'current_password'      => 'old-password',
-            'password'              => 'new-password',
+            'current_password' => 'old-password',
+            'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ])
         ->assertOk();
