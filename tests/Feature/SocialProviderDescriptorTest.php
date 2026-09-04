@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Simtabi\Laranail\AuthKit\Contracts\IdentityProviderRegistryInterface;
-use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Support\IdentityProvider;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Contracts\IdentityProviderRegistryInterface;
 
 beforeEach(function (): void {
     config()->set('laranail.authkit-social.google.client_id', 'google-id');
@@ -15,9 +15,9 @@ it('describes a built-in provider with its own label and a conventional icon', f
     config()->set('laranail.authkit-preset.social.providers', ['google']);
 
     expect(AuthPreset::socialProviders())->toBe([[
-        'slug' => 'google',
+        'slug'  => 'google',
         'label' => 'Google',
-        'icon' => 'laranail/authkit-preset::icons.google',
+        'icon'  => 'laranail/authkit-preset::icons.google',
         'class' => '',
         'order' => 0,
     ]]);
@@ -28,7 +28,9 @@ it('renders a provider a sub-package registered', function (): void {
     // registered provider was filtered out here and could never appear however correctly it had
     // been registered -- the registry seam stopped one step short of a working button.
     app(IdentityProviderRegistryInterface::class)->register(new IdentityProvider(
-        slug: 'okta', label: 'Okta', assertsEmailVerified: true,
+        slug: 'okta',
+        label: 'Okta',
+        assertsEmailVerified: true,
     ));
     config()->set('laranail.authkit-social.okta.client_id', 'okta-id');
     config()->set('laranail.authkit-preset.social.providers', ['okta']);
@@ -42,7 +44,7 @@ it('lets configuration override the label, icon, classes and order', function ()
     config()->set('laranail.authkit-preset.social.providers', ['google', 'x']);
     config()->set('laranail.authkit-preset.social.ui', [
         'google' => ['label' => 'Sign in with Google', 'class' => 'ring-2', 'order' => 20],
-        'x' => ['icon' => 'icons.custom-x', 'order' => 10],
+        'x'      => ['icon' => 'icons.custom-x', 'order' => 10],
     ]);
 
     $providers = AuthPreset::socialProviders();

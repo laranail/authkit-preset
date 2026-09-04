@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
-use Simtabi\Laranail\AuthKit\Social\Models\Social;
 use Workbench\App\Models\User;
+use Simtabi\Laranail\AuthKit\Social\Models\Social;
+use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 
 function linkSocial(User $user, string $provider, string $id): Social
 {
     return Social::query()->create([
         'socialable_type' => $user::class, 'socialable_id' => $user->getKey(),
-        'provider' => $provider, 'provider_id' => $id, 'email' => $user->email,
+        'provider'        => $provider, 'provider_id' => $id, 'email' => $user->email,
     ]);
 }
 
@@ -29,7 +29,7 @@ it('disconnects a provider when another remains', function (): void {
     linkSocial($user, 'x', 'x-1');
 
     $this->actingAs($user)
-        ->delete(AuthPreset::webPrefix().'/user/social-accounts/google')
+        ->delete(AuthPreset::webPrefix() . '/user/social-accounts/google')
         ->assertSessionHas('status', 'social-account-unlinked');
 
     expect(Social::query()->count())->toBe(1);
@@ -40,7 +40,7 @@ it('refuses to disconnect the only sign-in method, and says so', function (): vo
     linkSocial($user, 'google', 'g-1');
 
     $this->actingAs($user)
-        ->delete(AuthPreset::webPrefix().'/user/social-accounts/google')
+        ->delete(AuthPreset::webPrefix() . '/user/social-accounts/google')
         ->assertSessionHasErrors('provider');
 
     expect(Social::query()->count())->toBe(1);
@@ -61,7 +61,7 @@ it('404s an unknown provider', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->delete(AuthPreset::webPrefix().'/user/social-accounts/myspace')
+        ->delete(AuthPreset::webPrefix() . '/user/social-accounts/myspace')
         ->assertNotFound();
 });
 
