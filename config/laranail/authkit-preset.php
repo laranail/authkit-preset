@@ -127,9 +127,9 @@ return [
     */
 
     'redirects' => [
-        'after_login' => env(key: 'AUTHKIT_PRESET_AFTER_LOGIN', default: '/dashboard'),
+        'after_login'        => env(key: 'AUTHKIT_PRESET_AFTER_LOGIN', default: '/dashboard'),
         'after_registration' => env(key: 'AUTHKIT_PRESET_AFTER_REGISTRATION', default: '/dashboard'),
-        'after_logout' => env(key: 'AUTHKIT_PRESET_AFTER_LOGOUT', default: '/'),
+        'after_logout'       => env(key: 'AUTHKIT_PRESET_AFTER_LOGOUT', default: '/'),
         'after_social_login' => env(key: 'AUTHKIT_PRESET_AFTER_SOCIAL_LOGIN', default: '/dashboard'),
     ],
 

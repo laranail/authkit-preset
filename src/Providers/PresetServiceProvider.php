@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Fortify;
-use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
-use Simtabi\Laranail\AuthKit\Preset\Features;
-use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\PreventAuthenticatedPageCaching;
-use Simtabi\Laranail\AuthKit\Preset\Support;
-use Simtabi\Laranail\AuthKit\Support\AuthKit;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Route;
 use Simtabi\Laranail\Package\Tools\Package;
+use Simtabi\Laranail\AuthKit\Preset\Support;
+use Simtabi\Laranail\AuthKit\Preset\Features;
+use Simtabi\Laranail\AuthKit\Support\AuthKit;
+use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
+use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\PreventAuthenticatedPageCaching;
 
 class PresetServiceProvider extends PackageServiceProvider
 {
@@ -233,7 +233,7 @@ class PresetServiceProvider extends PackageServiceProvider
         $web = Support\AuthPreset::routeNamePrefix();
 
         if ($web !== '' && ! str_starts_with($name, $web)) {
-            $candidates[] = $web.$name;
+            $candidates[] = $web . $name;
         }
 
         // `api.login` was the old bare name; the API now registers under its own prefix without
@@ -241,7 +241,7 @@ class PresetServiceProvider extends PackageServiceProvider
         $api = AuthKit::apiRouteNamePrefix();
 
         if ($api !== '' && ! str_starts_with($name, $api)) {
-            $candidates[] = $api.(str_starts_with($name, 'api.') ? substr($name, 4) : $name);
+            $candidates[] = $api . (str_starts_with($name, 'api.') ? substr($name, 4) : $name);
         }
 
         return $candidates;

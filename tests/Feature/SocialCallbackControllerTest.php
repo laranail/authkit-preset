@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
+use Workbench\App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
+use Simtabi\Laranail\AuthKit\Social\Models\Social;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
-use Simtabi\Laranail\AuthKit\Social\Models\Social;
-use Workbench\App\Models\User;
 
 beforeEach(closure: function (): void {
     $this->socialiteUser = new SocialiteUser;
     $this->socialiteUser->map(attributes: [
-        'id' => '112837291294199545470',
-        'name' => 'Amos Njogu',
-        'nickname' => 'amosnjogu',
-        'email' => 'amos@example.com',
-        'avatar' => 'https://example.com/avatar.jpg',
+        'id'             => '112837291294199545470',
+        'name'           => 'Amos Njogu',
+        'nickname'       => 'amosnjogu',
+        'email'          => 'amos@example.com',
+        'avatar'         => 'https://example.com/avatar.jpg',
         'email_verified' => true,
     ]);
     $this->socialiteUser->setRaw(user: [
@@ -43,13 +43,13 @@ it(description: 'returns existing user when social account already exists', clos
     $existingUser = User::factory()->create(attributes: ['email' => 'amos@example.com']);
     Social::create([
         'socialable_type' => User::class,
-        'socialable_id' => $existingUser->id,
-        'provider' => 'google',
-        'provider_id' => '112837291294199545470',
-        'name' => 'Amos Njogu',
-        'email' => 'amos@example.com',
-        'token' => 'old-token',
-        'refresh_token' => 'old-refresh-token',
+        'socialable_id'   => $existingUser->id,
+        'provider'        => 'google',
+        'provider_id'     => '112837291294199545470',
+        'name'            => 'Amos Njogu',
+        'email'           => 'amos@example.com',
+        'token'           => 'old-token',
+        'refresh_token'   => 'old-refresh-token',
     ]);
 
     $response = $this->get(uri: route(name: 'social.callback', parameters: ['provider' => 'google']));
@@ -61,8 +61,8 @@ it(description: 'returns existing user when social account already exists', clos
 it(description: 'redirects to login on failed social login', closure: function (): void {
     $noEmailUser = new SocialiteUser;
     $noEmailUser->map(attributes: [
-        'id' => '112837291294199545470',
-        'name' => 'No Email',
+        'id'       => '112837291294199545470',
+        'name'     => 'No Email',
         'nickname' => 'noemail',
     ]);
     $noEmailUser->token = 'mock-token';
@@ -80,11 +80,11 @@ it(description: 'does not auto-link by email when provider has not verified it (
 
     $unverifiedUser = new SocialiteUser;
     $raw = [
-        'id' => '112837291294199545470',
-        'name' => 'Attacker',
-        'nickname' => 'attacker',
-        'email' => 'amos@example.com',
-        'avatar' => 'https://example.com/avatar.jpg',
+        'id'             => '112837291294199545470',
+        'name'           => 'Attacker',
+        'nickname'       => 'attacker',
+        'email'          => 'amos@example.com',
+        'avatar'         => 'https://example.com/avatar.jpg',
         'email_verified' => false,
     ];
     $unverifiedUser->setRaw(user: $raw);
