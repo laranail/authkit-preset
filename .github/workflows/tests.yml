@@ -43,7 +43,16 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
+      # laranail/authkit-social is PRIVATE and is a hard `require` here, so composer
+      # has to clone it. GITHUB_TOKEN cannot: it is scoped to the repository the
+      # workflow runs in, which is why the failure reads as "Invalid username or
+      # token" against a token that is present and valid for everything else.
+      # LARANAIL_REPO_TOKEN is a PAT (or GitHub App token) with read access to the
+      # laranail org; the fallback keeps the public dependencies resolving and the
+      # rest of the family's workflows unchanged.
       - name: Install dependencies
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.LARANAIL_REPO_TOKEN || secrets.GITHUB_TOKEN }}"}}'
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
