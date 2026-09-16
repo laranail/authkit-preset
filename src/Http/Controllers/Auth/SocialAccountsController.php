@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Simtabi\Laranail\AuthKit\Contracts\IdentityProviderRegistryInterface;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
-use Simtabi\Laranail\AuthKit\Social\Contracts\UnlinkSocialAccountInterface;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\AuthKit\Social\Services\SocialAccountService;
+use Simtabi\Laranail\AuthKit\Contracts\IdentityProviderRegistryInterface;
+use Simtabi\Laranail\AuthKit\Social\Contracts\UnlinkSocialAccountInterface;
 
 /**
  * Lists a user's linked providers and removes one.
@@ -28,9 +28,9 @@ class SocialAccountsController
 
         return view(AuthPreset::view('social-accounts'), [
             'accounts' => $accounts->forUser($user)->map(fn ($social): array => [
-                'slug' => is_string($social->provider) ? $social->provider : $social->provider->slug(),
-                'label' => is_string($social->provider) ? $social->provider : $social->provider->label(),
-                'email' => $social->email,
+                'slug'       => is_string($social->provider) ? $social->provider : $social->provider->slug(),
+                'label'      => is_string($social->provider) ? $social->provider : $social->provider->label(),
+                'email'      => $social->email,
                 'can_unlink' => ! is_string($social->provider) && $accounts->canUnlink($user, $social->provider),
             ]),
         ]);

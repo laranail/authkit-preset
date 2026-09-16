@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Simtabi\Laranail\AuthKit\Preset\Support;
 
 use LogicException;
-use Simtabi\Laranail\AuthKit\Contracts\IdentityProviderRegistryInterface;
 use Simtabi\Laranail\AuthKit\Preset\Enums\FrontendStack;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
+use Simtabi\Laranail\AuthKit\Contracts\IdentityProviderRegistryInterface;
 
 class AuthPreset
 {
@@ -76,7 +76,7 @@ class AuthPreset
     /** A fully-qualified route name, for anything that has to resolve one by name. */
     public static function routeName(string $name): string
     {
-        return self::routeNamePrefix().$name;
+        return self::routeNamePrefix() . $name;
     }
 
     /**
@@ -96,9 +96,9 @@ class AuthPreset
     public static function mounts(): array
     {
         $mounts = [[
-            'guard' => self::guard(),
-            'prefix' => self::webPrefix(),
-            'name' => self::routeNamePrefix(),
+            'guard'   => self::guard(),
+            'prefix'  => self::webPrefix(),
+            'name'    => self::routeNamePrefix(),
             'primary' => true,
         ]];
 
@@ -111,9 +111,9 @@ class AuthPreset
             }
 
             $mounts[] = [
-                'guard' => $guard,
-                'prefix' => (string) ($options['prefix'] ?? $guard.'/'.self::webPrefix()),
-                'name' => self::routeNamePrefix().(string) ($options['name'] ?? $guard.'.'),
+                'guard'   => $guard,
+                'prefix'  => (string) ($options['prefix'] ?? $guard . '/' . self::webPrefix()),
+                'name'    => self::routeNamePrefix() . (string) ($options['name'] ?? $guard . '.'),
                 'primary' => false,
             ];
         }
@@ -198,9 +198,9 @@ class AuthPreset
             $ui = is_array($ui) ? $ui : [];
 
             $descriptors[] = [
-                'slug' => $slug,
+                'slug'  => $slug,
                 'label' => (string) ($ui['label'] ?? $provider->label()),
-                'icon' => (string) ($ui['icon'] ?? 'laranail/authkit-preset::icons.'.$slug),
+                'icon'  => (string) ($ui['icon'] ?? 'laranail/authkit-preset::icons.' . $slug),
                 'class' => (string) ($ui['class'] ?? ''),
                 'order' => (int) ($ui['order'] ?? 0),
             ];
@@ -214,8 +214,8 @@ class AuthPreset
     public static function view(string $page): string
     {
         return match (self::stack()) {
-            FrontendStack::Blade => 'laranail/authkit-preset::blade.'.$page,
-            default => throw new LogicException('The configured laranail/authkit-preset stack is not installed.'),
+            FrontendStack::Blade => 'laranail/authkit-preset::blade.' . $page,
+            default              => throw new LogicException('The configured laranail/authkit-preset stack is not installed.'),
         };
     }
 }

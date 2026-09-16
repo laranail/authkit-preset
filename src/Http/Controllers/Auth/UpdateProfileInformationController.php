@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Laravel\Fortify\Http\Controllers\ProfileInformationController;
+use Illuminate\Http\Request;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
+use Laravel\Fortify\Http\Controllers\ProfileInformationController;
 
 class UpdateProfileInformationController extends ProfileInformationController
 {
@@ -15,7 +15,7 @@ class UpdateProfileInformationController extends ProfileInformationController
     {
         return view(AuthPreset::view('update-profile-information'), [
             'request' => $request,
-            'user' => $request->user(),
+            'user'    => $request->user(),
         ]);
     }
 }
