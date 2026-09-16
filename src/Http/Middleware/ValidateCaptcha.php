@@ -7,8 +7,8 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\Captcha\Rules\Captcha;
+use Simtabi\Laranail\AuthKit\Preset\Features;
 
 class ValidateCaptcha
 {

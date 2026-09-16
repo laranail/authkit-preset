@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Laravel\Fortify\Http\Controllers\PasswordController;
+use Illuminate\Http\Request;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
+use Laravel\Fortify\Http\Controllers\PasswordController;
 
 class UpdatePasswordController extends PasswordController
 {
