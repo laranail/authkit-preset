@@ -4,49 +4,26 @@ on:
   pull_request:
     branches: [main]
     paths-ignore:
-      - '*.md'
+      - '**.md'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Calls the one shared definition in laranail/.github. Everything this file used
+# to spell out -- the PHP matrix, the composer cache and its laranail eviction,
+# prefer-lowest, fail-fast, timeouts -- lives there now, so a change to how this
+# family tests is one edit instead of fifty.
 jobs:
-  tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: true
-      matrix:
-        php: [ 8.4, 8.5 ]
-        laravel: [ 13.* ]
-        stability: [ prefer-stable ]
-        include:
-          - laravel: 13.*
-            testbench: 11.*
-            carbon: ^3.0
-
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, sqlite3, pdo_sqlite, zip
-          coverage: pcov
-
-      - name: Setup problem matchers
-        run: |
-          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
-
-      - name: Install dependencies
-        run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
-
-      - name: Execute tests
-        run: ./vendor/bin/pest --parallel
+  pest:
+    uses: laranail/.github/.github/workflows/tests.yml@main
+    with:
+      # Pin nothing: resolve whatever composer.json allows. The shared workflow
+      # still defaults laravel-versions to ["13.*"], which runs
+      # `composer require illuminate/contracts` and REWRITES composer.json, so
+      # the suite would test a manifest this package does not ship. Remove this
+      # line only once that default is ["*"].
+      laravel-versions: '["*"]'
+      php-extensions: 'dom, curl, libxml, mbstring, sqlite3, pdo_sqlite, zip'
+      test-command: 'vendor/bin/pest --parallel --colors=never'
