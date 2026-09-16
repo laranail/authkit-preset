@@ -7,6 +7,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`install --stack=` failed instead of prompting.** The fall-through to the interactive stack
+  picker was written with `??`, which substitutes for `null` -- what an OMITTED option gives. An
+  option supplied without a value arrives as `''`, so the prompt was skipped and the install then
+  compared `'' !== 'blade'` and exited with "Only the [blade] stack is currently supported", naming
+  a stack the caller never chose. Now uses `strOption()`, which reports absent and empty alike.
+
+### Added
+
+- **`assertNoNullOnlyOptionGuards()` is enforced over `src/`**, so the shape cannot return.
+
+## [Unreleased]
+
 ### Added
 
 - **Social buttons are configuration, not Blade.** `AuthPreset::socialProviders()` returns

@@ -13,10 +13,12 @@ use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\Console\Tools\Commands\Command;
 use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
+use Simtabi\Laranail\Package\Tools\Commands\Concerns\ReadsOptions;
 use Simtabi\Laranail\Enumerator\Rules\EnumValue;
 
 class InstallCommand extends Command
 {
+    use ReadsOptions;
     use SupportsNamespacedNames;
 
     private const string TAILWIND_BLADE_SOURCE = "@source '../../vendor/laranail/*/resources/views/**/*.blade.php';";
@@ -40,7 +42,7 @@ class InstallCommand extends Command
 
     public function handle(): int
     {
-        $stack = $this->option(key: 'stack') ?? prompter()->select(
+        $stack = $this->strOption('stack') ?? prompter()->select(
             label: 'Which frontend stack would you like to install?',
             options: ['blade' => 'Blade'],
             default: 'blade',
