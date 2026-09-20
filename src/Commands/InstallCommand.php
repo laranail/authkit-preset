@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\Commands;
 
+use ReflectionClass;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use ReflectionClass;
-use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
+use Simtabi\Laranail\Enumerator\Rules\EnumValue;
+use Simtabi\Laranail\Console\Tools\Commands\Command;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
-use Simtabi\Laranail\Console\Tools\Commands\Command;
-use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
+use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 use Simtabi\Laranail\Package\Tools\Commands\Concerns\ReadsOptions;
-use Simtabi\Laranail\Enumerator\Rules\EnumValue;
+use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
 
 class InstallCommand extends Command
 {
@@ -152,7 +152,7 @@ class InstallCommand extends Command
 
         if (count(value: $socialProviders) > 0) {
             $this->newLine();
-            $this->info(string: 'Social login enabled for: '.implode(separator: ', ', array: $socialProviders).'.');
+            $this->info(string: 'Social login enabled for: ' . implode(separator: ', ', array: $socialProviders) . '.');
             $this->line(string: 'Set your OAuth credentials in .env for each enabled provider.');
         }
 
@@ -174,7 +174,7 @@ class InstallCommand extends Command
         $explicit = [];
 
         foreach (['api', 'password-reset', 'email-verification', 'passkeys', 'bot-protection'] as $feature) {
-            if ($this->input->hasParameterOption(values: '--'.$feature)) {
+            if ($this->input->hasParameterOption(values: '--' . $feature)) {
                 $explicit[] = $feature;
             }
         }
@@ -304,7 +304,7 @@ class InstallCommand extends Command
         $options = [];
 
         foreach ($models as $model => $providers) {
-            $options[$model] = $model.' ('.implode(separator: ', ', array: $providers).')';
+            $options[$model] = $model . ' (' . implode(separator: ', ', array: $providers) . ')';
         }
 
         return prompter()->select(
@@ -398,7 +398,7 @@ class InstallCommand extends Command
     {
         $shortName = Str::afterLast(subject: $import, search: '\\');
 
-        if (preg_match(pattern: '/^use\\s+[^;]+\\\\'.preg_quote(str: $shortName, delimiter: '/').'(?:\\s+as\\s+'.preg_quote(str: $shortName, delimiter: '/').')?\\s*;/m', subject: $contents) === 1) {
+        if (preg_match(pattern: '/^use\\s+[^;]+\\\\' . preg_quote(str: $shortName, delimiter: '/') . '(?:\\s+as\\s+' . preg_quote(str: $shortName, delimiter: '/') . ')?\\s*;/m', subject: $contents) === 1) {
             return $contents;
         }
 
@@ -415,7 +415,7 @@ class InstallCommand extends Command
     private function addModelInterface(string $contents, string $className, string $interface): string
     {
         $updated = preg_replace_callback(
-            pattern: '/(\\bclass\\s+'.preg_quote(str: $className, delimiter: '/').'\\b)([^\\{]*)(\\{)/',
+            pattern: '/(\\bclass\\s+' . preg_quote(str: $className, delimiter: '/') . '\\b)([^\\{]*)(\\{)/',
             callback: static function (array $matches) use ($interface): string {
                 if (str_contains(haystack: $matches[2], needle: $interface)) {
                     // $matches[0] is the whole match; imploding the array would emit it AND its
@@ -424,16 +424,16 @@ class InstallCommand extends Command
                 }
 
                 if (preg_match(pattern: '/implements\\s+([^\\{]+)/', subject: $matches[2]) === 1) {
-                    $header = mb_rtrim(string: $matches[2]).', '.$interface;
+                    $header = mb_rtrim(string: $matches[2]) . ', ' . $interface;
                     $header .= mb_substr(string: $matches[2], start: mb_strlen(string: mb_rtrim(string: $matches[2])));
 
-                    return $matches[1].$header.$matches[3];
+                    return $matches[1] . $header . $matches[3];
                 }
 
-                $header = mb_rtrim(string: $matches[2]).' implements '.$interface;
+                $header = mb_rtrim(string: $matches[2]) . ' implements ' . $interface;
                 $header .= mb_substr(string: $matches[2], start: mb_strlen(string: mb_rtrim(string: $matches[2])));
 
-                return $matches[1].$header.$matches[3];
+                return $matches[1] . $header . $matches[3];
             },
             subject: $contents,
             limit: 1,
@@ -444,12 +444,12 @@ class InstallCommand extends Command
 
     private function addModelTrait(string $contents, string $className, string $trait): string
     {
-        if (preg_match(pattern: '/^\\s*use\\s+'.preg_quote(str: $trait, delimiter: '/').'\\s*;/m', subject: $contents) === 1) {
+        if (preg_match(pattern: '/^\\s*use\\s+' . preg_quote(str: $trait, delimiter: '/') . '\\s*;/m', subject: $contents) === 1) {
             return $contents;
         }
 
         $updated = preg_replace(
-            pattern: '/(\\bclass\\s+'.preg_quote(str: $className, delimiter: '/').'\\b[^\\{]*\\{)(\\R)/',
+            pattern: '/(\\bclass\\s+' . preg_quote(str: $className, delimiter: '/') . '\\b[^\\{]*\\{)(\\R)/',
             replacement: "$1$2    use {$trait};$2",
             subject: $contents,
             limit: 1,
@@ -478,12 +478,12 @@ class InstallCommand extends Command
             $replacementCount = 0;
             $contents = str_replace(
                 search: $frameworkSource,
-                replace: $frameworkSource."\n".self::TAILWIND_BLADE_SOURCE,
+                replace: $frameworkSource . "\n" . self::TAILWIND_BLADE_SOURCE,
                 subject: $contents,
                 count: $replacementCount,
             );
         } else {
-            $contents = mb_rtrim(string: $contents, characters: "\n")."\n\n".self::TAILWIND_BLADE_SOURCE."\n";
+            $contents = mb_rtrim(string: $contents, characters: "\n") . "\n\n" . self::TAILWIND_BLADE_SOURCE . "\n";
         }
 
         file_put_contents(filename: $cssPath, data: $contents);
@@ -508,12 +508,12 @@ class InstallCommand extends Command
                 $package['dependencies'] ??= [];
                 $package['dependencies'][self::PASSKEYS_NPM_PACKAGE] = '^0.2.0';
                 ksort(array: $package['dependencies']);
-                file_put_contents(filename: $packagePath, data: json_encode(value: $package, flags: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+                file_put_contents(filename: $packagePath, data: json_encode(value: $package, flags: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
                 $changed = true;
             }
         }
 
-        $sourcePath = __DIR__.'/../../resources/js/passkeys.js';
+        $sourcePath = __DIR__ . '/../../resources/js/passkeys.js';
 
         if (! file_exists(filename: $passkeysJsPath) && file_exists(filename: $sourcePath)) {
             $directory = dirname(path: $passkeysJsPath);
@@ -535,13 +535,13 @@ class InstallCommand extends Command
                 mkdir(directory: $directory, permissions: 0755, recursive: true);
             }
 
-            file_put_contents(filename: $appJsPath, data: $import."\n");
+            file_put_contents(filename: $appJsPath, data: $import . "\n");
             $changed = true;
         } else {
             $contents = file_get_contents(filename: $appJsPath);
 
             if ($contents !== false && ! preg_match(pattern: '/import\s+[\'\"]\.\/passkeys[\'\"]\s*;/', subject: $contents)) {
-                file_put_contents(filename: $appJsPath, data: mb_rtrim(string: $contents, characters: "\n")."\n\n".$import."\n");
+                file_put_contents(filename: $appJsPath, data: mb_rtrim(string: $contents, characters: "\n") . "\n\n" . $import . "\n");
                 $changed = true;
             }
         }
@@ -550,8 +550,8 @@ class InstallCommand extends Command
     }
 
     /**
-     * @param  array<int, string>  $features
-     * @param  array<int, string>  $providers
+     * @param array<int, string> $features
+     * @param array<int, string> $providers
      */
     private function configureFeatures(array $features, array $providers, ?string $configPath = null): void
     {
@@ -563,17 +563,17 @@ class InstallCommand extends Command
 
         $contents = file_get_contents(filename: $configPath);
         $featureMethods = [
-            'login' => 'login',
-            'registration' => 'registration',
-            'logout' => 'logout',
+            'login'                      => 'login',
+            'registration'               => 'registration',
+            'logout'                     => 'logout',
             'update-profile-information' => 'updateProfileInformation',
-            'update-passwords' => 'updatePasswords',
-            'social' => 'social',
-            'api' => 'api',
-            'password-reset' => 'passwordReset',
-            'email-verification' => 'emailVerification',
-            'passkeys' => 'passkeys',
-            'bot-protection' => 'botProtection',
+            'update-passwords'           => 'updatePasswords',
+            'social'                     => 'social',
+            'api'                        => 'api',
+            'password-reset'             => 'passwordReset',
+            'email-verification'         => 'emailVerification',
+            'passkeys'                   => 'passkeys',
+            'bot-protection'             => 'botProtection',
         ];
         $featureLines = [];
 
@@ -583,7 +583,7 @@ class InstallCommand extends Command
             }
         }
 
-        $featureBlock = "    'features' => [\n".implode(separator: "\n", array: $featureLines)."\n    ],";
+        $featureBlock = "    'features' => [\n" . implode(separator: "\n", array: $featureLines) . "\n    ],";
         $contents = preg_replace(
             pattern: "/    'features'\s*=>\s*\[(?:.|\R)*?\n    \],/",
             replacement: $featureBlock,
@@ -591,7 +591,7 @@ class InstallCommand extends Command
             limit: 1,
         ) ?? $contents;
 
-        $providerArray = "['".implode(separator: "', '", array: $providers)."']";
+        $providerArray = "['" . implode(separator: "', '", array: $providers) . "']";
         $contents = preg_replace(
             pattern: "/'providers'\s*=>\s*\[[^\]]*\]/",
             replacement: "'providers' => {$providerArray}",
@@ -660,7 +660,7 @@ class InstallCommand extends Command
         $missing = [];
 
         foreach ($variables as $key => $value) {
-            if (preg_match(pattern: '/^\s*(?:export\s+)?'.preg_quote(str: $key, delimiter: '/').'\s*=/m', subject: $existing) === 1) {
+            if (preg_match(pattern: '/^\s*(?:export\s+)?' . preg_quote(str: $key, delimiter: '/') . '\s*=/m', subject: $existing) === 1) {
                 continue;
             }
 
@@ -677,7 +677,7 @@ class InstallCommand extends Command
             $lines[] = "{$key}={$value}";
         }
 
-        file_put_contents(filename: $path, data: mb_rtrim(string: $existing, characters: "\n")."\n\n# Auth Kit environment variables\n".implode(separator: "\n", array: $lines)."\n");
+        file_put_contents(filename: $path, data: mb_rtrim(string: $existing, characters: "\n") . "\n\n# Auth Kit environment variables\n" . implode(separator: "\n", array: $lines) . "\n");
     }
 
     private function publish(string $tag): void
@@ -722,6 +722,6 @@ class InstallCommand extends Command
         }
 
         // Published migrations are prefixed with a timestamp, so match on the trailing name.
-        return glob(pattern: $migrationPath.'/*_'.$name.'.php') !== [];
+        return glob(pattern: $migrationPath . '/*_' . $name . '.php') !== [];
     }
 }

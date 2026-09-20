@@ -27,3 +27,10 @@ jobs:
       laravel-versions: '["*"]'
       php-extensions: 'dom, curl, libxml, mbstring, sqlite3, pdo_sqlite, zip'
       test-command: 'vendor/bin/pest --parallel --colors=never'
+    secrets:
+      # laranail/authkit-social is PRIVATE and a hard `require` here, so composer
+      # must clone it. GITHUB_TOKEN is scoped to THIS repository and cannot --
+      # the failure reads "Invalid username or token" against a token that is
+      # present and valid for everything else. LARANAIL_REPO_TOKEN is a PAT or
+      # GitHub App token with read access to the org.
+      COMPOSER_AUTH_TOKEN: ${{ secrets.LARANAIL_REPO_TOKEN }}
