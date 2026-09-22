@@ -1,9 +1,10 @@
 # laranail/authkit-preset
 
-[![Packagist Version](https://img.shields.io/packagist/v/laranail/authkit-preset.svg?style=flat-square)](https://packagist.org/packages/laranail/authkit-preset)
 [![Tests](https://img.shields.io/github/actions/workflow/status/laranail/authkit-preset/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/laranail/authkit-preset/actions/workflows/tests.yml)
 [![Static analysis](https://img.shields.io/github/actions/workflow/status/laranail/authkit-preset/static.yml?branch=main&label=static%20analysis&style=flat-square)](https://github.com/laranail/authkit-preset/actions/workflows/static.yml)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+
+`laranail/authkit-preset` is not published to Packagist, so there is no registry-version badge to show — see [Install](#install).
 
 Blade authentication scaffolding for Laravel 13+, powered by [`laranail/authkit`](https://github.com/laranail/authkit).
 
