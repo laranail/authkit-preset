@@ -11,7 +11,7 @@ The last remaining link **cannot** be removed. It is the one social operation th
 out permanently, and the obvious guard against that does not work.
 
 "Allow it when the user has a password" reads correctly and fails in the dangerous direction.
-`laranail/authkit-social` provisions a social account with `Hash::make(Str::random(32))` — a password
+`laranail/authkit-social-login` provisions a social account with `Hash::make(Str::random(32))` — a password
 the user has never seen and can never type — and Laravel's schema makes `users.password` NOT NULL, so
 the column is populated for exactly the accounts most at risk. Nothing in a hash distinguishes a
 chosen password from a generated one, so the package does not guess.
@@ -23,7 +23,7 @@ An application that records whether a password was actually chosen can answer th
 package cannot, and lift the restriction:
 
 ```php
-// config/laranail/authkit-social.php
+// config/laranail/authkit-social-login.php
 'unlink' => ['trust_password_column' => true],
 ```
 
@@ -36,7 +36,7 @@ better than reporting it afterwards.
 ## A provider that is no longer installed
 
 A sub-package can be removed while its rows remain. Such a link still appears in the list and can
-still be removed — `laranail/authkit-social` reads an unresolvable slug back as a plain string rather
+still be removed — `laranail/authkit-social-login` reads an unresolvable slug back as a plain string rather
 than throwing, so one retired provider does not make the whole account unreadable.
 
 ---

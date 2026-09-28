@@ -21,7 +21,7 @@
     "require": {
         "php": "^8.4.1 || ^8.5",
         "laranail/authkit": "^0.1",
-        "laranail/authkit-social": "^0.1",
+        "laranail/authkit-social-login": "^0.1",
         "laranail/captcha": "^0.1",
         "laranail/console": "^0.1",
         "laranail/enumerator": "^0.1",
@@ -101,7 +101,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/laranail/authkit-social.git"
+            "url": "https://github.com/laranail/authkit-social-login.git"
         },
         {
             "type": "composer",

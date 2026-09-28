@@ -27,10 +27,17 @@ jobs:
       laravel-versions: '["*"]'
       php-extensions: 'dom, curl, libxml, mbstring, sqlite3, pdo_sqlite, zip'
       test-command: 'vendor/bin/pest --parallel --colors=never'
-    secrets:
-      # laranail/authkit-social is PRIVATE and a hard `require` here, so composer
-      # must clone it. GITHUB_TOKEN is scoped to THIS repository and cannot --
-      # the failure reads "Invalid username or token" against a token that is
-      # present and valid for everything else. LARANAIL_REPO_TOKEN is a PAT or
-      # GitHub App token with read access to the org.
-      COMPOSER_AUTH_TOKEN: ${{ secrets.LARANAIL_REPO_TOKEN }}
+    # No secrets. `laranail/authkit-social-login` is PUBLIC, so composer clones it
+    # anonymously and needs no token.
+    #
+    # This block used to pass COMPOSER_AUTH_TOKEN from LARANAIL_REPO_TOKEN, for the
+    # period when that dependency was private. Two things were wrong with it by the
+    # time it was removed: the dependency is public, and LARANAIL_REPO_TOKEN was
+    # never created -- this repository has no secrets and the org exposes none, so
+    # the expression resolved to the empty string and configured composer auth with
+    # a blank token. That is why the install step failed with a clone error naming
+    # an SSH url the manifest does not contain: composer's GitHubDriver fell back
+    # from the API to a direct clone and rewrote the url itself.
+    #
+    # If a private laranail dependency is ever added here, the token has to be
+    # created before the wiring is restored, not alongside it.

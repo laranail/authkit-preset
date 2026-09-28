@@ -7,6 +7,33 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking. The social dependency is now `laranail/authkit-social-login`**, following that
+  package's rename. Its repository had been renamed and its manifest had not, so this package
+  resolved it through GitHub's rename redirect — correctly, and therefore invisibly.
+
+  Every name derived from that package's slug moves with it, and this package reads several of them:
+  `config('laranail.authkit-social-login.<provider>.client_id')` when deciding which social buttons
+  to render, and the `laranail::authkit-social-login-migrations` publish tag in `InstallCommand`.
+
+  **An application upgrading both packages must re-publish the social config**, or rename its
+  published `config/laranail/authkit-social.php` and the key inside it. Nothing errors if it does
+  not: the provider lookups simply stop finding a `client_id` and the buttons disappear.
+
+### Removed
+
+- **The `COMPOSER_AUTH_TOKEN` secret wiring**, which passed `LARANAIL_REPO_TOKEN` to the shared
+  tests workflow for the period when the social dependency was private.
+
+  It was wrong twice over. The dependency is public, so composer clones it anonymously — and
+  `LARANAIL_REPO_TOKEN` was never created, so the expression resolved to an empty string and
+  configured composer auth with a blank token. That is what produced an install failure naming an
+  SSH url this manifest does not contain: composer's GitHubDriver fell back from the API to a direct
+  clone and rewrote the url itself, which sent the diagnosis toward credentials for weeks.
+
+## [Unreleased]
+
 ### Fixed
 
 - **`install --stack=` failed instead of prompting.** The fall-through to the interactive stack
