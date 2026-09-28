@@ -67,6 +67,6 @@ abstract class TestCase extends OrchestraTestCase
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/fortify/database/migrations');
         $this->loadMigrationsFrom($authKitPasskeyMigrations);
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/sanctum/database/migrations');
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laranail/authkit-social/database/migrations/social');
+        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laranail/authkit-social-login/database/migrations/social');
     }
 }

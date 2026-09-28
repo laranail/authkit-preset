@@ -164,7 +164,7 @@ class AuthPreset
      * filtered out here and could never appear however correctly it had been registered.
      *
      * Label, icon, ordering and classes come from this package's `social.ui` block rather than from
-     * laranail/authkit-social's provider config: presentation is a preset concern, and the headless
+     * laranail/authkit-social-login's provider config: presentation is a preset concern, and the headless
      * package should not carry button styling. Every key is optional and falls back to the
      * provider's own label and a conventional icon view.
      *
@@ -190,7 +190,7 @@ class AuthPreset
 
             // Credentials are what make a provider usable; a configured one without them would
             // render a button that fails at the provider.
-            if ($provider === null || ! config(key: "laranail.authkit-social.{$slug}.client_id")) {
+            if ($provider === null || ! config(key: "laranail.authkit-social-login.{$slug}.client_id")) {
                 continue;
             }
 

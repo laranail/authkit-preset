@@ -102,7 +102,7 @@ class InstallCommand extends Command
         }
 
         if (count(value: $socialProviders) > 0) {
-            if ($this->publishMigrations(tag: 'laranail::authkit-social-migrations', name: 'create_socials_table')) {
+            if ($this->publishMigrations(tag: 'laranail::authkit-social-login-migrations', name: 'create_socials_table')) {
                 $this->newLine();
                 $this->info(string: 'Social login migration published. Run `php artisan migrate` to create the socials table.');
             }

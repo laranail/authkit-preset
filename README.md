@@ -188,7 +188,7 @@ php artisan vendor:publish --tag=laranail::authkit-preset-config --force
 The preset does not add a migration of its own. Auth Kit provides optional migrations for social accounts and passkeys:
 
 ```bash
-php artisan vendor:publish --tag=laranail::authkit-social-migrations
+php artisan vendor:publish --tag=laranail::authkit-social-login-migrations
 php artisan vendor:publish --tag=laranail::authkit-passkey-migrations
 php artisan migrate
 ```
