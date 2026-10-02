@@ -21,6 +21,8 @@ The supplied login form renders `<x-captcha />` when the feature is enabled. Con
 
 Turnstile is the default provider. Use production site and secret keys only on the production origin, clear cached configuration after changing them, and deliberately test a valid and invalid challenge. CAPTCHA complements rather than replaces the explicit route limits: guest authentication and reset submissions are limited to ten requests per minute, verification operations to six, and the API group to sixty.
 
+Cloudflare's published always-pass test keys return the same fixed dummy token on every render. In a local app using those keys, disable the application's replay guard with `CAPTCHA_REPLAY_GUARD_ENABLED=false`; otherwise a later form submission is correctly rejected as a replay of that fixed token. Keep the replay guard enabled with real provider credentials and in production.
+
 For production safeguards, see [security](security.md). For package and application verification, see [testing](testing.md).
 
 ---
