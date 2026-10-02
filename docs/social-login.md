@@ -8,9 +8,10 @@ php artisan laranail::authkit-social-login.install --social=google
 php artisan migrate
 ```
 
-The preset detects the package's namespaced button component and renders it on its login and
-registration pages. It does not require the social package: without it, those pages render normally
-without social buttons.
+The preset renders the social package's namespaced button component on its login and registration
+pages through its optional `<x-authkit-social-buttons />` wrapper. The wrapper safely renders empty
+when the social package is absent. A button is shown only when its provider is enabled and has a
+client ID configured; see the social package's [configuration guide](https://github.com/laranail/authkit-social-login/blob/main/docs/configuration.md).
 
 The social package owns provider configuration, credentials, web and API routes, callbacks, linked
 account management, buttons, icons, and migrations. When both packages are installed, its web routes
