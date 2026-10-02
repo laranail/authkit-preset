@@ -26,22 +26,12 @@ it(description: 'can disable a feature by omitting it from the list', closure: f
 });
 
 it('exposes Enumerator metadata for authentication features', function (): void {
-    expect(AuthenticationFeature::values())->toContain('login', 'social', 'bot-protection')
+    expect(AuthenticationFeature::values())->toContain('login', 'bot-protection')
         ->and(AuthenticationFeature::LOGIN->label())->toBe('Login')
-        ->and(AuthenticationFeature::SOCIAL->description())
-        ->toBe('Adds OAuth callback routes for the providers selected next.')
         ->and(AuthenticationFeature::options())->toMatchArray([
             'login'        => 'Login',
             'registration' => 'Registration',
-            'social'       => 'Social login',
         ]);
-});
-
-it('ignores invalid configured social providers before checking credentials', function (): void {
-    config()->set('laranail.authkit-preset.social.providers', ['google', 123, 'github']);
-    config()->set('laranail.authkit-social-login.google.client_id', 'client-id');
-
-    expect(AuthPreset::enabledSocialProviders())->toBe(['google']);
 });
 
 it(description: 'returns correct prefix values', closure: function (): void {
