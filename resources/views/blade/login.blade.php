@@ -11,7 +11,9 @@
         </p>
     </div>
 
-    <x-laranail-authkit-preset::social-buttons />
+    @if (view()->exists('laranail/authkit-social-login::components.social-buttons'))
+        <x-laranail-authkit-social-login::social-buttons />
+    @endif
 
     <form method="POST" action="{{ route('login') }}" class="space-y-6">
         @csrf

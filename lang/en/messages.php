@@ -89,11 +89,6 @@ return [
         'created'    => 'Passkey registered successfully.',
     ],
 
-    'social' => [
-        'divider' => 'Or continue with',
-        'failed'  => 'Social authentication failed.',
-    ],
-
     'dashboard' => [
         'title'    => 'Dashboard',
         'welcome'  => 'Welcome back, :name.',
