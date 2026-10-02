@@ -8,23 +8,19 @@ use Workbench\App\Models\User;
 use Laravel\Fortify\FortifyServiceProvider;
 use Laravel\Sanctum\SanctumServiceProvider;
 use Simtabi\Laranail\AuthKit\Preset\Features;
-use Laravel\Socialite\SocialiteServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Simtabi\Laranail\AuthKit\Providers\AuthKitServiceProvider;
 use Simtabi\Laranail\Captcha\Providers\CaptchaServiceProvider;
 use Simtabi\Laranail\AuthKit\Preset\Providers\PresetServiceProvider;
-use Simtabi\Laranail\AuthKit\Social\Providers\SocialServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
 {
     protected function getPackageProviders($app): array
     {
         return [
-            SocialiteServiceProvider::class,
             FortifyServiceProvider::class,
             SanctumServiceProvider::class,
             AuthKitServiceProvider::class,
-            SocialServiceProvider::class,
             CaptchaServiceProvider::class,
             PresetServiceProvider::class,
         ];
@@ -49,7 +45,6 @@ abstract class TestCase extends OrchestraTestCase
             Features::login(),
             Features::registration(),
             Features::logout(),
-            Features::social(),
             Features::api(),
             Features::passwordReset(),
             Features::updateProfileInformation(),
@@ -67,6 +62,5 @@ abstract class TestCase extends OrchestraTestCase
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/fortify/database/migrations');
         $this->loadMigrationsFrom($authKitPasskeyMigrations);
         $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/sanctum/database/migrations');
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laranail/authkit-social-login/database/migrations/social');
     }
 }

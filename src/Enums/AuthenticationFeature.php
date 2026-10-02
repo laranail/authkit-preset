@@ -33,10 +33,6 @@ enum AuthenticationFeature: string implements Enumerator
     #[Description('Adds the authenticated password update form and endpoint.')]
     case UPDATE_PASSWORDS = 'update-passwords';
 
-    #[Label('Social login')]
-    #[Description('Adds OAuth callback routes for the providers selected next.')]
-    case SOCIAL = 'social';
-
     #[Label('API authentication')]
     #[Description('Adds Sanctum token authentication routes and publishes its migration.')]
     case API = 'api';

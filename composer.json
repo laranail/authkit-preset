@@ -21,7 +21,6 @@
     "require": {
         "php": "^8.4.1 || ^8.5",
         "laranail/authkit": "^0.1",
-        "laranail/authkit-social-login": "^0.1",
         "laranail/captcha": "^0.1",
         "laranail/console": "^0.1",
         "laranail/enumerator": "^0.1",
@@ -38,6 +37,9 @@
         "psr-4": {
             "Simtabi\\Laranail\\AuthKit\\Preset\\": "src/"
         }
+    },
+    "suggest": {
+        "laranail/authkit-social-login": "Optional social login, routes, and Blade buttons for the preset."
     },
     "autoload-dev": {
         "psr-4": {
@@ -98,10 +100,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/laranail/db-tools.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/laranail/authkit-social-login.git"
         },
         {
             "type": "composer",

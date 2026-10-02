@@ -13,15 +13,36 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   package's rename. Its repository had been renamed and its manifest had not, so this package
   resolved it through GitHub's rename redirect — correctly, and therefore invisibly.
 
-  Every name derived from that package's slug moves with it, and this package reads several of them:
-  `config('laranail.authkit-social-login.<provider>.client_id')` when deciding which social buttons
-  to render, and the `laranail::authkit-social-login-migrations` publish tag in `InstallCommand`.
+  Every name derived from that package's slug moves with it. This package no longer reads any of
+  them — it delegates social login to that package entirely, below — but an application that
+  published the config under the old key still has to rename the file and the key inside it.
 
   **An application upgrading both packages must re-publish the social config**, or rename its
   published `config/laranail/authkit-social.php` and the key inside it. Nothing errors if it does
   not: the provider lookups simply stop finding a `client_id` and the buttons disappear.
 
+### Added
+
+- **The social package's buttons on the login and registration pages**, when
+  `laranail/authkit-social-login` is installed. The preset no longer ships a buttons component,
+  provider icons, or a social-accounts view.
+
 ### Removed
+
+- **Social login**, now owned entirely by `laranail/authkit-social-login`. The package moves from
+  `require` to `suggest`, and this package registers none of it: the `social` feature and
+  `Features::social()`, the `social` config block and `redirects.after_social_login`, the
+  `social.redirect` and `social.callback` routes, the authenticated `/user/social-accounts` routes,
+  three controllers, `AuthPreset::socialProviders()`, `AuthPreset::enabledSocialProviders()`,
+  `AuthPreset::afterSocialLoginRedirect()`, and the `--social` installer option with its provider
+  prompt, its migration publish step and its `AUTHKIT_<PROVIDER>_*` writes.
+
+  This package still owns the prefixes, guards, middleware, route-name prefixes and guard mounts;
+  the social package inherits them when both are installed.
+
+  **Upgrading:** run `php artisan laranail::authkit-social-login.install --social=<provider>` instead
+  of passing `--social` here, and delete the `social` config block. `Features::social()` no longer
+  exists, so published config that still references it will fatal.
 
 - **The `COMPOSER_AUTH_TOKEN` secret wiring**, which passed `LARANAIL_REPO_TOKEN` to the shared
   tests workflow for the period when the social dependency was private.

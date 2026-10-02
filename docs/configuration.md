@@ -28,7 +28,6 @@ silent.
 | `routes.mode` | `package` | `package` registers routes from the package; `published` expects the application to require the published files. |
 | `redirects.*` | `/dashboard`, `/` | Where each flow lands. |
 | `bot_protection.provider` | `turnstile` | Which captcha provider `laranail/captcha` uses. |
-| `social.providers` | `['google']` | Which providers render on the login page. |
 
 ## Features
 
@@ -38,7 +37,7 @@ silent.
     \Simtabi\Laranail\AuthKit\Preset\Features::registration(),
     \Simtabi\Laranail\AuthKit\Preset\Features::logout(),
     // updateProfileInformation, updatePasswords, emailVerification,
-    // passwordReset, social, api, passkeys, botProtection
+    // passwordReset, api, passkeys, botProtection
 ],
 ```
 
@@ -55,7 +54,7 @@ Removing an entry removes that flow's routes and the UI that links to it.
 | `AUTHKIT_PRESET_AFTER_LOGIN` and siblings | `redirects.*` |
 | `CAPTCHA_PROVIDER` · `CAPTCHA_SITE_KEY` · `CAPTCHA_SECRET_KEY` | bot protection |
 
-Core settings — the guard the actions use, rate limits, social credentials — live under
+Core settings — the guard the actions use and rate limits — live under
 `laranail.authkit`. See the [core's configuration guide](../../authkit/docs/configuration.md).
 
 ## After changing anything

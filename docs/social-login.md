@@ -1,36 +1,23 @@
-# Social login
+# Social login integration
 
-Enable only providers that have credentials and an approved callback configured:
-
-```bash
-php artisan laranail::authkit-preset.install --social=google --social=linkedin
-```
-
-Supported provider keys are `google`, `apple`, `x`, `linkedin`, and `paypal`. The installer adds selected keys to `laranail.authkit-preset.social.providers`, publishes authkit's social migration, and enables the social feature. Run the migration before exposing the buttons:
+Social login is an optional package. The recommended setup is to install it beside the preset:
 
 ```bash
+composer require laranail/authkit-social-login
+php artisan laranail::authkit-social-login.install --social=google
 php artisan migrate
 ```
 
-## Provider setup and routes
+The preset detects the package's namespaced button component and renders it on its login and
+registration pages. It does not require the social package: without it, those pages render normally
+without social buttons.
 
-Create an OAuth application with each provider and add the exact callback URL that corresponds to the preset's web prefix:
-
-```text
-https://your-app.test/auth/social/google/callback
-```
-
-Set the provider's `AUTHKIT_<PROVIDER>_CLIENT_ID`, `CLIENT_SECRET`, and `REDIRECT` values in the application environment, then clear the configuration cache. A configured provider appears only when it is both in `laranail.authkit-preset.social.providers` and has a client ID. This avoids rendering a button that cannot complete its flow. The social-button component is included in the login Blade view; publishing the view is required to move or restyle it.
-
-With the social feature enabled, guests use `GET /auth/social/{provider}` (`social.redirect`) to start the provider redirect and `GET /auth/social/{provider}/callback` (`social.callback`) to complete it. Both use the web middleware and `guest:<AUTHKIT_PRESET_GUARD>`. The callback creates a session using that guard and redirects to `AUTHKIT_PRESET_AFTER_SOCIAL_LOGIN`, `/dashboard` by default. Neither route is created by `Features::api()`, and the preset has no API social-token exchange.
-
-## Account-linking safety
-
-The preset delegates identity handling to Auth Kit. Existing provider identities are reused; an already authenticated user may link a provider identity. For guests, a matching email is auto-linked only when the provider supplies a trusted verified-email claim. Every provider Auth Kit ships asserts that claim, each through its own key — `email_verified` for Google, Apple, LinkedIn, and PayPal, `confirmed_email` for X.
-
-Apple is the one provider whose callback arrives as a **POST**: requesting the `name` and `email` scopes forces `response_mode=form_post`. The preset's `social.callback` route accepts both verbs and is excluded from CSRF for that reason — the request comes from Apple's servers and carries no session token, and the OAuth `state` parameter is what protects it. If you replace these routes, carry that across or Apple sign-in answers 405 or 419 with nothing in the log to explain it. Facebook is not shipped, because it asserts nothing. Missing or unverified email claims do not silently link an existing local account.
-
-The migration stores access and refresh tokens, so treat the `socials` table as sensitive data and do not serialize it in APIs. For scopes, PayPal sandbox configuration, custom providers, and the complete identity-resolution rules, read authkit's [social login guide](../../authkit/docs/social-login.md).
+The social package owns provider configuration, credentials, web and API routes, callbacks, linked
+account management, buttons, icons, and migrations. When both packages are installed, its web routes
+inherit the preset's prefixes, guards, middleware, route-name prefixes, and configured guard mounts.
+The social package also works without the preset; see its [installation guide](https://github.com/laranail/authkit-social-login/blob/main/docs/installation.md),
+[social login guide](https://github.com/laranail/authkit-social-login/blob/main/docs/social-login.md),
+and [connected accounts guide](https://github.com/laranail/authkit-social-login/blob/main/docs/connected-accounts.md).
 
 ---
 

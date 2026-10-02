@@ -11,7 +11,7 @@ Blade authentication scaffolding for Laravel 13+, powered by [`laranail/authkit`
 > [!WARNING]
 > This package is still in development. Breaking changes are imminent; use it in production at your own risk.
 
-The preset provides configurable web and API authentication routes, Fortify-backed password and profile flows, Blade views, social login integration, passkeys, and optional captcha-based bot protection.
+The preset provides configurable web and API authentication routes, Fortify-backed password and profile flows, Blade views, passkeys, and optional captcha-based bot protection. It integrates with the optional `laranail/authkit-social-login` package and conditionally renders its buttons on login and registration pages.
 
 ## Requirements
 
@@ -64,7 +64,6 @@ Full documentation: <https://opensource.simtabi.com/documentation/laranail/authk
 - [Password reset](docs/password-reset.md) · [Password updates](docs/password-updates.md)
 - [Profile management](docs/profile-management.md) · [Email verification](docs/email-verification.md)
 - [Social login](docs/social-login.md) · [Passkeys](docs/passkeys.md) · [API routes](docs/api-routes.md)
-- [Connected accounts](docs/connected-accounts.md) — listing and removing linked providers, and the rule that stops a lockout
 - [Bot protection](docs/bot-protection.md)
 
 ### Recipes
@@ -87,9 +86,7 @@ php artisan laranail::authkit-preset.install \
     --api \
     --passkeys \
     --model='App\Models\User' \
-    --bot-protection \
-    --social=google \
-    --social=linkedin
+    --bot-protection
 ```
 
 Available options:
@@ -97,7 +94,6 @@ Available options:
 | Option                 | Description                                                              |
 |------------------------|--------------------------------------------------------------------------|
 | `--stack=blade`        | Select the frontend stack. Blade is currently supported.                 |
-| `--social=<provider>`  | Enable a supported social provider. Repeat for multiple providers.       |
 | `--api`                | Enable API authentication and publish the Sanctum token migration.       |
 | `--password-reset`     | Enable forgot-password and reset-password flows.                         |
 | `--email-verification` | Enable email verification.                                               |
@@ -108,9 +104,7 @@ Available options:
 | `--publish-views`      | Publish Blade views for application customization.                       |
 | `--force`              | Overwrite existing published files.                                      |
 
-Supported social providers are `google`, `apple`, `x`, `linkedin`, and `paypal`.
-
-In interactive mode, the installer asks which auth provider should receive authentication traits immediately after the frontend stack, then asks `Which authentication feature would you like to enable?` and shows a description for every choice. This includes API authentication, which is selected by default and publishes the Sanctum migration. Social login opens a second multi-select for its providers with Google selected by default; enable only providers you plan to configure. The installer reads the `eloquent` providers from `config/auth.php` and applies traits to the selected provider's model when API authentication or passkeys are enabled. In non-interactive mode, only the base web features are enabled unless optional feature flags are supplied; use `--model=<class>` when needed.
+In interactive mode, the installer asks which auth provider should receive authentication traits immediately after the frontend stack, then asks `Which authentication feature would you like to enable?` and shows a description for every preset feature. This includes API authentication, which is selected by default and publishes the Sanctum migration. The installer reads the `eloquent` providers from `config/auth.php` and applies traits to the selected provider's model when API authentication or passkeys are enabled. In non-interactive mode, only the base web features are enabled unless optional feature flags are supplied; use `--model=<class>` when needed. Install `laranail/authkit-social-login` separately to add social login; the preset automatically renders its buttons when its component is available.
 
 The selected model receives `Laravel\Sanctum\HasApiTokens` when API authentication is enabled. When passkeys are enabled, it receives the `Laravel\Fortify\Contracts\PasskeyUser` interface and authkit's `Simtabi\Laranail\AuthKit\PasskeyAuthenticatable` trait. The model source file must be writable.
 
@@ -120,7 +114,7 @@ When passkeys are enabled, the installer adds `@laravel/passkeys` to `package.js
 
 The installer publishes both configuration files:
 
-- `config/laranail/authkit.php` contains backend authentication, Fortify, and social settings.
+- `config/laranail/authkit.php` contains backend authentication and Fortify settings.
 - `config/laranail/authkit-preset.php` controls the frontend stack, bot-protection provider, enabled features, route prefixes, middleware, guard, and redirects.
 
 Enable or disable preset features in `config/laranail/authkit-preset.php`:
@@ -185,10 +179,9 @@ php artisan vendor:publish --tag=laranail::authkit-preset-config --force
 
 ### Migrations
 
-The preset does not add a migration of its own. Auth Kit provides optional migrations for social accounts and passkeys:
+The preset does not add a migration of its own. Auth Kit provides an optional migration for passkeys:
 
 ```bash
-php artisan vendor:publish --tag=laranail::authkit-social-login-migrations
 php artisan vendor:publish --tag=laranail::authkit-passkey-migrations
 php artisan migrate
 ```
@@ -256,7 +249,8 @@ composer lint
 | [`laranail/authkit`](https://github.com/laranail/authkit) | Headless core — actions, contracts, result objects, REST API |
 | [`laranail/authkit-preset`](https://github.com/laranail/authkit-preset) | Blade scaffolding on top of the core |
 | `laranail/authkit-sso` | SAML 2.0 and OIDC single sign-on |
-| `laranail/authkit-oauth` | OAuth and social identity |
+| `laranail/authkit-social-login` | Optional social login and buttons |
+| `laranail/authkit-oauth` | OAuth server, apps and scopes |
 | `laranail/authkit-tenancy` | Multi-tenancy |
 | `laranail/authkit-ldap` | LDAP and Active Directory |
 

@@ -13,7 +13,7 @@ When package routes are enabled and `Features::login()` is present, the preset r
 
 The supplied form posts `email`, `password`, and optional `remember`. It keeps the email and remember choice on an invalid-credential response, attaches the error to `email`, and returns `429` after an Auth Kit credential throttle. Successful login regenerates the session. Auth Kit also applies its credential limiter, keyed by the configured guard, lowercased email, and client IP; that limit is configured independently from the route's ten-per-minute limit.
 
-The Blade page conditionally shows a registration link, forgot-password link, social buttons, CAPTCHA widget, and passkey button according to their individual feature/configuration state. It does not render a token or call an API endpoint. Publish the views to change labels, layout, links, or fields; preserve the route names unless all corresponding links are changed too.
+The Blade page conditionally shows a registration link, forgot-password link, CAPTCHA widget, and passkey button according to their individual feature/configuration state. If `laranail/authkit-social-login` is installed, it also renders that package's social-button component. It does not render a token or call an API endpoint. Publish the views to change labels, layout, links, or fields; preserve the route names unless all corresponding links are changed too.
 
 ## API login
 

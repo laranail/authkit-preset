@@ -7,6 +7,7 @@ What belongs in this package, what belongs in the core, and how the two meet.
 ```
 laranail/authkit           Simtabi\Laranail\AuthKit\           headless core + REST API
 laranail/authkit-preset    Simtabi\Laranail\AuthKit\Preset\    this package
+laranail/authkit-social-login Simtabi\Laranail\AuthKit\Social\ optional social flows and buttons
 laranail/authkit-sso       Simtabi\Laranail\AuthKit\Sso\       SAML and OIDC
 laranail/authkit-oauth     Simtabi\Laranail\AuthKit\OAuth\     OAuth and social identity
 laranail/authkit-tenancy   Simtabi\Laranail\AuthKit\Tenancy\   multi-tenancy
@@ -24,7 +25,7 @@ the core.
 | Belongs here | Belongs in the core |
 |---|---|
 | Blade views, components, layouts | Credential verification |
-| Web routes and the route groups | Identity resolution and linking |
+| Preset web routes and the route groups | Identity resolution and linking |
 | Thin controllers that resolve and delegate | Token issuance and revocation |
 | The installer | Rate limiting |
 | Translations | Validation rules |

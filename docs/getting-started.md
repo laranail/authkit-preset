@@ -9,17 +9,18 @@ composer require laranail/authkit-preset
 php artisan laranail::authkit-preset.install
 ```
 
-The installer asks which features you want, which model to authenticate, and which social providers
-to enable. Non-interactively:
+The installer asks which preset features you want and which model to authenticate. Non-interactively:
 
 ```bash
 php artisan laranail::authkit-preset.install --no-interaction \
     --stack=blade --api --password-reset --email-verification --passkeys \
-    --social=google --model='App\Models\User'
+    --model='App\Models\User'
 ```
 
 It publishes the config, adds the traits and interfaces your selected features need to the model,
-publishes only the migrations those features require, and writes the environment variables.
+publishes only the migrations those features require, and writes the environment variables. For the
+recommended social-login integration, install `laranail/authkit-social-login` and run its installer;
+the preset then renders its buttons on the login and registration pages.
 
 ```bash
 php artisan migrate

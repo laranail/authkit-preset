@@ -53,11 +53,9 @@ it('uses Enumerator feature metadata for interactive feature choices', function 
     $descriptions = $reflection->getMethod('featureDescriptions');
 
     expect($features->invoke($command))->toMatchArray([
-        'login'  => 'Login',
-        'social' => 'Social login',
-    ])
-        ->and($descriptions->invoke($command)['social'])
-        ->toBe('Adds OAuth callback routes for the providers selected next.');
+        'login'        => 'Login',
+        'registration' => 'Registration',
+    ]);
 });
 
 it('uses the laranail console prompter for interactive selections', function (): void {
@@ -68,7 +66,7 @@ it('uses the laranail console prompter for interactive selections', function ():
         ->and(prompter()->getPrompts()->has('multiselect'))->toBeTrue()
         ->and($source)->not->toContain('Laravel\\Prompts')
         ->and(mb_substr_count($source, 'prompter()->select'))->toBe(2)
-        ->and(mb_substr_count($source, 'prompter()->multiselect'))->toBe(2);
+        ->and(mb_substr_count($source, 'prompter()->multiselect'))->toBe(1);
 
     expect($source)->toContain('Which auth provider should receive the authentication traits?')
         ->and(mb_strpos($source, '$authModel = $this->input->isInteractive()'))
@@ -85,7 +83,7 @@ it('writes the selected feature set without retaining deselected features', func
     file_put_contents($configPath, $source);
 
     try {
-        $configurator->invoke($command, ['login', 'registration', 'api'], [], $configPath);
+        $configurator->invoke($command, ['login', 'registration', 'api'], $configPath);
         $contents = file_get_contents($configPath);
 
         expect($contents)
@@ -246,7 +244,7 @@ it('installs the passkey browser client and app entrypoint idempotently', functi
     }
 });
 
-it('adds selected social and captcha environment variables to both env files without overwriting them', function (): void {
+it('adds captcha environment variables to both env files without overwriting them', function (): void {
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureEnvironment');
@@ -257,18 +255,12 @@ it('adds selected social and captcha environment variables to both env files wit
     file_put_contents($envExamplePath, "APP_KEY=\n");
 
     try {
-        $configurator->invoke($command, ['google', 'linkedin'], true, $envPath, $envExamplePath);
+        $configurator->invoke($command, true, $envPath, $envExamplePath);
 
         foreach ([$envPath, $envExamplePath] as $path) {
             $contents = file_get_contents($path);
 
             expect($contents)
-                ->toContain('AUTHKIT_GOOGLE_CLIENT_ID=')
-                ->toContain('AUTHKIT_GOOGLE_CLIENT_SECRET=')
-                ->toContain('AUTHKIT_GOOGLE_REDIRECT=http://localhost/auth/social/google/callback')
-                ->toContain('AUTHKIT_LINKEDIN_CLIENT_ID=')
-                ->toContain('AUTHKIT_LINKEDIN_CLIENT_SECRET=')
-                ->toContain('AUTHKIT_LINKEDIN_REDIRECT=http://localhost/auth/social/linkedin/callback')
                 ->toContain('CAPTCHA_PROVIDER=turnstile')
                 ->toContain('CAPTCHA_SITE_KEY=')
                 ->toContain('CAPTCHA_SECRET_KEY=')
@@ -281,7 +273,7 @@ it('adds selected social and captcha environment variables to both env files wit
             ->toContain('CAPTCHA_SITE_KEY=existing-site')
             ->and(mb_substr_count(file_get_contents($envPath), 'CAPTCHA_SITE_KEY='))->toBe(1);
 
-        $configurator->invoke($command, ['google', 'linkedin'], true, $envPath, $envExamplePath);
+        $configurator->invoke($command, true, $envPath, $envExamplePath);
 
         expect(mb_substr_count(file_get_contents($envPath), 'AUTHKIT_GOOGLE_CLIENT_ID='))->toBe(1)
             ->and(mb_substr_count(file_get_contents($envExamplePath), 'CAPTCHA_PROVIDER='))->toBe(1);
@@ -329,15 +321,12 @@ it('does not publish a migration the application already has', function (): void
     $command = app(InstallCommand::class);
 
     try {
-        expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeFalse();
+        expect($exists->invoke($command, 'create_passkeys_table', $migrations))->toBeFalse();
 
-        touch($migrations . '/2026_07_27_000000_create_socials_table.php');
+        touch($migrations . '/2026_08_14_000000_create_passkeys_table.php');
 
-        expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeTrue()
-            ->and($exists->invoke($command, 'create_passkeys_table', $migrations))->toBeFalse();
-
-        // A differently timestamped copy of the same migration still counts as present.
-        expect($exists->invoke($command, 'create_socials_table', $migrations))->toBeTrue();
+        expect($exists->invoke($command, 'create_passkeys_table', $migrations))->toBeTrue()
+            ->and($exists->invoke($command, 'create_personal_access_tokens_table', $migrations))->toBeFalse();
     } finally {
         array_map('unlink', glob($migrations . '/*') ?: []);
         rmdir($migrations);
@@ -348,6 +337,6 @@ it('treats a missing migrations directory as nothing published', function (): vo
     $reflection = new ReflectionClass(InstallCommand::class);
     $exists = $reflection->getMethod('migrationExists');
 
-    expect($exists->invoke(app(InstallCommand::class), 'create_socials_table', '/nonexistent/path'))
+    expect($exists->invoke(app(InstallCommand::class), 'create_passkeys_table', '/nonexistent/path'))
         ->toBeFalse();
 });
