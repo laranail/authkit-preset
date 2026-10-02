@@ -53,23 +53,6 @@ Route::prefix($prefix)
                 ->name('login.store');
         }
 
-        if (Features::enabled(Features::social())) {
-            Route::get('/social/{provider}', Auth\SocialRedirectController::class)->name('social.redirect');
-            // Apple requests the `name` and `email` scopes, which forces response_mode=form_post,
-            // so Apple POSTs this callback rather than redirecting to it. A GET-only route answers
-            // Apple with a 405 and the sign-in dies with nothing in the log to explain it, so the
-            // callback accepts both verbs.
-            //
-            // CSRF is excluded because the request originates at Apple and carries no session token
-            // by construction. The OAuth `state` parameter Socialite round-trips is what protects
-            // this endpoint; CSRF never did. PreventRequestForgery is named directly because it is
-            // what the `web` group actually registers -- VerifyCsrfToken and ValidateCsrfToken are
-            // deprecated subclasses, and excluding either silently does nothing.
-            Route::match(['GET', 'POST'], '/social/{provider}/callback', Auth\SocialCallbackController::class)
-                ->withoutMiddleware(AuthPreset::csrfMiddleware())
-                ->name('social.callback');
-        }
-
         if (Features::enabled(Features::passwordReset())) {
             Route::get('/forgot-password', [Auth\PasswordResetLinkController::class, 'create'])
                 ->name('password.request');
@@ -123,12 +106,6 @@ if (Features::enabled(Features::passkeys())) {
     Route::prefix($prefix)
         ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
         ->group(function (): void {
-            Route::get('/user/social-accounts', [Auth\SocialAccountsController::class, 'index'])
-                ->name('user-social-accounts.index');
-
-            Route::delete('/user/social-accounts/{provider}', [Auth\SocialAccountsController::class, 'destroy'])
-                ->name('user-social-accounts.destroy');
-
             Route::get('/user/passkeys', [Auth\PasskeysController::class, 'index'])
                 ->name('user-passkeys.index');
         });

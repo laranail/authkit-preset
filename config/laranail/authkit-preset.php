@@ -130,26 +130,6 @@ return [
         'after_login'        => env(key: 'AUTHKIT_PRESET_AFTER_LOGIN', default: '/dashboard'),
         'after_registration' => env(key: 'AUTHKIT_PRESET_AFTER_REGISTRATION', default: '/dashboard'),
         'after_logout'       => env(key: 'AUTHKIT_PRESET_AFTER_LOGOUT', default: '/'),
-        'after_social_login' => env(key: 'AUTHKIT_PRESET_AFTER_SOCIAL_LOGIN', default: '/dashboard'),
-    ],
-
-    'social' => [
-        'providers' => [
-            'google',
-        ],
-
-        /*
-         * Per-provider button presentation. Every key is optional: `label` falls back to the
-         * provider's own name, `icon` to laranail/authkit-preset::icons.<slug>, `class` to nothing
-         * and `order` to 0. This lives here rather than in laranail/authkit-social-login because
-         * presentation is a preset concern -- the headless package carries no button styling.
-         *
-         *     'ui' => [
-         *         'google' => ['label' => 'Continue with Google', 'order' => 10],
-         *         'okta'   => ['icon' => 'icons.okta', 'order' => 20],
-         *     ],
-         */
-        'ui' => [],
     ],
 
 ];

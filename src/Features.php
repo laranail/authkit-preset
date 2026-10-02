@@ -28,11 +28,6 @@ final class Features
         return AuthenticationFeature::LOGOUT->value;
     }
 
-    public static function social(): string
-    {
-        return AuthenticationFeature::SOCIAL->value;
-    }
-
     public static function api(): string
     {
         return AuthenticationFeature::API->value;
