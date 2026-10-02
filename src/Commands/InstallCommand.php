@@ -27,6 +27,7 @@ class InstallCommand extends Command
         {--password-reset : Enable password reset flow}
         {--email-verification : Enable email verification flow}
         {--passkeys : Enable passkey authentication, migration, and browser client}
+        {--two-factor-authentication : Enable authenticator-app two-factor authentication}
         {--bot-protection : Enable configurable captcha validation on guest forms}
         {--model= : The Eloquent authentication model to configure}
         {--publish-routes : Publish package route files for application ownership}
@@ -58,17 +59,18 @@ class InstallCommand extends Command
         $wantsPasskeys = in_array(needle: 'passkeys', haystack: $features, strict: true);
         $wantsBotProtection = in_array(needle: 'bot-protection', haystack: $features, strict: true);
         $wantsEmailVerification = in_array(needle: 'email-verification', haystack: $features, strict: true);
+        $wantsTwoFactorAuthentication = in_array(needle: 'two-factor-authentication', haystack: $features, strict: true);
 
         // Email verification belongs in this set: Laravel's SendEmailVerificationNotification
         // listener checks the model for MustVerifyEmail, so without that interface registration
         // sends nothing, the verified middleware lets everyone through, and the whole feature is
         // silently inert -- installed, configured, and doing nothing.
-        $needsModel = $wantsApi || $wantsPasskeys || $wantsEmailVerification;
+        $needsModel = $wantsApi || $wantsPasskeys || $wantsEmailVerification || $wantsTwoFactorAuthentication;
 
         if (! $this->input->isInteractive()) {
-            $authModel = $this->resolveAuthModel(wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys);
+            $authModel = $this->resolveAuthModel(wantsApi: $wantsApi || $wantsTwoFactorAuthentication, wantsPasskeys: $wantsPasskeys);
         } elseif ($needsModel && $authModel === null) {
-            $authModel = $this->resolveAuthModel(wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys);
+            $authModel = $this->resolveAuthModel(wantsApi: $wantsApi || $wantsTwoFactorAuthentication, wantsPasskeys: $wantsPasskeys);
         } elseif (! $needsModel) {
             $authModel = null;
         }
@@ -87,6 +89,11 @@ class InstallCommand extends Command
 
         if ($wantsPasskeys) {
             $this->installPasskeyFrontend();
+        }
+
+        if ($wantsTwoFactorAuthentication && $this->publishMigrations(tag: 'laranail::authkit-two-factor-migrations', name: 'add_two_factor_authentication_to_users_table')) {
+            $this->newLine();
+            $this->info(string: 'Two-factor authentication migration published. Run `php artisan migrate` to add the two_factor_method and TOTP fields.');
         }
 
         if ($wantsApi) {
@@ -148,7 +155,7 @@ class InstallCommand extends Command
     {
         $explicit = [];
 
-        foreach (['api', 'password-reset', 'email-verification', 'passkeys', 'bot-protection'] as $feature) {
+        foreach (['api', 'password-reset', 'email-verification', 'passkeys', 'two-factor-authentication', 'bot-protection'] as $feature) {
             if ($this->input->hasParameterOption(values: '--' . $feature)) {
                 $explicit[] = $feature;
             }
@@ -170,11 +177,15 @@ class InstallCommand extends Command
         $features = prompter()->multiselect(
             label: 'Which authentication feature would you like to enable?',
             options: $authenticationFeatures,
-            default: array_keys(array: $authenticationFeatures),
+            // MFA changes the login contract, so an installer must opt into it deliberately.
+            default: array_values(array_filter(
+                array_keys(array: $authenticationFeatures),
+                static fn (string $feature): bool => $feature !== 'two-factor-authentication',
+            )),
             scroll: count(value: $authenticationFeatures),
             // into seems not to be supported by prompter
             // info: static fn (string $feature): ?string => $featureDescriptions[$feature] ?? null,
-            hint: 'All features are selected by default. Press space to disable features you do not need.',
+            hint: 'Most features are selected by default. Two-factor authentication requires deliberate opt-in.',
         )->getResult();
 
         return array_values(array: array_unique(array: array_merge($features, $explicit)));
@@ -506,6 +517,7 @@ class InstallCommand extends Command
             'password-reset'             => 'passwordReset',
             'email-verification'         => 'emailVerification',
             'passkeys'                   => 'passkeys',
+            'two-factor-authentication' => 'twoFactorAuthentication',
             'bot-protection'             => 'botProtection',
         ];
         $featureLines = [];

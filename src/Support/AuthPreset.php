@@ -23,6 +23,19 @@ class AuthPreset
         return config(key: 'laranail.authkit-preset.guard', default: 'web');
     }
 
+    public static function guardForCurrentRoute(): string
+    {
+        $name = request()->route()?->getName() ?? '';
+
+        foreach (self::mounts() as $mount) {
+            if (str_starts_with($name, $mount['name'])) {
+                return $mount['guard'];
+            }
+        }
+
+        return self::guard();
+    }
+
     public static function webPrefix(): string
     {
         return config(key: 'laranail.authkit-preset.prefix.web', default: 'auth');
