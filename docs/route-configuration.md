@@ -52,7 +52,7 @@ and nothing is shadowed: a name that resolves normally never reaches it, so an a
 
 ## Feature gates
 
-Every feature gate removes its own routes rather than merely hiding a link. Web route/page gates are: login, registration, logout, password reset, profile updates, password updates, email verification, social login, and passkeys. Disabling a feature after publishing views can leave broken links, so update the view navigation and run `php artisan route:list` for both route modes.
+Every preset feature gate removes its own routes rather than merely hiding a link. Web route/page gates are: login, registration, logout, password reset, profile updates, password updates, email verification, and passkeys. Social routes are owned by the optional social package and use the preset's mount settings when both packages are installed. Disabling a preset feature after publishing views can leave broken links, so update the view navigation and run `php artisan route:list` for both route modes.
 
 For the exact API surface and response expectations, see [API routes](api-routes.md). To replace route behavior or presentation, see [customization](customization.md).
 
