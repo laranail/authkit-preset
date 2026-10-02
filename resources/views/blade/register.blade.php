@@ -11,9 +11,7 @@
         </p>
     </div>
 
-    @if (class_exists(\Simtabi\Laranail\AuthKit\Social\Providers\SocialServiceProvider::class))
-        <x-authkit-social-buttons />
-    @endif
+    <x-authkit-social-buttons />
 
     <form method="POST" action="{{ route('register.store') }}" class="space-y-6">
         @csrf
