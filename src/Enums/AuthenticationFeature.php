@@ -49,6 +49,10 @@ enum AuthenticationFeature: string implements Enumerator
     #[Description('Adds passkey routes, migration, and the official browser client.')]
     case PASSKEYS = 'passkeys';
 
+    #[Label('Two-factor authentication')]
+    #[Description('Adds authenticator-app TOTP enrollment, login challenges, and recovery codes.')]
+    case TWO_FACTOR_AUTHENTICATION = 'two-factor-authentication';
+
     #[Label('Bot protection')]
     #[Description('Protects guest forms with the configured captcha provider.')]
     case BOT_PROTECTION = 'bot-protection';

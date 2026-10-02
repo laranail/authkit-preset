@@ -33,6 +33,7 @@ return [
         Features::updateProfileInformation(),
         Features::updatePasswords(),
         Features::emailVerification(),
+        // Add Features::twoFactorAuthentication() to enable authenticator-based 2FA.
     ],
 
     'routes' => [

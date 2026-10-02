@@ -11,16 +11,7 @@
         </p>
     </div>
 
-    {{--
-        The social package is optional, so this is an @include rather than an
-        <x-...> tag. Blade resolves component tags while compiling the template, before any
-        @if runs, so a tag naming a component the package has not registered throws at compile
-        time and takes the whole login page down. @include resolves the view when it renders,
-        which is the first moment the guard above can actually mean anything.
-    --}}
-    @if (view()->exists('laranail/authkit-social-login::components.social-buttons'))
-        @include('laranail/authkit-social-login::components.social-buttons')
-    @endif
+    <x-authkit-social-buttons />
 
     <form method="POST" action="{{ route('login') }}" class="space-y-6">
         @csrf
@@ -78,7 +69,8 @@
         </div>
 
         @if (\Simtabi\Laranail\AuthKit\Preset\Features::enabled(\Simtabi\Laranail\AuthKit\Preset\Features::botProtection()))
-            <x-captcha />
+            <x-captcha size="flexible"  />
+            <x-laranail-authkit-preset::input-error :message="$errors->first('captcha')" />
         @endif
 
         <div>

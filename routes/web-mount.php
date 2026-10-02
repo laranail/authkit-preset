@@ -25,6 +25,7 @@ use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
 use Laravel\Passkeys\Http\Controllers\PasskeyConfirmationController;
 use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
+use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth\TwoFactorController;
 use Laravel\Fortify\Http\Controllers\ConfirmedPasswordStatusController;
 use Laravel\Fortify\Http\Controllers\VerifyEmailController as FortifyVerifyEmailController;
 use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController as FortifyEmailVerificationNotificationController;
@@ -39,6 +40,14 @@ Route::middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard])
 Route::prefix($prefix)
     ->middleware([...AuthPreset::webMiddleware(), 'guest:' . $guard])
     ->group(function (): void {
+        if (Features::enabled(Features::twoFactorAuthentication())) {
+            Route::get('/two-factor/challenge', [TwoFactorController::class, 'challenge'])
+                ->name('two-factor.challenge');
+            Route::post('/two-factor/challenge', [TwoFactorController::class, 'verifyChallenge'])
+                ->middleware('throttle:5,1')
+                ->name('two-factor.challenge.verify');
+        }
+
         if (Features::enabled(Features::registration())) {
             Route::get('/register', [Auth\RegisterController::class, 'create'])->name('register');
             Route::post('/register', [Auth\RegisterController::class, 'store'])
@@ -99,6 +108,18 @@ if (Features::enabled(Features::updateProfileInformation())) {
 
             Route::put('/user/profile-information', [Auth\UpdateProfileInformationController::class, 'update'])
                 ->name('user-profile-information.update');
+        });
+}
+
+if (Features::enabled(Features::twoFactorAuthentication())) {
+    Route::prefix($prefix)
+        ->middleware([...AuthPreset::webMiddleware(), 'auth:' . $guard, 'password.confirm'])
+        ->group(function (): void {
+            Route::get('/user/two-factor', [TwoFactorController::class, 'index'])->name('user-two-factor.index');
+            Route::post('/user/two-factor', [TwoFactorController::class, 'begin'])->name('user-two-factor.begin');
+            Route::post('/user/two-factor/confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:5,1')->name('user-two-factor.confirm');
+            Route::post('/user/two-factor/disable', [TwoFactorController::class, 'disable'])->middleware('throttle:5,1')->name('user-two-factor.disable');
+            Route::post('/user/two-factor/recovery-codes', [TwoFactorController::class, 'regenerateRecoveryCodes'])->name('user-two-factor.recovery-codes');
         });
 }
 

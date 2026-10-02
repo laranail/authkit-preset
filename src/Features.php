@@ -58,6 +58,11 @@ final class Features
         return AuthenticationFeature::PASSKEYS->value;
     }
 
+    public static function twoFactorAuthentication(): string
+    {
+        return AuthenticationFeature::TWO_FACTOR_AUTHENTICATION->value;
+    }
+
     public static function botProtection(): string
     {
         return AuthenticationFeature::BOT_PROTECTION->value;

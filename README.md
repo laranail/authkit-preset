@@ -63,7 +63,7 @@ Full documentation: <https://opensource.simtabi.com/documentation/laranail/authk
 - [Login](docs/login.md) · [Registration](docs/registration.md) · [Logout](docs/logout.md)
 - [Password reset](docs/password-reset.md) · [Password updates](docs/password-updates.md)
 - [Profile management](docs/profile-management.md) · [Email verification](docs/email-verification.md)
-- [Social login](docs/social-login.md) · [Passkeys](docs/passkeys.md) · [API routes](docs/api-routes.md)
+- [Social login](docs/social-login.md) · [Passkeys](docs/passkeys.md) · [Two-factor authentication](https://github.com/laranail/authkit/blob/main/docs/two-factor-authentication.md) · [API routes](docs/api-routes.md)
 - [Bot protection](docs/bot-protection.md)
 
 ### Recipes
@@ -98,6 +98,7 @@ Available options:
 | `--password-reset`     | Enable forgot-password and reset-password flows.                         |
 | `--email-verification` | Enable email verification.                                               |
 | `--passkeys`           | Enable passkey authentication, migration, and browser client.            |
+| `--two-factor-authentication` | Enable TOTP authenticator login, recovery codes, and migration.     |
 | `--model=<class>`      | Select the Eloquent auth model to configure for Sanctum and/or passkeys. |
 | `--bot-protection`     | Enable captcha validation on registration and password-reset forms.      |
 | `--publish-routes`     | Publish route files for application ownership.                           |

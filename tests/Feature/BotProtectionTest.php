@@ -19,10 +19,10 @@ it('renders the configured captcha provider on protected guest forms', function 
         ->assertSee('cf-turnstile', escape: false);
 });
 
-it('uses Turnstile and config credentials by default', function (): void {
+it('uses Turnstile and the captcha package credential chain by default', function (): void {
     expect(config('laranail.authkit-preset.bot_protection.provider'))->toBe('turnstile')
         ->and(config('laranail.captcha.provider'))->toBe('turnstile')
-        ->and(config('laranail.captcha.credentials.source'))->toBe('config')
+        ->and(config('laranail.captcha.credentials.source'))->toBe('chain')
         ->and(config('laranail.captcha.credentials.database.enabled'))->toBeFalse();
 });
 

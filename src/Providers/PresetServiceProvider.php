@@ -7,10 +7,12 @@ namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Simtabi\Laranail\Package\Tools\Package;
 use Simtabi\Laranail\AuthKit\Preset\Support;
 use Simtabi\Laranail\AuthKit\Preset\Features;
+use Simtabi\Laranail\AuthKit\Preset\View\Components\OptionalSocialButtons;
 use Simtabi\Laranail\AuthKit\Support\AuthKit;
 use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
@@ -69,6 +71,11 @@ class PresetServiceProvider extends PackageServiceProvider
         // whatever order the providers resolve in.
         Fortify::ignoreRoutes();
 
+        config()->set(
+            'laranail.authkit.two_factor.enabled',
+            Features::enabled(Features::twoFactorAuthentication()),
+        );
+
         // This package ships the routes and views, so its redirect keys are the ones an
         // application sets. The core reads its own key, so without this the preset's
         // redirects.* block was inert -- documented, configurable, and ignored. Resolved at
@@ -87,13 +94,12 @@ class PresetServiceProvider extends PackageServiceProvider
 
         config()->set('laranail.authkit.turnstile.enabled', false);
         config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
-        config()->set('laranail.captcha.credentials.source', 'config');
-        config()->set('laranail.captcha.credentials.database.enabled', false);
     }
 
     public function packageBooted(): void
     {
         $this->registerCommands();
+        Blade::component(OptionalSocialButtons::class, 'authkit-social-buttons');
         $this->loadViews();
         $this->loadTranslations();
         $this->registerFortifyViews();
@@ -125,6 +131,8 @@ class PresetServiceProvider extends PackageServiceProvider
 
     private function registerFortifyViews(): void
     {
+        Fortify::confirmPasswordView(fn () => view(Support\AuthPreset::view('confirm-password')));
+
         if (! Features::enabled(Features::login())) {
             return;
         }

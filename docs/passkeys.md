@@ -9,6 +9,8 @@ npm run build
 php artisan migrate
 ```
 
+The installer configures Tailwind to scan preset package views. If your app uses a custom CSS entry point, add the package view `@source` glob from the [installation guide](installation.md) before rebuilding assets.
+
 The installer adds authkit's `PasskeyAuthenticatable` trait and the Fortify interface to the chosen model, publishes the passkeys migration, installs `@laravel/passkeys`, and wires `resources/js/passkeys.js` into the application's Vite entry. Do not skip the asset build: the Blade login and management controls require this browser client.
 
 ## User experience

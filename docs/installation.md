@@ -9,6 +9,14 @@ php artisan laranail::authkit-preset.install
 
 Blade is the only supported stack. The interactive installer asks for the authentication provider/model and presents all preset features as selected by default. It publishes `config/laranail/authkit.php` and `config/laranail/authkit-preset.php`, configures Tailwind to scan the package views, and leaves preset routes enabled by default. Social login is an optional package; install `laranail/authkit-social-login` and use its installer to configure providers. When installed, the preset renders its button component on login and registration pages.
 
+The app's Tailwind CSS entry point must scan the installed package views so Tailwind can generate utilities used by the Blade UI. The installer adds this for the default `resources/css/app.css`; if you use a custom CSS entry point, add the source glob relative to that file:
+
+```css
+@source '../../vendor/laranail/*/resources/views/**/*.blade.php';
+```
+
+Then rebuild the assets with `npm run build` (or run `npm run dev` while developing). The core `laranail/authkit` package is headless and has no Blade views to scan.
+
 ## Automated installation
 
 Use explicit options in CI or provisioning scripts:

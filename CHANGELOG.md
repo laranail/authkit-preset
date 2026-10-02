@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Opt-in TOTP account security pages and routes**, including enrollment, login challenge, disable, and recovery-code flows, with installer support for publishing the migration and enabling the feature.
+- **Consistent inline form errors and input styling** across authentication, passkey, and two-factor forms. Social login buttons appear only when the social package is installed.
+
+### Fixed
+
+- CAPTCHA validation now preserves ordinary field errors for inline display and supports provider-managed fields such as Turnstile.
+- Authenticated account pages share the dashboard layout, with account links and a user menu for logout.
+
 ### Changed
 
 - **Breaking. The social dependency is now `laranail/authkit-social-login`**, following that
