@@ -7,11 +7,7 @@ namespace Simtabi\Laranail\AuthKit\Preset\Commands;
 use ReflectionClass;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Validator;
-use Simtabi\Laranail\Enumerator\Rules\EnumValue;
 use Simtabi\Laranail\Console\Tools\Commands\Command;
-use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
-use Simtabi\Laranail\AuthKit\Social\Enums\SocialProvider;
 use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 use Simtabi\Laranail\Package\Tools\Commands\Concerns\ReadsOptions;
 use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
@@ -27,7 +23,6 @@ class InstallCommand extends Command
 
     protected $signature = 'laranail::authkit-preset.install
         {--stack= : The frontend stack to install}
-        {--social=* : Social providers to enable (google, apple, x, linkedin, paypal)}
         {--api : Enable API authentication with Sanctum tokens}
         {--password-reset : Enable password reset flow}
         {--email-verification : Enable email verification flow}
@@ -59,17 +54,10 @@ class InstallCommand extends Command
             : null;
 
         $features = $this->resolveFeatures();
-        $socialProviders = $this->resolveSocialProviders(featureSelected: in_array(needle: 'social', haystack: $features, strict: true));
         $wantsApi = in_array(needle: 'api', haystack: $features, strict: true);
         $wantsPasskeys = in_array(needle: 'passkeys', haystack: $features, strict: true);
         $wantsBotProtection = in_array(needle: 'bot-protection', haystack: $features, strict: true);
         $wantsEmailVerification = in_array(needle: 'email-verification', haystack: $features, strict: true);
-
-        if (count(value: $socialProviders) === 0) {
-            $features = array_values(array: array_diff($features, ['social']));
-        } elseif (! in_array(needle: 'social', haystack: $features, strict: true)) {
-            $features[] = 'social';
-        }
 
         // Email verification belongs in this set: Laravel's SendEmailVerificationNotification
         // listener checks the model for MustVerifyEmail, so without that interface registration
@@ -99,13 +87,6 @@ class InstallCommand extends Command
 
         if ($wantsPasskeys) {
             $this->installPasskeyFrontend();
-        }
-
-        if (count(value: $socialProviders) > 0) {
-            if ($this->publishMigrations(tag: 'laranail::authkit-social-login-migrations', name: 'create_socials_table')) {
-                $this->newLine();
-                $this->info(string: 'Social login migration published. Run `php artisan migrate` to create the socials table.');
-            }
         }
 
         if ($wantsApi) {
@@ -141,19 +122,13 @@ class InstallCommand extends Command
             $this->publish(tag: 'laranail::authkit-preset-views');
         }
 
-        $this->configureFeatures(features: $features, providers: $socialProviders);
+        $this->configureFeatures(features: $features);
 
         $this->info(string: 'laranail/authkit-preset is ready. Package routes are registered automatically.');
         $this->line(string: 'Visit /auth/register or /auth/login. Review config/laranail/authkit-preset.php to enable or disable features.');
 
         if ($wantsApi) {
             $this->line(string: 'API routes are enabled at /api/auth. Use Sanctum tokens for authentication.');
-        }
-
-        if (count(value: $socialProviders) > 0) {
-            $this->newLine();
-            $this->info(string: 'Social login enabled for: ' . implode(separator: ', ', array: $socialProviders) . '.');
-            $this->line(string: 'Set your OAuth credentials in .env for each enabled provider.');
         }
 
         if ($wantsBotProtection) {
@@ -163,7 +138,7 @@ class InstallCommand extends Command
             $this->line(string: 'Add CAPTCHA_SITE_KEY and CAPTCHA_SECRET_KEY to your .env file when the selected provider requires credentials.');
         }
 
-        $this->configureEnvironment(providers: $socialProviders, wantsBotProtection: $wantsBotProtection);
+        $this->configureEnvironment(wantsBotProtection: $wantsBotProtection);
 
         return self::SUCCESS;
     }
@@ -177,10 +152,6 @@ class InstallCommand extends Command
             if ($this->input->hasParameterOption(values: '--' . $feature)) {
                 $explicit[] = $feature;
             }
-        }
-
-        if (count(value: $this->option(key: 'social')) > 0) {
-            $explicit[] = 'social';
         }
 
         if (! $this->input->isInteractive()) {
@@ -209,34 +180,6 @@ class InstallCommand extends Command
         return array_values(array: array_unique(array: array_merge($features, $explicit)));
     }
 
-    /** @return array<int, string> */
-    private function resolveSocialProviders(bool $featureSelected): array
-    {
-        $optionProviders = $this->option(key: 'social');
-
-        if (count(value: $optionProviders) > 0) {
-            return array_values(array: array_filter(
-                array: $optionProviders,
-                callback: static fn (mixed $provider): bool => is_string(value: $provider) && Validator::make(
-                    data: ['provider' => $provider],
-                    rules: ['provider' => [new EnumValue(enumClass: SocialProvider::class)]],
-                )->passes(),
-            ));
-        }
-
-        if (! $featureSelected || ! $this->input->isInteractive()) {
-            return [];
-        }
-
-        return prompter()->multiselect(
-            label: 'Which social login providers would you like to enable?',
-            options: $this->socialProviders(),
-            default: ['google'],
-            required: false,
-            hint: 'Google is selected by default. Enable only the providers you plan to configure.',
-        )->getResult();
-    }
-
     /** @return array<string, string> */
     private function authenticationFeatures(): array
     {
@@ -253,12 +196,6 @@ class InstallCommand extends Command
         }
 
         return $descriptions;
-    }
-
-    /** @return array<string, string> */
-    private function socialProviders(): array
-    {
-        return SocialProvider::labels();
     }
 
     private function resolveAuthModel(bool $wantsApi, bool $wantsPasskeys, bool $promptWithoutFeatures = false): ?string
@@ -549,11 +486,8 @@ class InstallCommand extends Command
         return $changed;
     }
 
-    /**
-     * @param array<int, string> $features
-     * @param array<int, string> $providers
-     */
-    private function configureFeatures(array $features, array $providers, ?string $configPath = null): void
+    /** @param array<int, string> $features */
+    private function configureFeatures(array $features, ?string $configPath = null): void
     {
         $configPath ??= config_path(path: 'laranail/authkit-preset.php');
 
@@ -568,7 +502,6 @@ class InstallCommand extends Command
             'logout'                     => 'logout',
             'update-profile-information' => 'updateProfileInformation',
             'update-passwords'           => 'updatePasswords',
-            'social'                     => 'social',
             'api'                        => 'api',
             'password-reset'             => 'passwordReset',
             'email-verification'         => 'emailVerification',
@@ -578,7 +511,7 @@ class InstallCommand extends Command
         $featureLines = [];
 
         foreach ($featureMethods as $feature => $method) {
-            if (in_array(needle: $feature, haystack: $features, strict: true) && ($feature !== 'social' || count(value: $providers) > 0)) {
+            if (in_array(needle: $feature, haystack: $features, strict: true)) {
                 $featureLines[] = "        \\Simtabi\\Laranail\\AuthKit\\Preset\\Features::{$method}(),";
             }
         }
@@ -591,19 +524,10 @@ class InstallCommand extends Command
             limit: 1,
         ) ?? $contents;
 
-        $providerArray = "['" . implode(separator: "', '", array: $providers) . "']";
-        $contents = preg_replace(
-            pattern: "/'providers'\s*=>\s*\[[^\]]*\]/",
-            replacement: "'providers' => {$providerArray}",
-            subject: $contents,
-            limit: 1,
-        ) ?? $contents;
-
         file_put_contents(filename: $configPath, data: $contents);
     }
 
-    /** @param array<int, string> $providers */
-    private function configureEnvironment(array $providers, bool $wantsBotProtection, ?string $envPath = null, ?string $envExamplePath = null): void
+    private function configureEnvironment(bool $wantsBotProtection, ?string $envPath = null, ?string $envExamplePath = null): void
     {
         $envPath ??= base_path(path: '.env');
         $envExamplePath ??= base_path(path: '.env.example');
@@ -615,19 +539,6 @@ class InstallCommand extends Command
         // it in .env says so. The reverse default fails silently and in the dangerous direction:
         // a session cookie travelling in clear text over a shared network.
         $variables['SESSION_SECURE_COOKIE'] = 'true';
-
-        foreach ($providers as $provider) {
-            $upper = Str::upper(value: $provider);
-            $variables["AUTHKIT_{$upper}_CLIENT_ID"] = '';
-            $variables["AUTHKIT_{$upper}_CLIENT_SECRET"] = '';
-            // The prefix is configurable, so reading it here is what keeps the callback URL and
-            // the route that serves it in agreement. Hardcoding '/auth' wrote a URL into .env --
-            // and from there into a provider's developer console -- that pointed at nothing as
-            // soon as an application changed the prefix, and OAuth callbacks fail in a way that
-            // looks like a credentials problem.
-            $prefix = mb_trim(string: AuthPreset::webPrefix(), characters: '/');
-            $variables["AUTHKIT_{$upper}_REDIRECT"] = url(path: "/{$prefix}/social/{$provider}/callback");
-        }
 
         if ($wantsBotProtection) {
             $variables['CAPTCHA_PROVIDER'] = 'turnstile';
