@@ -44,6 +44,23 @@ php artisan laranail::authkit-preset.install
 
 See [installation](docs/installation.md) for the full walkthrough.
 
+## Quick start
+
+```blade
+{{-- resources/views/layouts/app.blade.php: the installer has already registered every route --}}
+@auth
+    <form method="POST" action="{{ route('laranail-auth.logout') }}">
+        @csrf
+        <button type="submit">Sign out</button>
+    </form>
+@else
+    <a href="{{ route('laranail-auth.login') }}">Sign in</a>
+    <a href="{{ route('laranail-auth.register') }}">Create an account</a>
+@endauth
+```
+
+The full walkthrough is in [Getting started](docs/getting-started.md); everything else is in the [documentation index](#documentation).
+
 ## <a name="documentation"></a>Documentation
 
 Full documentation: <https://opensource.simtabi.com/documentation/laranail/authkit-preset/>
