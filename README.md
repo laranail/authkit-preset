@@ -44,7 +44,27 @@ php artisan laranail::authkit-preset.install
 
 See [installation](docs/installation.md) for the full walkthrough.
 
-## Quick start
+## Quick start guide and usage
+
+### Getting started
+
+1. Run the migrations the installer published for your selected features:
+
+   ```bash
+   php artisan migrate
+   ```
+
+2. Rebuild the assets so Tailwind picks up the package views (run `npm install` first if you enabled
+   passkeys):
+
+   ```bash
+   npm run build
+   ```
+
+3. Visit `/auth/register`, then `/auth/login`. Routes are registered by the package, so there is
+   nothing to wire.
+
+### Usage
 
 ```blade
 {{-- resources/views/layouts/app.blade.php: the installer has already registered every route --}}
