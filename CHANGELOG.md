@@ -178,3 +178,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Removed
 
 - `composer.lock` is no longer tracked. A library's lock records a resolution consumers never use.
+
+[Unreleased]: https://github.com/laranail/authkit-preset/compare/v0.1.0...HEAD
