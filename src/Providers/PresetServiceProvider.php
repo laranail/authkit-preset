@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 
+use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Routing\UrlGenerator;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Blade;
@@ -213,20 +215,48 @@ class PresetServiceProvider extends PackageServiceProvider
      *
      * It cannot shadow anything: a name that resolves normally never reaches this, so an
      * application's own `login` route keeps winning. Returning null defers.
+     *
+     * The URL generator holds exactly one missing-route resolver, and setting it replaces any
+     * earlier one. A sibling package (error-pages, env-kit-webui, ...) may already have installed
+     * its own, so that resolver is captured here and consulted for every name this package does
+     * not resolve; without that, whichever package booted last would silently break the others.
      */
     private function resolveBareRouteNames(): void
     {
+        $previous = $this->previousMissingNamedRouteResolver();
+
         URL::resolveMissingNamedRoutesUsing(
-            function (string $name, mixed $parameters, ?bool $absolute): ?string {
+            function (string $name, mixed $parameters, ?bool $absolute) use ($previous): ?string {
                 foreach ($this->routeNameCandidates($name) as $candidate) {
                     if (Route::has($candidate)) {
                         return URL::route($candidate, $parameters ?? [], $absolute ?? true);
                     }
                 }
 
+                if (is_callable($previous)) {
+                    $resolved = $previous($name, $parameters, $absolute);
+
+                    return is_string($resolved) ? $resolved : null;
+                }
+
                 return null;
             },
         );
+    }
+
+    /**
+     * The missing-route resolver installed before this one, if any.
+     *
+     * Laravel exposes a setter and no getter, so the protected property is read through a closure
+     * bound to the generator's class scope, the same way laranail/error-pages does it.
+     */
+    private function previousMissingNamedRouteResolver(): mixed
+    {
+        return Closure::bind(
+            static fn (UrlGenerator $generator): mixed => $generator->missingNamedRouteResolver,
+            null,
+            UrlGenerator::class,
+        )(URL::getFacadeRoot());
     }
 
     /**
