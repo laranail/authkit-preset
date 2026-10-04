@@ -16,6 +16,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - CAPTCHA validation now preserves ordinary field errors for inline display and supports provider-managed fields such as Turnstile.
 - Authenticated account pages share the dashboard layout, with account links and a user menu for logout.
+- **Bare route names no longer break a sibling package's fallback.** The URL generator holds one
+  missing-route resolver and setting it replaces any earlier one, so when this package booted after
+  `laranail/error-pages` or `laranail/env-kit-webui` their deprecated bare route names stopped
+  resolving. The provider now captures the previously installed resolver and delegates every name it
+  does not resolve to it; its own bare names (`login`, `password.reset`, `api.login`, ...) resolve
+  exactly as before.
 
 ### Changed
 
