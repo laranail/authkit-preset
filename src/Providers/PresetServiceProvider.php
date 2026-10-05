@@ -6,18 +6,18 @@ namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Routing\UrlGenerator;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Simtabi\Laranail\Package\Tools\Package;
 use Simtabi\Laranail\AuthKit\Preset\Support;
 use Simtabi\Laranail\AuthKit\Preset\Features;
-use Simtabi\Laranail\AuthKit\Preset\View\Components\OptionalSocialButtons;
 use Simtabi\Laranail\AuthKit\Support\AuthKit;
 use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
+use Simtabi\Laranail\AuthKit\Preset\View\Components\OptionalSocialButtons;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\PreventAuthenticatedPageCaching;
 
 class PresetServiceProvider extends PackageServiceProvider
@@ -54,6 +54,11 @@ class PresetServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
+        // The install command's package-tools base takes the Package in its constructor, which the
+        // container cannot autowire. Binding it here keeps the command registered by class name,
+        // so it is still only constructed when Artisan resolves it.
+        $this->app->bind(InstallCommand::class, fn (): InstallCommand => new InstallCommand($this->package));
+
         $this->mergeConfigFrom($this->packagePath('config/laranail/authkit-preset.php'), 'laranail.authkit-preset');
 
         // Fortify registers its own POST endpoints at the application root -- /login, /logout,
