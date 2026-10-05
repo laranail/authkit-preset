@@ -12,6 +12,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Opt-in TOTP account security pages and routes**, including enrollment, login challenge, disable, and recovery-code flows, with installer support for publishing the migration and enabling the feature.
 - **Consistent inline form errors and input styling** across authentication, passkey, and two-factor forms. Social login buttons appear only when the social package is installed.
 
+### Changed
+
+- `laranail::authkit-preset.install` now extends laranail/package-tools' `InstallCommand` and takes
+  laranail/console's display API and run lifecycle from its `InteractsWithConsoleServices` and
+  `InteractsWithConsoleWriter` traits instead of its `Command` base. Name, options, description,
+  listing visibility, output and exit codes are unchanged and pinned by a new contract test. The
+  command is bound in the container because the new base takes the `Package` in its constructor,
+  and its private `publish()` / `publishMigrations()` helpers are renamed `publishTag()` /
+  `publishMigrationOnce()` so they do not collide with the base's public fluent methods.
+
 ### Fixed
 
 - CAPTCHA validation now preserves ordinary field errors for inline display and supports provider-managed fields such as Turnstile.

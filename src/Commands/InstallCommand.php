@@ -7,21 +7,28 @@ namespace Simtabi\Laranail\AuthKit\Preset\Commands;
 use ReflectionClass;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
-use Simtabi\Laranail\Console\Tools\Commands\Command;
+use Simtabi\Laranail\Package\Tools\Package;
 use Simtabi\Laranail\AuthKit\Preset\Enums\AuthenticationFeature;
 use Simtabi\Laranail\Package\Tools\Commands\Concerns\ReadsOptions;
-use Simtabi\Laranail\Console\Tools\Commands\Concerns\SupportsNamespacedNames;
+use Simtabi\Laranail\Console\Tools\Commands\Concerns\InteractsWithConsoleWriter;
+use Simtabi\Laranail\Console\Tools\Commands\Concerns\InteractsWithConsoleServices;
+use Simtabi\Laranail\Package\Tools\Commands\InstallCommand as PackageToolsInstallCommand;
 
-class InstallCommand extends Command
+/**
+ * Installs the Blade preset: config, Tailwind source, optional migrations, and the auth model.
+ *
+ * The base is package-tools' install command, which carries the `::` name support. laranail/console's
+ * display API (`$this->services`) and managed run lifecycle come from its two traits rather than its
+ * base class, so neither package has to depend on the other. `handle()` is this command's own: the
+ * base's generic publish pipeline would print different steps, and the output here is the contract.
+ */
+class InstallCommand extends PackageToolsInstallCommand
 {
+    use InteractsWithConsoleServices;
+    use InteractsWithConsoleWriter;
     use ReadsOptions;
-    use SupportsNamespacedNames;
 
-    private const string TAILWIND_BLADE_SOURCE = "@source '../../vendor/laranail/*/resources/views/**/*.blade.php';";
-
-    private const string PASSKEYS_NPM_PACKAGE = '@laravel/passkeys';
-
-    protected $signature = 'laranail::authkit-preset.install
+    public const string SIGNATURE = 'laranail::authkit-preset.install
         {--stack= : The frontend stack to install}
         {--api : Enable API authentication with Sanctum tokens}
         {--password-reset : Enable password reset flow}
@@ -34,7 +41,28 @@ class InstallCommand extends Command
         {--publish-views : Publish Blade views for application ownership}
         {--force : Overwrite existing published files}';
 
-    protected $description = 'Install the laranail/authkit-preset Blade resources';
+    public const string DESCRIPTION = 'Install the laranail/authkit-preset Blade resources';
+
+    private const string TAILWIND_BLADE_SOURCE = "@source '../../vendor/laranail/*/resources/views/**/*.blade.php';";
+
+    private const string PASSKEYS_NPM_PACKAGE = '@laravel/passkeys';
+
+    public function __construct(Package $package)
+    {
+        // Listed in `php artisan list`, as it always has been: the base hides install commands by
+        // default, so visibility is passed explicitly rather than inherited.
+        parent::__construct($package, self::SIGNATURE, hidden: false);
+
+        // The base writes `Install {package}` as the description during construction; restore the
+        // one this command has always shown. Both the property and Symfony's copy are set, because
+        // the parent constructor has already pushed the property through setDescription().
+        $this->description = self::DESCRIPTION;
+        $this->setDescription(self::DESCRIPTION);
+
+        // Booted eagerly, as console's own base does, so `$this->services` exists straight after
+        // construction rather than only once run() has been entered.
+        $this->bootConsoleSupport();
+    }
 
     public function handle(): int
     {
@@ -83,28 +111,28 @@ class InstallCommand extends Command
             return self::FAILURE;
         }
 
-        $this->publish(tag: 'laranail::authkit-config');
-        $this->publish(tag: 'laranail::authkit-preset-config');
+        $this->publishTag(tag: 'laranail::authkit-config');
+        $this->publishTag(tag: 'laranail::authkit-preset-config');
         $this->configureTailwindSource();
 
         if ($wantsPasskeys) {
             $this->installPasskeyFrontend();
         }
 
-        if ($wantsTwoFactorAuthentication && $this->publishMigrations(tag: 'laranail::authkit-two-factor-migrations', name: 'add_two_factor_authentication_to_users_table')) {
+        if ($wantsTwoFactorAuthentication && $this->publishMigrationOnce(tag: 'laranail::authkit-two-factor-migrations', name: 'add_two_factor_authentication_to_users_table')) {
             $this->newLine();
             $this->info(string: 'Two-factor authentication migration published. Run `php artisan migrate` to add the two_factor_method and TOTP fields.');
         }
 
         if ($wantsApi) {
-            if ($this->publishMigrations(tag: 'sanctum-migrations', name: 'create_personal_access_tokens_table')) {
+            if ($this->publishMigrationOnce(tag: 'sanctum-migrations', name: 'create_personal_access_tokens_table')) {
                 $this->newLine();
                 $this->info(string: 'Sanctum token migration published. Run `php artisan migrate` to create the personal_access_tokens table.');
             }
         }
 
         if ($wantsPasskeys) {
-            if ($this->publishMigrations(tag: 'laranail::authkit-passkey-migrations', name: 'create_passkeys_table')) {
+            if ($this->publishMigrationOnce(tag: 'laranail::authkit-passkey-migrations', name: 'create_passkeys_table')) {
                 $this->newLine();
                 $this->info(string: 'Passkeys migration published. Run `php artisan migrate` to create the passkeys table.');
             }
@@ -122,11 +150,11 @@ class InstallCommand extends Command
         }
 
         if ($this->option(key: 'publish-routes')) {
-            $this->publish(tag: 'laranail::authkit-preset-routes');
+            $this->publishTag(tag: 'laranail::authkit-preset-routes');
         }
 
         if ($this->option(key: 'publish-views')) {
-            $this->publish(tag: 'laranail::authkit-preset-views');
+            $this->publishTag(tag: 'laranail::authkit-preset-views');
         }
 
         $this->configureFeatures(features: $features);
@@ -517,7 +545,7 @@ class InstallCommand extends Command
             'password-reset'             => 'passwordReset',
             'email-verification'         => 'emailVerification',
             'passkeys'                   => 'passkeys',
-            'two-factor-authentication' => 'twoFactorAuthentication',
+            'two-factor-authentication'  => 'twoFactorAuthentication',
             'bot-protection'             => 'botProtection',
         ];
         $featureLines = [];
@@ -603,7 +631,11 @@ class InstallCommand extends Command
         file_put_contents(filename: $path, data: mb_rtrim(string: $existing, characters: "\n") . "\n\n# Auth Kit environment variables\n" . implode(separator: "\n", array: $lines) . "\n");
     }
 
-    private function publish(string $tag): void
+    /**
+     * Named apart from the base's public, fluent `publish()` / `publishMigrations()`, which queue
+     * tags for package-tools' generic install pipeline; this command runs its own `handle()`.
+     */
+    private function publishTag(string $tag): void
     {
         $parameters = ['--tag' => $tag];
 
@@ -622,7 +654,7 @@ class InstallCommand extends Command
      * dies with "table already exists". Laravel has no built-in guard for a re-run, so the
      * installer checks for the migration by name before publishing it.
      */
-    private function publishMigrations(string $tag, string $name, ?string $migrationPath = null): bool
+    private function publishMigrationOnce(string $tag, string $name, ?string $migrationPath = null): bool
     {
         if ($this->migrationExists(name: $name, migrationPath: $migrationPath)) {
             $this->newLine();
@@ -631,7 +663,7 @@ class InstallCommand extends Command
             return false;
         }
 
-        $this->publish(tag: $tag);
+        $this->publishTag(tag: $tag);
 
         return true;
     }
