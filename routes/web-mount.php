@@ -25,8 +25,8 @@ use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
 use Laravel\Passkeys\Http\Controllers\PasskeyConfirmationController;
 use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\ValidateCaptcha;
-use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth\TwoFactorController;
 use Laravel\Fortify\Http\Controllers\ConfirmedPasswordStatusController;
+use Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth\TwoFactorController;
 use Laravel\Fortify\Http\Controllers\VerifyEmailController as FortifyVerifyEmailController;
 use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController as FortifyEmailVerificationNotificationController;
 

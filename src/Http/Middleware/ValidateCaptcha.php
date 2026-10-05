@@ -7,10 +7,10 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Simtabi\Laranail\AuthKit\Http\Requests\RegisterRequest;
-use Simtabi\Laranail\AuthKit\Http\Requests\AttemptEmailPasswordLoginRequest;
 use Simtabi\Laranail\Captcha\Rules\Captcha;
 use Simtabi\Laranail\AuthKit\Preset\Features;
+use Simtabi\Laranail\AuthKit\Http\Requests\RegisterRequest;
+use Simtabi\Laranail\AuthKit\Http\Requests\AttemptEmailPasswordLoginRequest;
 
 class ValidateCaptcha
 {
@@ -25,16 +25,14 @@ class ValidateCaptcha
         // inline validation is broken. The downstream controller still cannot authenticate
         // or create a user until the captcha check below passes.
         $fieldRules = match (true) {
-            str_ends_with((string) $request->route()?->getName(), 'login.store') =>
-                (new AttemptEmailPasswordLoginRequest)->rules(),
-            str_ends_with((string) $request->route()?->getName(), 'register.store') =>
-                RegisterRequest::rulesFor(),
-            default => [],
+            str_ends_with((string) $request->route()?->getName(), 'login.store')    => (new AttemptEmailPasswordLoginRequest)->rules(),
+            str_ends_with((string) $request->route()?->getName(), 'register.store') => RegisterRequest::rulesFor(),
+            default                                                                 => [],
         };
 
         if ($fieldRules !== []) {
             $fieldRules = array_diff_key($fieldRules, [
-                (string) config('laranail.captcha.response_field', 'captcha') => true,
+                (string) config('laranail.captcha.response_field', 'captcha')                => true,
                 (string) config('laranail.authkit.turnstile.input', 'cf-turnstile-response') => true,
             ]);
 

@@ -11,7 +11,7 @@
         </p>
     </div>
 
-    <x-authkit-social-buttons />
+    <x-laranail-authkit-preset::social-buttons />
 
     <form method="POST" action="{{ route('register.store') }}" class="space-y-6">
         @csrf

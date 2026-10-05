@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\View\Components;
 
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\HtmlString;
 use Illuminate\View\Component;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
 
 /** Renders Auth Kit Social Login's component when that optional package is installed. */
 final class OptionalSocialButtons extends Component

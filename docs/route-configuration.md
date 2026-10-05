@@ -46,6 +46,14 @@ consults when a name is **not** found — so every caller keeps working, includi
 and nothing is shadowed: a name that resolves normally never reaches it, so an application's own
 `login` route still wins.
 
+The resolver is laranail/package-tools' shared `BareRouteNameAliases`
+([route name aliases](https://opensource.simtabi.com/documentation/laranail/package-tools/tools/route-name-aliases)),
+installed twice: any bare name maps to the web prefix (`laranail-auth.`), and failing that to the API
+prefix (`laranail-auth-api.`), which also serves the API's old `api.*` names — `api.login` resolves
+`laranail-auth-api.login`. It chains to any resolver another package installed first. It raises no
+deprecation notice, because the bare names are kept on purpose: the framework reads them back, so
+there is nothing to migrate away from. A prefix set to `''` installs nothing for that surface.
+
 > `Route::has()` is the exception. It asks the route collection directly and answers `false` for a
 > bare name. Code guarding a link with it must ask for the scoped name;
 > `AuthPreset::routeName('login')` builds it whatever the prefix is set to.
