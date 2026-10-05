@@ -7,9 +7,9 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Simtabi\Laranail\AuthKit\Support\AuthResult;
-use Simtabi\Laranail\AuthKit\Services\TwoFactorAuthentication;
-use Simtabi\Laranail\AuthKit\Contracts\LoginUserInterface;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
+use Simtabi\Laranail\AuthKit\Contracts\LoginUserInterface;
+use Simtabi\Laranail\AuthKit\Services\TwoFactorAuthentication;
 use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractAttemptEmailPasswordLoginController;
 
 class LoginController extends AbstractAttemptEmailPasswordLoginController
@@ -28,8 +28,8 @@ class LoginController extends AbstractAttemptEmailPasswordLoginController
     {
         if (app(TwoFactorAuthentication::class)->enabled($result->user)) {
             $request->session()->put('authkit.two_factor_pending', [
-                'user_id' => $result->user->getAuthIdentifier(),
-                'guard' => $this->guard(),
+                'user_id'  => $result->user->getAuthIdentifier(),
+                'guard'    => $this->guard(),
                 'remember' => $request->boolean('remember'),
             ]);
             $request->session()->regenerate();

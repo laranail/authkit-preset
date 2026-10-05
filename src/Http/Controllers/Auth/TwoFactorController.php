@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 
-use BaconQrCode\Renderer\Color\Rgb;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use BaconQrCode\Renderer\ImageRenderer;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use Simtabi\Laranail\AuthKit\Preset\Support\AuthPreset;
 use Simtabi\Laranail\AuthKit\Services\TwoFactorAuthentication;
 
@@ -24,7 +23,7 @@ final class TwoFactorController
         $user = $request->user(AuthPreset::guardForCurrentRoute());
 
         return view(AuthPreset::view('two-factor-settings'), [
-            'enabled' => $twoFactor->enabled($user),
+            'enabled'           => $twoFactor->enabled($user),
             'recoveryCodeCount' => count($twoFactor->recoveryCodes($user)),
         ]);
     }
@@ -124,7 +123,7 @@ final class TwoFactorController
     {
         $renderer = new ImageRenderer(
             new RendererStyle(192),
-            new SvgImageBackEnd(),
+            new SvgImageBackEnd,
         );
 
         return (new Writer($renderer))->writeString($url);

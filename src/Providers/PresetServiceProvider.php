@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Simtabi\Laranail\AuthKit\Preset\Providers;
 
-use Closure;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Routing\Router;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Route;
 use Simtabi\Laranail\Package\Tools\Package;
 use Simtabi\Laranail\AuthKit\Preset\Support;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Support\AuthKit;
+use Simtabi\Laranail\Package\Tools\Enums\DeprecationNotice;
 use Simtabi\Laranail\AuthKit\Preset\Commands\InstallCommand;
 use Simtabi\Laranail\Package\Tools\Providers\PackageServiceProvider;
+use Simtabi\Laranail\Package\Tools\Support\Routing\BareRouteNameAliases;
 use Simtabi\Laranail\AuthKit\Preset\View\Components\OptionalSocialButtons;
+use Simtabi\Laranail\AuthKit\Preset\View\Components\DeprecatedSocialButtons;
 use Simtabi\Laranail\AuthKit\Preset\Http\Middleware\PreventAuthenticatedPageCaching;
 
 class PresetServiceProvider extends PackageServiceProvider
@@ -106,7 +107,7 @@ class PresetServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->registerCommands();
-        Blade::component(OptionalSocialButtons::class, 'authkit-social-buttons');
+        $this->registerComponents();
         $this->loadViews();
         $this->loadTranslations();
         $this->registerFortifyViews();
@@ -134,6 +135,21 @@ class PresetServiceProvider extends PackageServiceProvider
             // not the login form. The middleware returns early for a guest.
             $this->app->make('router')->pushMiddlewareToGroup('web', PreventAuthenticatedPageCaching::class);
         });
+    }
+
+    /**
+     * `<x-laranail-authkit-preset::social-buttons />` is the component's name. Blade class aliases
+     * are a flat registry, so the bare `authkit-social-buttons` it shipped under could be claimed
+     * by any sibling package or the application; the scoped name cannot.
+     *
+     * The bare `<x-authkit-social-buttons />` stays registered, through a deprecated delegate that
+     * renders the same thing and announces itself once, so a published login or register view
+     * keeps compiling. Earliest removal: the next minor after 0.1.
+     */
+    private function registerComponents(): void
+    {
+        Blade::component(OptionalSocialButtons::class, self::COMPONENT_NAMESPACE . '::social-buttons');
+        Blade::component(DeprecatedSocialButtons::class, 'authkit-social-buttons');
     }
 
     private function registerFortifyViews(): void
@@ -214,58 +230,72 @@ class PresetServiceProvider extends PackageServiceProvider
      * password-reset and email-verification notifications build their links from password.reset
      * and verification.verify, and any third-party package may do the same.
      *
-     * Rewiring each of those one by one would cover only the ones that can be enumerated. This
-     * hook is consulted by the URL generator when a name is *not* found, so it covers every
-     * caller, including ones that do not exist yet.
+     * The work is done by package-tools' shared BareRouteNameAliases, which hooks
+     * URL::resolveMissingNamedRoutesUsing(). That hook is consulted only for a name that is *not*
+     * found, so it covers every caller and cannot shadow anything: an application's own `login`
+     * route keeps winning. It also chains to whichever resolver a sibling package installed first.
      *
-     * It cannot shadow anything: a name that resolves normally never reaches this, so an
-     * application's own `login` route keeps winning. Returning null defers.
+     * Two are installed, API first, so the web one is consulted first and falls through to it,
+     * which is the order the hand-rolled resolver tried its candidates in:
      *
-     * The URL generator holds exactly one missing-route resolver, and setting it replaces any
-     * earlier one. A sibling package (error-pages, env-kit-webui, ...) may already have installed
-     * its own, so that resolver is captured here and consulted for every name this package does
-     * not resolve; without that, whichever package booted last would silently break the others.
+     *  - web: any bare name => the configured web prefix (`laranail-auth.`).
+     *  - API: the old `api.*` names and any other bare name => the API prefix
+     *    (`laranail-auth-api.`); `api.login` was the old bare name for `laranail-auth-api.login`.
+     *
+     * Both are silent (DeprecationNotice::None): the bare names are kept on purpose, because the
+     * framework itself reads them back, so there is nothing for a host to migrate away from.
+     * A prefix configured empty installs nothing for that surface, as before.
      */
     private function resolveBareRouteNames(): void
     {
-        $previous = $this->previousMissingNamedRouteResolver();
+        $router = $this->app->make(Router::class);
+        $url = $this->app->make(UrlGenerator::class);
 
-        URL::resolveMissingNamedRoutesUsing(
-            function (string $name, mixed $parameters, ?bool $absolute) use ($previous): ?string {
-                foreach ($this->routeNameCandidates($name) as $candidate) {
-                    if (Route::has($candidate)) {
-                        return URL::route($candidate, $parameters ?? [], $absolute ?? true);
-                    }
-                }
+        $api = AuthKit::apiRouteNamePrefix();
 
-                if (is_callable($previous)) {
-                    $resolved = $previous($name, $parameters, $absolute);
+        if ($api !== '') {
+            BareRouteNameAliases::install(
+                router: $router,
+                url: $url,
+                package: 'laranail/authkit-preset',
+                prefixes: ['api.' => $api, '' => $api],
+                notice: DeprecationNotice::None,
+            );
+        }
 
-                    return is_string($resolved) ? $resolved : null;
-                }
+        $web = Support\AuthPreset::routeNamePrefix();
 
-                return null;
-            },
-        );
+        if ($web !== '') {
+            BareRouteNameAliases::install(
+                router: $router,
+                url: $url,
+                package: 'laranail/authkit-preset',
+                prefixes: ['' => $web],
+                notice: DeprecationNotice::None,
+            );
+        }
     }
 
     /**
      * The missing-route resolver installed before this one, if any.
      *
-     * Laravel exposes a setter and no getter, so the protected property is read through a closure
-     * bound to the generator's class scope, the same way laranail/error-pages does it.
+     * @deprecated Since 0.1. Delegates to package-tools'
+     *             {@see BareRouteNameAliases::previousResolver()}, which is the single place that
+     *             reads the protected UrlGenerator property and fails loudly if a framework
+     *             upgrade renames it. Earliest removal: the next minor after 0.1.
      */
     private function previousMissingNamedRouteResolver(): mixed
     {
-        return Closure::bind(
-            static fn (UrlGenerator $generator): mixed => $generator->missingNamedRouteResolver,
-            null,
-            UrlGenerator::class,
-        )(URL::getFacadeRoot());
+        return BareRouteNameAliases::previousResolver($this->app->make(UrlGenerator::class));
     }
 
     /**
      * The vendor-scoped names a bare one might have been written as.
+     *
+     * @deprecated Since 0.1. No longer consulted: the candidates are now the prefix pairs passed to
+     *             {@see BareRouteNameAliases} in {@see resolveBareRouteNames()}. Kept, unchanged,
+     *             so the mapping it documents stays readable beside its replacement. Earliest
+     *             removal: the next minor after 0.1.
      *
      * @return array<int, string>
      */

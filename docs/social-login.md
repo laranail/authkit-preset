@@ -9,8 +9,13 @@ php artisan migrate
 ```
 
 The preset renders the social package's namespaced button component on its login and registration
-pages through its optional `<x-authkit-social-buttons />` wrapper. The wrapper safely renders empty
-when the social package is absent. A button is shown only when its provider is enabled and has a
+pages through its optional `<x-laranail-authkit-preset::social-buttons />` wrapper. The wrapper safely
+renders empty when the social package is absent.
+
+> `<x-authkit-social-buttons />` is the wrapper's former, bare name. It is a deprecated alias: it
+> still renders the same thing, so a view published before the rename keeps working, and raises one
+> `E_USER_DEPRECATED` notice per process. Replace it in published views; it may stop resolving in the
+> next minor after 0.1. A button is shown only when its provider is enabled and has a
 client ID configured; see the social package's [configuration guide](https://github.com/laranail/authkit-social-login/blob/main/docs/configuration.md).
 
 The social package owns provider configuration, credentials, web and API routes, callbacks, linked

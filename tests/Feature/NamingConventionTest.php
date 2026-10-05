@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Console\Kernel;
+use Simtabi\Laranail\Package\Tools\Testing\NamingScope;
+use Simtabi\Laranail\Package\Tools\Testing\AssertsRegisteredNames;
+
+uses(AssertsRegisteredNames::class);
 
 /**
  * Every public name this package registers lands in a flat, global registry. A second package
@@ -74,4 +78,26 @@ it('never registers a bare publish tag', function (): void {
 it('keeps its configuration under the laranail namespace', function (): void {
     expect(config('laranail.authkit-preset'))->toBeArray()
         ->and(config('auth-preset'))->toBeNull();
+});
+
+it('registers its Blade components under laranail-authkit-preset::, keeping only the deprecated alias bare', function (): void {
+    // Reads Blade's live alias, class-namespace and anonymous registries. The old
+    // `authkit-social-buttons` tag stays registered so published views keep compiling; it is the
+    // one bare name allowed, and listing it here makes a stale entry fail rather than pass.
+    $found = $this->assertBladeComponentsScoped(
+        // basePath is src/: package-tools v0.1.3 defaults ownership to the package root, which
+        // counts vendor/ and tests/ closures as this package's (fixed in v0.1.4).
+        NamingScope::for('laranail/authkit-preset', 'Simtabi\\Laranail\\AuthKit\\Preset\\', basePath: dirname(__DIR__, 2) . '/src'),
+        deprecated: ['authkit-social-buttons'],
+    );
+
+    expect($found)->toContain('laranail-authkit-preset::social-buttons');
+});
+
+it('keeps the deprecated bare route names resolving to the scoped routes', function (): void {
+    $this->assertDeprecatedRouteNamesResolve([
+        'login'            => 'laranail-auth.login',
+        'password.request' => 'laranail-auth.password.request',
+        'api.login'        => 'laranail-auth-api.login',
+    ]);
 });

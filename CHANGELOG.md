@@ -9,10 +9,62 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **`<x-laranail-authkit-preset::social-buttons />`**, the social-buttons wrapper under the package's
+  own component prefix. Blade class aliases are a flat registry, so the bare name it shipped under
+  could be claimed by any sibling package or the application. The login and registration views use
+  the new tag. Guarded against Blade's live registries with package-tools' `AssertsRegisteredNames`.
+- **A Pint gate in CI** (`code-style.yml`, running `composer pint`), so formatting is checked on every
+  pull request rather than drifting on `main`.
+
 - **Opt-in TOTP account security pages and routes**, including enrollment, login challenge, disable, and recovery-code flows, with installer support for publishing the migration and enabling the feature.
 - **Consistent inline form errors and input styling** across authentication, passkey, and two-factor forms. Social login buttons appear only when the social package is installed.
 
+- **The social package's buttons on the login and registration pages**, when
+  `laranail/authkit-social-login` is installed. The preset no longer ships a buttons component,
+  provider icons, or a social-accounts view.
+
+- **`assertNoNullOnlyOptionGuards()` is enforced over `src/`**, so the shape cannot return.
+
+- **Social buttons are configuration, not Blade.** `AuthPreset::socialProviders()` returns
+  render-ready descriptors and the component loops over them, so adding or restyling a provider is a
+  `social.ui` entry rather than an edit to `social-buttons.blade.php`. Icons moved to individual
+  views under `icons/`, which an application can override one at a time.
+
+  This also fixes a real gap: the previous resolver validated a slug against the `SocialProvider`
+  enum, so a provider contributed through the identity-provider registry was filtered out and could
+  never render however correctly it had been registered.
+
+  `enabledSocialProviders()` keeps returning slugs and is unchanged for published views.
+
+- **Apple sign-in support.** An Apple button in the social-buttons component, `apple` accepted by
+  `--social=`, and — the part that is not cosmetic — the `social.callback` route now accepts **POST**
+  as well as GET and is excluded from CSRF.
+
+  Apple requests the `name` and `email` scopes, which forces `response_mode=form_post`, so Apple POSTs
+  the callback from its own servers with no session and no CSRF token. The previous GET-only route
+  answered 405. The exclusion names `PreventRequestForgery` because that is what Laravel's `web` group
+  actually registers; `VerifyCsrfToken` and `ValidateCsrfToken` are deprecated subclasses and
+  excluding either would silently do nothing.
+
+- A `NamingConventionTest` that asserts the public names against the **live registries** on a booted
+  application, rather than the provider source, so the guard survives a refactor.
+- A translation namespace. The package previously shipped none, so every user-facing string was
+  hardcoded English with no override point. 67 keys now live under
+  `laranail/authkit-preset::messages`, publishable to `lang/vendor/laranail-authkit-preset`.
+
 ### Changed
+
+- **Bare route names resolve through laranail/package-tools' shared `BareRouteNameAliases`**, which
+  replaces this package's hand-rolled resolver. Behaviour is unchanged: any bare name maps to the web
+  prefix (`laranail-auth.`), then to the API prefix (`laranail-auth-api.`, which also serves the old
+  `api.*` names), the resolver installed before it is still chained, a prefix set to `''` installs
+  nothing, and no deprecation is raised because the framework reads these names back. The private
+  `previousMissingNamedRouteResolver()` now delegates to `BareRouteNameAliases::previousResolver()`,
+  which fails loudly if a framework upgrade renames the property it reads. `laranail/package-tools`
+  is required at `^0.1.3`, the first release that ships it.
+- The package author email is `opensource@simtabi.com`, the family's community address, instead of
+  `hello@simtabi.com`.
+- Five files reformatted to the shared Pint config; no code changed.
 
 - `laranail::authkit-preset.install` now extends laranail/package-tools' `InstallCommand` and takes
   laranail/console's display API and run lifecycle from its `InteractsWithConsoleServices` and
@@ -21,19 +73,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   command is bound in the container because the new base takes the `Package` in its constructor,
   and its private `publish()` / `publishMigrations()` helpers are renamed `publishTag()` /
   `publishMigrationOnce()` so they do not collide with the base's public fluent methods.
-
-### Fixed
-
-- CAPTCHA validation now preserves ordinary field errors for inline display and supports provider-managed fields such as Turnstile.
-- Authenticated account pages share the dashboard layout, with account links and a user menu for logout.
-- **Bare route names no longer break a sibling package's fallback.** The URL generator holds one
-  missing-route resolver and setting it replaces any earlier one, so when this package booted after
-  `laranail/error-pages` or `laranail/env-kit-webui` their deprecated bare route names stopped
-  resolving. The provider now captures the previously installed resolver and delegates every name it
-  does not resolve to it; its own bare names (`login`, `password.reset`, `api.login`, ...) resolve
-  exactly as before.
-
-### Changed
 
 - **Breaking. The social dependency is now `laranail/authkit-social-login`**, following that
   package's rename. Its repository had been renamed and its manifest had not, so this package
@@ -47,11 +86,46 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   published `config/laranail/authkit-social.php` and the key inside it. Nothing errors if it does
   not: the provider lookups simply stop finding a `client_id` and the buttons disappear.
 
-### Added
+- **The Twitter button is now X**, matching `laranail/authkit-social`'s slug change from `twitter`
+  to `x`. Breaking for any application listing `twitter` in
+  `laranail.authkit-preset.social.providers`: the button renders nothing and the route returns 404.
 
-- **The social package's buttons on the login and registration pages**, when
-  `laranail/authkit-social-login` is installed. The preset no longer ships a buttons component,
-  provider icons, or a social-accounts view.
+- The PHP floor is `^8.4.1`, up from `^8.4`. `laranail/package-tools` and `laranail/console`
+  are `^8.4.1`, so a resolver that took the manifest at its word and pinned the platform to
+  8.4.0 could not install them. Dependabot does exactly that, and had been failing on it.
+
+- **Breaking.** The view and translation namespaces are now the composer package name,
+  `laranail/authkit-preset`, so `view('laranail/authkit-preset::blade.login')` and
+  `__('laranail/authkit-preset::messages.login.title')` name the package that ships the file.
+  Published files follow into `resources/views/vendor/laranail/authkit-preset` and
+  `lang/vendor/laranail/authkit-preset`, which is where Laravel reads them from.
+
+  **Blade component tags keep the hyphen** — `<x-laranail-authkit-preset::layout />` — because
+  Blade's tag parser admits no forward slash and would truncate the prefix at `laranail`, rendering
+  the tag as literal text with no error. The provider registers that prefix as an alias over the
+  same resolved paths, published override directory included, so both spellings find the same file.
+
+- **Breaking.** Renamed from `laranail/auth-preset` to
+  `laranail/authkit-preset`, and the namespace moved to `Simtabi\Laranail\AuthKit\Preset\`. The family now shares one root
+  namespace with each sibling as a segment under it.
+- **Breaking.** Every public name is vendor-scoped. Laravel keeps these in flat global maps, where
+  a second package claiming the same key silently replaces the first:
+
+| Surface | Before | After |
+|---|---|---|
+| Config key | `auth-preset` | `laranail.authkit-preset` |
+| Config file | `config/auth-preset.php` | `config/laranail/authkit-preset.php` |
+| Publish tags | `auth-preset-config`, … | `laranail::authkit-preset-*` |
+| Env prefix | `AUTH_PRESET_*` | `AUTHKIT_PRESET_*` |
+| View namespace | `auth-preset` | `laranail-authkit-preset` |
+| Blade components | `<x-auth-preset::…>` | `<x-laranail-authkit-preset::…>` |
+| Artisan command | `laranail:authkit.install` | `laranail::authkit-preset.install` |
+
+### Deprecated
+
+- **`<x-authkit-social-buttons />`.** Use `<x-laranail-authkit-preset::social-buttons />`. The old tag
+  still renders the same thing, so a view published before the rename keeps compiling, and raises one
+  `E_USER_DEPRECATED` notice per process. It may stop resolving in the next minor after 0.1.
 
 ### Removed
 
@@ -79,108 +153,30 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   SSH url this manifest does not contain: composer's GitHubDriver fell back from the API to a direct
   clone and rewrote the url itself, which sent the diagnosis toward credentials for weeks.
 
-## [Unreleased]
-
-### Fixed
-
-- **`install --stack=` failed instead of prompting.** The fall-through to the interactive stack
-  picker was written with `??`, which substitutes for `null` -- what an OMITTED option gives. An
-  option supplied without a value arrives as `''`, so the prompt was skipped and the install then
-  compared `'' !== 'blade'` and exited with "Only the [blade] stack is currently supported", naming
-  a stack the caller never chose. Now uses `strOption()`, which reports absent and empty alike.
-
-### Added
-
-- **`assertNoNullOnlyOptionGuards()` is enforced over `src/`**, so the shape cannot return.
-
-## [Unreleased]
-
-### Added
-
-- **Social buttons are configuration, not Blade.** `AuthPreset::socialProviders()` returns
-  render-ready descriptors and the component loops over them, so adding or restyling a provider is a
-  `social.ui` entry rather than an edit to `social-buttons.blade.php`. Icons moved to individual
-  views under `icons/`, which an application can override one at a time.
-
-  This also fixes a real gap: the previous resolver validated a slug against the `SocialProvider`
-  enum, so a provider contributed through the identity-provider registry was filtered out and could
-  never render however correctly it had been registered.
-
-  `enabledSocialProviders()` keeps returning slugs and is unchanged for published views.
-
-
-### Changed
-
-- **The Twitter button is now X**, matching `laranail/authkit-social`'s slug change from `twitter`
-  to `x`. Breaking for any application listing `twitter` in
-  `laranail.authkit-preset.social.providers`: the button renders nothing and the route returns 404.
-
-
-### Added
-
-- **Apple sign-in support.** An Apple button in the social-buttons component, `apple` accepted by
-  `--social=`, and — the part that is not cosmetic — the `social.callback` route now accepts **POST**
-  as well as GET and is excluded from CSRF.
-
-  Apple requests the `name` and `email` scopes, which forces `response_mode=form_post`, so Apple POSTs
-  the callback from its own servers with no session and no CSRF token. The previous GET-only route
-  answered 405. The exclusion names `PreventRequestForgery` because that is what Laravel's `web` group
-  actually registers; `VerifyCsrfToken` and `ValidateCsrfToken` are deprecated subclasses and
-  excluding either would silently do nothing.
-
-### Removed
-
 - **The Facebook social button and provider key.** `laranail/authkit-social` no longer ships
   `SocialProvider::FACEBOOK` — Facebook asserts no email-verification claim, so it could never sign
   in — and the button, the `--social=` help text, and the documented provider list follow it.
   Breaking for any application listing `facebook` in `laranail.authkit-preset.social.providers`:
   remove it, or the login page renders a button for a provider that returns a 404.
 
-
-### Changed
-
-- The PHP floor is `^8.4.1`, up from `^8.4`. `laranail/package-tools` and `laranail/console`
-  are `^8.4.1`, so a resolver that took the manifest at its word and pinned the platform to
-  8.4.0 could not install them. Dependabot does exactly that, and had been failing on it.
-
-- **Breaking.** The view and translation namespaces are now the composer package name,
-  `laranail/authkit-preset`, so `view('laranail/authkit-preset::blade.login')` and
-  `__('laranail/authkit-preset::messages.login.title')` name the package that ships the file.
-  Published files follow into `resources/views/vendor/laranail/authkit-preset` and
-  `lang/vendor/laranail/authkit-preset`, which is where Laravel reads them from.
-
-  **Blade component tags keep the hyphen** — `<x-laranail-authkit-preset::layout />` — because
-  Blade's tag parser admits no forward slash and would truncate the prefix at `laranail`, rendering
-  the tag as literal text with no error. The provider registers that prefix as an alias over the
-  same resolved paths, published override directory included, so both spellings find the same file.
-
-### Changed
-
-- **Breaking.** Renamed from `laranail/auth-preset` to
-  `laranail/authkit-preset`, and the namespace moved to `Simtabi\Laranail\AuthKit\Preset\`. The family now shares one root
-  namespace with each sibling as a segment under it.
-- **Breaking.** Every public name is vendor-scoped. Laravel keeps these in flat global maps, where
-  a second package claiming the same key silently replaces the first:
-
-| Surface | Before | After |
-|---|---|---|
-| Config key | `auth-preset` | `laranail.authkit-preset` |
-| Config file | `config/auth-preset.php` | `config/laranail/authkit-preset.php` |
-| Publish tags | `auth-preset-config`, … | `laranail::authkit-preset-*` |
-| Env prefix | `AUTH_PRESET_*` | `AUTHKIT_PRESET_*` |
-| View namespace | `auth-preset` | `laranail-authkit-preset` |
-| Blade components | `<x-auth-preset::…>` | `<x-laranail-authkit-preset::…>` |
-| Artisan command | `laranail:authkit.install` | `laranail::authkit-preset.install` |
-
-### Added
-
-- A `NamingConventionTest` that asserts the public names against the **live registries** on a booted
-  application, rather than the provider source, so the guard survives a refactor.
-- A translation namespace. The package previously shipped none, so every user-facing string was
-  hardcoded English with no override point. 67 keys now live under
-  `laranail/authkit-preset::messages`, publishable to `lang/vendor/laranail-authkit-preset`.
+- `composer.lock` is no longer tracked. A library's lock records a resolution consumers never use.
 
 ### Fixed
+
+- CAPTCHA validation now preserves ordinary field errors for inline display and supports provider-managed fields such as Turnstile.
+- Authenticated account pages share the dashboard layout, with account links and a user menu for logout.
+- **Bare route names no longer break a sibling package's fallback.** The URL generator holds one
+  missing-route resolver and setting it replaces any earlier one, so when this package booted after
+  `laranail/error-pages` or `laranail/env-kit-webui` their deprecated bare route names stopped
+  resolving. The provider now captures the previously installed resolver and delegates every name it
+  does not resolve to it; its own bare names (`login`, `password.reset`, `api.login`, ...) resolve
+  exactly as before.
+
+- **`install --stack=` failed instead of prompting.** The fall-through to the interactive stack
+  picker was written with `??`, which substitutes for `null` -- what an OMITTED option gives. An
+  option supplied without a value arrives as `''`, so the prompt was skipped and the install then
+  compared `'' !== 'blade'` and exited with "Only the [blade] stack is currently supported", naming
+  a stack the caller never chose. Now uses `strOption()`, which reports absent and empty alike.
 
 - The installer wrote a Tailwind `@source` glob pointing at `vendor/laravel/laranail`, a path that
   never existed. It matched zero files, so a clean asset build purged every utility class the auth
@@ -190,9 +186,5 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   application's `User` model a syntax error.
 - Migration publishing was not idempotent. `vendor:publish` re-stamps a fresh timestamp on every
   run, so a second install left two files declaring the same table and `migrate` died.
-
-### Removed
-
-- `composer.lock` is no longer tracked. A library's lock records a resolution consumers never use.
 
 [Unreleased]: https://github.com/laranail/authkit-preset/compare/v0.1.0...HEAD
