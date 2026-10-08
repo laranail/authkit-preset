@@ -1,0 +1,13 @@
+# Secret-scan policy. Written by agent-kit's secret_scan.py; extend it by hand, narrowly.
+#
+# ggshield reads this file (pre-commit, CI, local scans). The GitGuardian GitHub App, which posts
+# the "GitGuardian Security Checks" run on pull requests, does not: its exclusions live in the
+# GitGuardian dashboard (Settings -> Secrets detection -> Exclusion rules).
+#
+# Only named fixture and example-env paths are ignored. Never src/, never a real .env, never a
+# detector. secret_scan.py still searches these paths for live-format keys. If a finding is real,
+# rotate it first and then remove it; never add it here.
+version: 2
+secret:
+  ignored_paths:
+    - "tests/fixtures/**/*"

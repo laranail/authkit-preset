@@ -1,0 +1,12 @@
+# gitleaks policy. Written by agent-kit's secret_scan.py; extend it by hand, narrowly.
+# Only named fixture and example-env paths are allowlisted; secret_scan.py still
+# searches them for live-format keys. A realistic fake elsewhere carries an inline
+# `gitleaks:allow` comment instead.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Named fixture and example-env paths (agent-kit secret_scan.py)"
+paths = [
+  '''^tests/fixtures/(?:.*/)?[^/]*$''',
+]
