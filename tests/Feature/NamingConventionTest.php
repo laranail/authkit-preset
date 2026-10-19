@@ -96,8 +96,7 @@ it('registers its Blade components under laranail-authkit-preset::, keeping only
 
 it('keeps the deprecated bare route names resolving to the scoped routes', function (): void {
     $this->assertDeprecatedRouteNamesResolve([
-        'login' => 'laranail-auth.login',
-        // @credential-literal-exempt: a route name, not a credential
+        'login'            => 'laranail-auth.login',
         'password.request' => 'laranail-auth.password.request',
         'api.login'        => 'laranail-auth-api.login',
     ]);
