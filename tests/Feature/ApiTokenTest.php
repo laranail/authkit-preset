@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Str;
 use Workbench\App\Models\User;
+use Simtabi\Laranail\Package\Tools\Testing\TestCredentials;
 
 it(description: 'returns a token on API login', closure: function (): void {
     $password = Str::random(length: 16);
@@ -24,14 +25,16 @@ it(description: 'returns a token on API login', closure: function (): void {
 });
 
 it(description: 'returns 422 on API login with wrong credentials', closure: function (): void {
+    expect(TestCredentials::password('wrong'))->not->toBe(TestCredentials::password('correct'));
+
     User::factory()->create(attributes: [
         'email'    => 'ada@example.com',
-        'password' => bcrypt(value: 'correct-password'),
+        'password' => bcrypt(value: TestCredentials::password('correct')),
     ]);
 
     $response = $this->postJson(uri: route(name: 'api.login'), data: [
         'email'    => 'ada@example.com',
-        'password' => 'wrong-password',
+        'password' => TestCredentials::password('wrong'),
     ]);
 
     $response->assertStatus(status: 422)

@@ -24,7 +24,7 @@
         "laranail/captcha": "^0.1",
         "laranail/console": "^0.1",
         "laranail/enumerator": "^0.1",
-        "laranail/package-tools": "^0.1.3",
+        "laranail/package-tools": "^0.1.10",
         "laravel/framework": "^13.0"
     },
     "require-dev": {
