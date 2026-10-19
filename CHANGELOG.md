@@ -54,6 +54,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Test credentials are generated at run time.** Passwords, secrets and tokens in the tests and the
+  workbench factory come from package-tools' `TestCredentials`, so no literal reaches the
+  repository for a secret scanner to report. `tests/Architecture/NoLiteralCredentialsTest.php`
+  fails the suite on any literal left behind. The `laranail/package-tools` floor is now `^0.1.9`,
+  the first release that ships both.
+
 - **Bare route names resolve through laranail/package-tools' shared `BareRouteNameAliases`**, which
   replaces this package's hand-rolled resolver. Behaviour is unchanged: any bare name maps to the web
   prefix (`laranail-auth.`), then to the API prefix (`laranail-auth-api.`, which also serves the old
