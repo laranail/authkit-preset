@@ -1,3 +1,13 @@
+@use(\Simtabi\Laranail\AuthKit\Support\AuthKit)
+
+@php
+    // Read once, used six times below. Locals rather than repeated static calls, and declared in
+    // this file rather than shared by a composer, so nothing here depends on what the including
+    // code happens to have set.
+    $loginField = AuthKit::loginField();
+    $emailOnly  = AuthKit::loginIsEmailOnly();
+@endphp
+
 <x-laranail-authkit-preset::layout title="Login">
     <div class="text-center mb-8">
         <h2 class="text-2xl font-bold tracking-tight text-gray-900">{{ __('laranail/authkit-preset::messages.login.title') }}</h2>
@@ -16,21 +26,39 @@
     <form method="POST" action="{{ route('login') }}" class="space-y-6">
         @csrf
 
+        {{--
+            The identifier field follows AuthKit, it does not assume an address.
+
+            `laranail.authkit.login.field` names the input the request reads, and
+            `AttemptEmailPasswordLoginRequest` drops its `email` rule as soon as more than one
+            identifier is configured. Three things have to move together or the feature is
+            unreachable from this form: a form posting `email` to a backend reading `username`
+            sends nothing the validator can see; `type="email"` makes the browser reject a username
+            before the request is ever made; and `old()`/`$errors` keyed on the wrong name silently
+            lose the submitted value on a failed attempt.
+        --}}
         <div>
-            <x-laranail-authkit-preset::label for="email" value="{{ __('laranail/authkit-preset::messages.login.email') }}" />
+            <x-laranail-authkit-preset::label
+                for="{{ $loginField }}"
+                value="{{ $emailOnly
+                    ? __('laranail/authkit-preset::messages.login.email')
+                    : __('laranail/authkit-preset::messages.login.identifier') }}"
+            />
             <div class="mt-2">
                 <x-laranail-authkit-preset::input
-                    id="email"
-                    name="email"
-                    type="email"
-                    :value="old('email')"
+                    id="{{ $loginField }}"
+                    name="{{ $loginField }}"
+                    type="{{ $emailOnly ? 'email' : 'text' }}"
+                    :value="old($loginField)"
                     autofocus
-                    autocomplete="email webauthn"
-                    placeholder="you@example.com"
-                    :error="$errors->has('email')"
+                    autocomplete="{{ $emailOnly ? 'email webauthn' : 'username webauthn' }}"
+                    placeholder="{{ $emailOnly
+                        ? __('laranail/authkit-preset::messages.login.email_placeholder')
+                        : __('laranail/authkit-preset::messages.login.identifier_placeholder') }}"
+                    :error="$errors->has($loginField)"
                 />
             </div>
-            <x-laranail-authkit-preset::input-error :message="$errors->first('email')" />
+            <x-laranail-authkit-preset::input-error :message="$errors->first($loginField)" />
         </div>
 
         <div>
