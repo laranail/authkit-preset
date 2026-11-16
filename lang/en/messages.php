@@ -24,13 +24,19 @@ return [
         'no_account' => "Don't have an account?",
         'register'   => 'Register',
         'email'      => 'Email address',
-        'password'   => 'Password',
-        'remember'   => 'Remember me',
-        'forgot'     => 'Forgot password?',
-        'submit'     => 'Sign in',
-        'passkey'    => 'Sign in with a passkey',
-        'failed'     => 'Invalid credentials.',
-        'throttled'  => 'Too many attempts.',
+        // Shown instead of `email` when more than one login identifier is configured. An
+        // application that configures something narrower -- usernames only -- publishes these
+        // translations and says so there; the package cannot name a set it does not choose.
+        'identifier'             => 'Email or username',
+        'email_placeholder'      => 'you@example.com',
+        'identifier_placeholder' => 'you@example.com or yourname',
+        'password'               => 'Password',
+        'remember'               => 'Remember me',
+        'forgot'                 => 'Forgot password?',
+        'submit'                 => 'Sign in',
+        'passkey'                => 'Sign in with a passkey',
+        'failed'                 => 'Invalid credentials.',
+        'throttled'              => 'Too many attempts.',
     ],
 
     'register' => [
