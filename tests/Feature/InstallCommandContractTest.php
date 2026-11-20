@@ -51,17 +51,20 @@ it('keeps its own options, their value modes, and no arguments', function (): vo
         'model',
         'publish-routes',
         'publish-views',
+        'dry-run',
+        'skip',
         'force',
     ])->and($definition->getArguments())->toBe([]);
 
-    $valued = ['stack', 'model'];
+    $valued = ['stack', 'model', 'skip'];
 
     foreach ($definition->getOptions() as $name => $option) {
         $takesValue = in_array($name, $valued, true);
 
         expect($option->acceptValue())->toBe($takesValue, "--{$name} value mode")
             ->and($option->isValueOptional())->toBe($takesValue, "--{$name} optional value")
-            ->and($option->getShortcut())->toBeNull();
+            ->and($option->getShortcut())->toBeNull()
+            ->and($option->isArray())->toBe($name === 'skip');
     }
 
     expect($definition->getOption('stack')->getDescription())->toBe('The frontend stack to install')
