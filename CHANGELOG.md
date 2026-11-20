@@ -20,6 +20,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Installer `--dry-run` previews selected actions without file changes, and repeatable `--skip`
+  leaves selected steps untouched. Unknown step names fail before any writes; `--force` remains supported.
+
 - **`<x-laranail-authkit-preset::social-buttons />`**, the social-buttons wrapper under the package's
   own component prefix. Blade class aliases are a flat registry, so the bare name it shipped under
   could be claimed by any sibling package or the application. The login and registration views use

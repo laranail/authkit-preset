@@ -39,6 +39,8 @@ class InstallCommand extends PackageToolsInstallCommand
         {--model= : The Eloquent authentication model to configure}
         {--publish-routes : Publish package route files for application ownership}
         {--publish-views : Publish Blade views for application ownership}
+        {--dry-run : Preview installation without changing files}
+        {--skip=* : Installation steps to skip (model, config, tailwind, passkeys, migrations, routes, views, environment)}
         {--force : Overwrite existing published files}';
 
     public const string DESCRIPTION = 'Install the laranail/authkit-preset Blade resources';
@@ -46,6 +48,8 @@ class InstallCommand extends PackageToolsInstallCommand
     private const string TAILWIND_BLADE_SOURCE = "@source '../../vendor/laranail/*/resources/views/**/*.blade.php';";
 
     private const string PASSKEYS_NPM_PACKAGE = '@laravel/passkeys';
+
+    private const array INSTALL_STEPS = ['model', 'config', 'tailwind', 'passkeys', 'migrations', 'routes', 'views', 'environment'];
 
     public function __construct(Package $package)
     {
@@ -66,11 +70,16 @@ class InstallCommand extends PackageToolsInstallCommand
 
     public function handle(): int
     {
-        $stack = $this->strOption('stack') ?? prompter()->select(
+        if (! $this->validateSkippedSteps()) {
+            return self::FAILURE;
+        }
+
+        $dryRun = (bool) $this->option('dry-run');
+        $stack = $this->strOption('stack') ?? ($this->input->isInteractive() ? prompter()->select(
             label: 'Which frontend stack would you like to install?',
             options: ['blade' => 'Blade'],
             default: 'blade',
-        )->getResult();
+        )->getResult() : 'blade');
 
         if ($stack !== 'blade') {
             $this->error(string: 'Only the [blade] stack is currently supported.');
@@ -78,7 +87,7 @@ class InstallCommand extends PackageToolsInstallCommand
             return self::FAILURE;
         }
 
-        $authModel = $this->input->isInteractive()
+        $authModel = $this->input->isInteractive() && ! $this->isStepSkipped('model')
             ? $this->resolveAuthModel(wantsApi: false, wantsPasskeys: false, promptWithoutFeatures: true)
             : null;
 
@@ -93,9 +102,9 @@ class InstallCommand extends PackageToolsInstallCommand
         // listener checks the model for MustVerifyEmail, so without that interface registration
         // sends nothing, the verified middleware lets everyone through, and the whole feature is
         // silently inert -- installed, configured, and doing nothing.
-        $needsModel = $wantsApi || $wantsPasskeys || $wantsEmailVerification || $wantsTwoFactorAuthentication;
+        $needsModel = ($wantsApi || $wantsPasskeys || $wantsEmailVerification || $wantsTwoFactorAuthentication) && ! $this->isStepSkipped('model');
 
-        if (! $this->input->isInteractive()) {
+        if (! $this->input->isInteractive() && ! $this->isStepSkipped('model')) {
             $authModel = $this->resolveAuthModel(wantsApi: $wantsApi || $wantsTwoFactorAuthentication, wantsPasskeys: $wantsPasskeys);
         } elseif ($needsModel && $authModel === null) {
             $authModel = $this->resolveAuthModel(wantsApi: $wantsApi || $wantsTwoFactorAuthentication, wantsPasskeys: $wantsPasskeys);
@@ -107,73 +116,87 @@ class InstallCommand extends PackageToolsInstallCommand
             return self::FAILURE;
         }
 
-        if ($authModel !== null && ! $this->configureAuthModel(model: $authModel, wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys, wantsEmailVerification: $wantsEmailVerification)) {
+        if ($authModel !== null && $this->shouldRunStep('model', __('laranail/authkit-preset::installer.model', ['model' => $authModel])) && ! $this->configureAuthModel(model: $authModel, wantsApi: $wantsApi, wantsPasskeys: $wantsPasskeys, wantsEmailVerification: $wantsEmailVerification)) {
             return self::FAILURE;
         }
 
-        $this->publishTag(tag: 'laranail::authkit-config');
-        $this->publishTag(tag: 'laranail::authkit-preset-config');
-        $this->configureTailwindSource();
+        if ($this->shouldRunStep('config', __('laranail/authkit-preset::installer.config'))) {
+            $this->publishTag(tag: 'laranail::authkit-config');
+            $this->publishTag(tag: 'laranail::authkit-preset-config');
+            $this->configureFeatures(features: $features);
+        }
 
-        if ($wantsPasskeys) {
+        if ($this->shouldRunStep('tailwind', __('laranail/authkit-preset::installer.tailwind'))) {
+            $this->configureTailwindSource();
+        }
+
+        if ($wantsPasskeys && $this->shouldRunStep('passkeys', __('laranail/authkit-preset::installer.passkeys'))) {
             $this->installPasskeyFrontend();
         }
 
-        if ($wantsTwoFactorAuthentication && $this->publishMigrationOnce(tag: 'laranail::authkit-two-factor-migrations', name: 'add_two_factor_authentication_to_users_table')) {
+        if ($wantsTwoFactorAuthentication && $this->shouldRunStep('migrations', __('laranail/authkit-preset::installer.two_factor_migration')) && $this->publishMigrationOnce(tag: 'laranail::authkit-two-factor-migrations', name: 'add_two_factor_authentication_to_users_table')) {
             $this->newLine();
             $this->info(string: 'Two-factor authentication migration published. Run `php artisan migrate` to add the two_factor_method and TOTP fields.');
         }
 
         if ($wantsApi) {
-            if ($this->publishMigrationOnce(tag: 'sanctum-migrations', name: 'create_personal_access_tokens_table')) {
+            if ($this->shouldRunStep('migrations', __('laranail/authkit-preset::installer.sanctum_migration')) && $this->publishMigrationOnce(tag: 'sanctum-migrations', name: 'create_personal_access_tokens_table')) {
                 $this->newLine();
                 $this->info(string: 'Sanctum token migration published. Run `php artisan migrate` to create the personal_access_tokens table.');
             }
         }
 
         if ($wantsPasskeys) {
-            if ($this->publishMigrationOnce(tag: 'laranail::authkit-passkey-migrations', name: 'create_passkeys_table')) {
+            if ($this->shouldRunStep('migrations', __('laranail/authkit-preset::installer.passkey_migration')) && $this->publishMigrationOnce(tag: 'laranail::authkit-passkey-migrations', name: 'create_passkeys_table')) {
                 $this->newLine();
                 $this->info(string: 'Passkeys migration published. Run `php artisan migrate` to create the passkeys table.');
             }
 
-            $this->line(string: 'The @laravel/passkeys browser client and Blade event handlers were added to resources/js. Run `npm install` and rebuild your frontend assets.');
+            if (! $dryRun && ! $this->isStepSkipped('passkeys')) {
+                $this->line(string: 'The @laravel/passkeys browser client and Blade event handlers were added to resources/js. Run `npm install` and rebuild your frontend assets.');
+            }
         }
 
-        if ($authModel !== null) {
+        if ($authModel !== null && ! $dryRun) {
             $this->newLine();
             $this->info(string: "Authentication model configured: {$authModel}.");
         }
 
-        if ($wantsApi || $wantsPasskeys) {
+        if (($wantsApi || $wantsPasskeys) && ! $dryRun && ! $this->isStepSkipped('migrations')) {
             $this->line(string: 'Migrations were published to the application database/migrations directory. If this model belongs to a module, move the migrations to that module only if its module system owns migration loading.');
         }
 
-        if ($this->option(key: 'publish-routes')) {
+        if ($this->option(key: 'publish-routes') && $this->shouldRunStep('routes', __('laranail/authkit-preset::installer.routes'))) {
             $this->publishTag(tag: 'laranail::authkit-preset-routes');
         }
 
-        if ($this->option(key: 'publish-views')) {
+        if ($this->option(key: 'publish-views') && $this->shouldRunStep('views', __('laranail/authkit-preset::installer.views'))) {
             $this->publishTag(tag: 'laranail::authkit-preset-views');
         }
 
-        $this->configureFeatures(features: $features);
+        if ($this->shouldRunStep('environment', __('laranail/authkit-preset::installer.environment'))) {
+            $this->configureEnvironment(wantsBotProtection: $wantsBotProtection);
+        }
+
+        if ($dryRun) {
+            $this->info(__('laranail/authkit-preset::installer.dry_run_complete'));
+
+            return self::SUCCESS;
+        }
 
         $this->info(string: 'laranail/authkit-preset is ready. Package routes are registered automatically.');
         $this->line(string: 'Visit /auth/register or /auth/login. Review config/laranail/authkit-preset.php to enable or disable features.');
 
-        if ($wantsApi) {
+        if ($wantsApi && ! $this->isStepSkipped('config')) {
             $this->line(string: 'API routes are enabled at /api/auth. Use Sanctum tokens for authentication.');
         }
 
-        if ($wantsBotProtection) {
+        if ($wantsBotProtection && ! $this->isStepSkipped('config')) {
             $this->newLine();
             $this->info(string: 'Bot protection enabled for guest forms.');
             $this->line(string: 'Turnstile is the default provider. Set CAPTCHA_PROVIDER to use another supported provider.');
             $this->line(string: 'Add CAPTCHA_SITE_KEY and CAPTCHA_SECRET_KEY to your .env file when the selected provider requires credentials.');
         }
-
-        $this->configureEnvironment(wantsBotProtection: $wantsBotProtection);
 
         return self::SUCCESS;
     }
@@ -678,5 +701,43 @@ class InstallCommand extends PackageToolsInstallCommand
 
         // Published migrations are prefixed with a timestamp, so match on the trailing name.
         return glob(pattern: $migrationPath . '/*_' . $name . '.php') !== [];
+    }
+
+    private function validateSkippedSteps(): bool
+    {
+        $unknown = array_diff($this->option('skip'), self::INSTALL_STEPS);
+
+        if ($unknown !== []) {
+            $this->error(__('laranail/authkit-preset::installer.invalid_skip', [
+                'steps'     => implode(', ', $unknown),
+                'supported' => implode(', ', self::INSTALL_STEPS),
+            ]));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isStepSkipped(string $step): bool
+    {
+        return in_array($step, $this->option('skip'), true);
+    }
+
+    private function shouldRunStep(string $step, string $description): bool
+    {
+        if ($this->isStepSkipped($step)) {
+            $this->line(__('laranail/authkit-preset::installer.skipped', ['step' => $step]));
+
+            return false;
+        }
+
+        if ($this->option('dry-run')) {
+            $this->line(__('laranail/authkit-preset::installer.planned', ['step' => $step, 'description' => $description]));
+
+            return false;
+        }
+
+        return true;
     }
 }
