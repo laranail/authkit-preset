@@ -7,6 +7,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Accept full 21-character recovery codes for two-factor challenges, disabling two-factor
+  authentication, and regenerating recovery codes.
+- Use a text keyboard for the authenticator or recovery-code challenge input.
+
 ### Changed
 
 - CI runs sequential tests on PHP 8.5 against MySQL, MariaDB, and PostgreSQL alongside SQLite.

@@ -58,7 +58,7 @@ final class TwoFactorController
 
     public function disable(Request $request, TwoFactorAuthentication $twoFactor): RedirectResponse
     {
-        $request->validate(['code' => ['required', 'string', 'min:6', 'max:20']]);
+        $request->validate(['code' => ['required', 'string', 'min:6', 'max:21']]);
         $user = $request->user(AuthPreset::guardForCurrentRoute());
 
         if (! $twoFactor->verify($user, $request->string('code')->toString())) {
@@ -72,7 +72,7 @@ final class TwoFactorController
 
     public function regenerateRecoveryCodes(Request $request, TwoFactorAuthentication $twoFactor): View|RedirectResponse
     {
-        $request->validate(['code' => ['required', 'string', 'min:6', 'max:20']]);
+        $request->validate(['code' => ['required', 'string', 'min:6', 'max:21']]);
         $user = $request->user(AuthPreset::guardForCurrentRoute());
 
         if (! $twoFactor->verify($user, $request->string('code')->toString())) {
@@ -97,7 +97,7 @@ final class TwoFactorController
 
     public function verifyChallenge(Request $request, TwoFactorAuthentication $twoFactor): RedirectResponse
     {
-        $request->validate(['code' => ['required', 'string', 'min:6', 'max:20']]);
+        $request->validate(['code' => ['required', 'string', 'min:6', 'max:21']]);
         $pending = $request->session()->get('authkit.two_factor_pending');
 
         if (! is_array($pending) || ! isset($pending['guard'], $pending['user_id'])) {
