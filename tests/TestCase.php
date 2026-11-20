@@ -30,12 +30,17 @@ abstract class TestCase extends OrchestraTestCase
     {
         $app['config']->set('app.key', 'base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
         $app['config']->set('database.default', 'testing');
-        $app['config']->set('database.connections.testing', [
-            'driver'                  => 'sqlite',
-            'database'                => ':memory:',
-            'prefix'                  => '',
-            'foreign_key_constraints' => true,
-        ]);
+        $driver = getenv('DB_CONNECTION') ?: 'sqlite';
+        $connection = $app['config']->get("database.connections.{$driver}", []);
+        $connection['driver'] = $driver;
+
+        if ($driver === 'sqlite') {
+            $connection['database'] = getenv('DB_DATABASE') ?: ':memory:';
+            $connection['prefix'] = '';
+            $connection['foreign_key_constraints'] = true;
+        }
+
+        $app['config']->set('database.connections.testing', $connection);
 
         $app['config']->set('auth.providers.users.model', User::class);
         $app['config']->set('laranail.authkit.user_model', User::class);
@@ -56,11 +61,11 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function defineDatabaseMigrations(): void
     {
-        $authKitPasskeyMigrations = dirname(__DIR__) . '/vendor/laranail/authkit/database/migrations/passkeys';
-
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/orchestra/testbench-core/laravel/migrations');
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/fortify/database/migrations');
-        $this->loadMigrationsFrom($authKitPasskeyMigrations);
-        $this->loadMigrationsFrom(dirname(__DIR__) . '/vendor/laravel/sanctum/database/migrations');
+        \Orchestra\Testbench\load_migration_paths($this->app, [
+            dirname(__DIR__) . '/vendor/orchestra/testbench-core/laravel/migrations',
+            dirname(__DIR__) . '/vendor/laravel/fortify/database/migrations',
+            dirname(__DIR__) . '/vendor/laranail/authkit/database/migrations/passkeys',
+            dirname(__DIR__) . '/vendor/laravel/sanctum/database/migrations',
+        ]);
     }
 }
