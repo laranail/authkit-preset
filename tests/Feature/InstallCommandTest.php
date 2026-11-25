@@ -77,7 +77,7 @@ it('writes the selected feature set without retaining deselected features', func
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureFeatures');
-    $configPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-config-');
+    $configPath = tempnam(sys_get_temp_dir(), 'authkit-preset-config-');
     $source = file_get_contents(dirname(__DIR__, 2) . '/config/laranail/authkit-preset.php');
 
     file_put_contents($configPath, $source);
@@ -132,7 +132,7 @@ it('adds Sanctum and passkey support to a selected model only once', function ()
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureModelFile');
-    $modelPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-model-');
+    $modelPath = tempnam(sys_get_temp_dir(), 'authkit-preset-model-');
 
     file_put_contents(
         $modelPath,
@@ -174,7 +174,7 @@ it('adds the authkit-preset Blade source to app.css only once', function (): voi
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureTailwindSource');
-    $cssPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-app-css-');
+    $cssPath = tempnam(sys_get_temp_dir(), 'authkit-preset-app-css-');
 
     file_put_contents(
         $cssPath,
@@ -248,8 +248,8 @@ it('adds captcha environment variables to both env files without overwriting the
     $command = Artisan::all()['laranail::authkit-preset.install'];
     $reflection = new ReflectionClass(InstallCommand::class);
     $configurator = $reflection->getMethod('configureEnvironment');
-    $envPath = tempnam(dirname(__DIR__, 2), 'authkit-preset-env-');
-    $envExamplePath = tempnam(dirname(__DIR__, 2), 'authkit-preset-env-example-');
+    $envPath = tempnam(sys_get_temp_dir(), 'authkit-preset-env-');
+    $envExamplePath = tempnam(sys_get_temp_dir(), 'authkit-preset-env-example-');
 
     file_put_contents($envPath, "APP_KEY=existing\nAUTHKIT_GOOGLE_CLIENT_ID=existing-client\nCAPTCHA_SITE_KEY=existing-site\n");
     file_put_contents($envExamplePath, "APP_KEY=\n");

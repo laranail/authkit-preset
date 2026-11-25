@@ -34,6 +34,17 @@ class LoginController extends AbstractAttemptEmailPasswordLoginController
             ]);
             $request->session()->regenerate();
 
+            // Same gate, whichever representation the caller asked for. A fetch client cannot
+            // usefully follow a 302 to a browser page, so it is told a challenge is required and
+            // where to send the user. Either way nobody is signed in on credentials alone.
+            if ($request->expectsJson()) {
+                return $this->jsonResponse(
+                    status: 'two-factor-required',
+                    data: ['challenge_url' => route(AuthPreset::routeName('two-factor.challenge'))],
+                    code: 202,
+                );
+            }
+
             return redirect()->route(AuthPreset::routeName('two-factor.challenge'));
         }
 

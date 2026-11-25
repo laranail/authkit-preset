@@ -7,17 +7,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Fixed
-
-- Accept full 21-character recovery codes for two-factor challenges, disabling two-factor
-  authentication, and regenerating recovery codes.
-- Use a text keyboard for the authenticator or recovery-code challenge input.
-
-### Changed
-
-- CI runs sequential tests on PHP 8.5 against MySQL, MariaDB, and PostgreSQL alongside SQLite.
-  Database jobs disable coverage, and the test harness registers migrations consistently across drivers.
-
 ### Added
 
 - Installer `--dry-run` previews selected actions without file changes, and repeatable `--skip`
@@ -65,8 +54,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - A translation namespace. The package previously shipped none, so every user-facing string was
   hardcoded English with no override point. 67 keys now live under
   `laranail/authkit-preset::messages`, publishable to `lang/vendor/laranail-authkit-preset`.
-
-### Changed
 
 - **Test credentials are generated at run time.** Passwords, secrets and tokens in the tests and the
   workbench factory come from package-tools' `TestCredentials`, so no literal reaches the repository
@@ -142,6 +129,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 | View namespace | `auth-preset` | `laranail-authkit-preset` |
 | Blade components | `<x-auth-preset::…>` | `<x-laranail-authkit-preset::…>` |
 | Artisan command | `laranail:authkit.install` | `laranail::authkit-preset.install` |
+- Release workflow: a `workflow_dispatch` that re-runs a release against a tag that already exists. A release tag can never be moved or reused, so a run that died at `composer install` or in the SBOM step was previously unrecoverable.
+
+### Changed
+
+- A tag-driven release workflow: it builds the GitHub release body from this file's matching
+  section, marks any `-` suffix as a pre-release, and attaches a CycloneDX SBOM. The package had
+  none, which is why it has tags and no GitHub releases.
+- CI gained a weekly scheduled run on the default branch. Nothing ran on a merge, so drift on
+  `main` was invisible until an unrelated pull request went red.
+
+- CI runs sequential tests on PHP 8.5 against MySQL, MariaDB, and PostgreSQL alongside SQLite.
+  Database jobs disable coverage, and the test harness registers migrations consistently across drivers.
+- Release workflow: `Latest` is no longer asserted for every final tag. A `latest` dispatch input set to `false` lets a patch to an older line publish without demoting a newer one, and the tag shape is validated against the release conventions before anything is published.
+- The credential-literal guard's `minFiles` floor now equals the number of files it actually inspects, so a glob that stops matching fails instead of reporting a clean tree.
+- Release workflow: `permissions` is read-only at the top level and widened to `contents: write` on the release job only, so a job added later starts with no write access. The tag trigger is one pattern rather than two -- GitHub's `*` matches `.` and `-`, so `v*.*.*` already starts on `v0.1.0-rc.1`.
 
 ### Deprecated
 
@@ -185,6 +187,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- `POST {prefix}/user/two-factor` returned a `TypeError` instead of redirecting when two-factor was
+  already enabled: `begin()` declared `: View` and returned a `RedirectResponse`.
+- The core's Turnstile rule is handed over only while this package is actually protecting the
+  forms. It was switched off unconditionally, but `ValidateCaptcha` returns early unless bot
+  protection is an enabled feature and that feature is not in the shipped defaults — so an
+  application that had enabled Turnstile lost it and got nothing in its place.
+- A JSON caller is told a two-factor challenge is required (202) rather than receiving a redirect
+  to a browser page. Requires the AuthKit release that stops the core negotiating before it
+  authenticates.
+
+- Accept full 21-character recovery codes for two-factor challenges, disabling two-factor
+  authentication, and regenerating recovery codes.
+- Use a text keyboard for the authenticator or recovery-code challenge input.
+
 - CAPTCHA validation now preserves ordinary field errors for inline display and supports provider-managed fields such as Turnstile.
 - Authenticated account pages share the dashboard layout, with account links and a user menu for logout.
 - **Bare route names no longer break a sibling package's fallback.** The URL generator holds one
@@ -208,5 +224,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   application's `User` model a syntax error.
 - Migration publishing was not idempotent. `vendor:publish` re-stamps a fresh timestamp on every
   run, so a second install left two files declaring the same table and `migrate` died.
+- Release workflow: the CHANGELOG extractor stopped at the next version heading only, so the **last** section in the file ran to EOF and the release body ended in `[0.1.0]: https://...` link-reference lines. It now also stops at the link block.
+
+## [0.1.0] - 2026-10-19
+
+### Added
+
+- The Blade frontend scaffolding for AuthKit: views and routes for login, registration, password
+  reset, email verification, two-factor enrolment and challenge, recovery codes, password
+  confirmation, profile and password updates, passkeys and a dashboard; multi-guard mounts; the
+  `laranail::authkit-preset.install` command; and vendor-scoped names throughout, with the bare
+  route names Laravel itself resolves kept working through the URL generator's missing-name hook.
 
 [Unreleased]: https://github.com/laranail/authkit-preset/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/laranail/authkit-preset/releases/tag/v0.1.0
