@@ -28,7 +28,7 @@ final class TwoFactorController
         ]);
     }
 
-    public function begin(Request $request, TwoFactorAuthentication $twoFactor): View
+    public function begin(Request $request, TwoFactorAuthentication $twoFactor): View|RedirectResponse
     {
         $user = $request->user(AuthPreset::guardForCurrentRoute());
 
