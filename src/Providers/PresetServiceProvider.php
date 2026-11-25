@@ -100,7 +100,18 @@ class PresetServiceProvider extends PackageServiceProvider
         config()->set('fortify.home', Support\AuthPreset::afterLoginRedirect());
         config()->set('passkeys.redirect', Support\AuthPreset::afterLoginRedirect());
 
-        config()->set('laranail.authkit.turnstile.enabled', false);
+        // Hand the core's Turnstile rule over only while this package is actually protecting the
+        // unauthenticated forms, which it does through ValidateCaptcha on register, login,
+        // forgot-password and reset-password. Running both would validate a single-use token
+        // twice and fail a legitimate submission.
+        //
+        // Doing it unconditionally was worse than the double validation it avoided:
+        // ValidateCaptcha returns early unless bot protection is an enabled feature, and that
+        // feature is not in the shipped defaults -- so an application that had deliberately
+        // switched the core's Turnstile on lost it and got nothing in its place.
+        if (Features::enabled(Features::botProtection())) {
+            config()->set('laranail.authkit.turnstile.enabled', false);
+        }
         config()->set('laranail.captcha.provider', config('laranail.authkit-preset.bot_protection.provider', 'turnstile'));
     }
 
