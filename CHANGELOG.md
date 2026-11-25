@@ -8,12 +8,26 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Fixed
+- `POST {prefix}/user/two-factor` returned a `TypeError` instead of redirecting when two-factor was
+  already enabled: `begin()` declared `: View` and returned a `RedirectResponse`.
+- The core's Turnstile rule is handed over only while this package is actually protecting the
+  forms. It was switched off unconditionally, but `ValidateCaptcha` returns early unless bot
+  protection is an enabled feature and that feature is not in the shipped defaults — so an
+  application that had enabled Turnstile lost it and got nothing in its place.
+- A JSON caller is told a two-factor challenge is required (202) rather than receiving a redirect
+  to a browser page. Requires the AuthKit release that stops the core negotiating before it
+  authenticates.
 
 - Accept full 21-character recovery codes for two-factor challenges, disabling two-factor
   authentication, and regenerating recovery codes.
 - Use a text keyboard for the authenticator or recovery-code challenge input.
 
 ### Changed
+- A tag-driven release workflow: it builds the GitHub release body from this file's matching
+  section, marks any `-` suffix as a pre-release, and attaches a CycloneDX SBOM. The package had
+  none, which is why it has tags and no GitHub releases.
+- CI gained a weekly scheduled run on the default branch. Nothing ran on a merge, so drift on
+  `main` was invisible until an unrelated pull request went red.
 
 - CI runs sequential tests on PHP 8.5 against MySQL, MariaDB, and PostgreSQL alongside SQLite.
   Database jobs disable coverage, and the test harness registers migrations consistently across drivers.
@@ -210,3 +224,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   run, so a second install left two files declaring the same table and `migrate` died.
 
 [Unreleased]: https://github.com/laranail/authkit-preset/compare/v0.1.0...HEAD
+
+## [0.1.0] - 2026-10-19
+
+### Added
+
+- The Blade frontend scaffolding for AuthKit: views and routes for login, registration, password
+  reset, email verification, two-factor enrolment and challenge, recovery codes, password
+  confirmation, profile and password updates, passkeys and a dashboard; multi-guard mounts; the
+  `laranail::authkit-preset.install` command; and vendor-scoped names throughout, with the bare
+  route names Laravel itself resolves kept working through the URL generator's missing-name hook.
