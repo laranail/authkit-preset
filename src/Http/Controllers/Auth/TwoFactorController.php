@@ -19,6 +19,7 @@ final class TwoFactorController
 {
     public function __construct(
         private \Illuminate\Contracts\Auth\Factory $auth,
+        private \Illuminate\Contracts\Events\Dispatcher $events,
     ) {}
 
     public function index(Request $request, TwoFactorAuthentication $twoFactor): View
@@ -111,6 +112,10 @@ final class TwoFactorController
         $user = $guard->getProvider()->retrieveById($pending['user_id']);
 
         if ($user === null || ! $twoFactor->verify($user, $request->string('code')->toString())) {
+            if ($user !== null) {
+                $this->events->dispatch(new \Simtabi\Laranail\AuthKit\Preset\Events\TwoFactorChallengeFailed($user::class, (string) $user->getAuthIdentifier(), $pending['guard']));
+            }
+
             throw ValidationException::withMessages(['code' => 'The authenticator or recovery code is invalid.']);
         }
 
@@ -118,6 +123,7 @@ final class TwoFactorController
         $request->session()->forget('authkit.two_factor_pending');
         $request->session()->regenerate();
         $request->session()->put('authkit.two_factor_verified', true);
+        $this->events->dispatch(new \Simtabi\Laranail\AuthKit\Preset\Events\TwoFactorChallengeCompleted($user::class, (string) $user->getAuthIdentifier(), $pending['guard']));
 
         return redirect()->intended(AuthPreset::afterLoginRedirect());
     }

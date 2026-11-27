@@ -24,6 +24,8 @@ alphanumeric value, including its separator; do not restrict them to numeric inp
 See [Customization](customization.md) and the
 [core feature scope](https://github.com/laranail/authkit/blob/main/docs/feature-scope.md).
 
+Public audit hooks and their exact boundaries are documented in [Events](events.md).
+
 ---
 
 [← Docs index](../README.md#documentation)
