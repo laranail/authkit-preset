@@ -4,11 +4,11 @@ The service provider loads `routes/web.php` only while `laranail.authkit-preset.
 
 ## Route mode
 
-Set `AUTHKIT_PRESET_ROUTES_MODE=published` only after publishing the routes and loading `routes/laranail-authkit-preset-web.php` and `routes/laranail-authkit-preset-api.php` from the application's route bootstrap. In published mode the package intentionally loads neither route file; forgetting the application `require` produces no preset routes. This mode is the appropriate place to change controllers, middleware, names, or authorization policy.
+Set `AUTHKIT_PRESET_ROUTES_MODE=published` only after publishing the routes and loading `routes/laranail-authkit-preset-web.php` from the application's route bootstrap. In published mode the package intentionally does not load its web route file; forgetting the application `require` produces no preset routes. This mode is the appropriate place to change controllers, middleware, names, or authorization policy.
 
 ## Guards and middleware
 
-Guest web pages use the configured `web` middleware list plus `guest:<AUTHKIT_PRESET_GUARD>`. Logout, profile, password update, passkey management, verification prompt, and verification actions use the same web middleware plus `auth:<guard>`. API routes ship from `laranail/authkit` and use `laranail.authkit.api.middleware` (`api`, `throttle:60,1` by default); protected API account routes add `auth:sanctum`.
+Guest web pages use the configured `web` middleware list plus `guest:<AUTHKIT_PRESET_GUARD>`. Logout, profile, password update, passkey management, verification prompt, and verification actions use the same web middleware plus `auth:<guard>`. API routes ship from `laranail/authkit` and use `laranail.authkit.api.middleware` (`api`, `throttle:60,1` by default); protected API account routes use the configured token guards (`sanctum` by default).
 
 The package also registers `GET /dashboard`, independent of the web prefix, with the web middleware and `auth:<guard>`. It is a basic authenticated view and not a substitute for application authorization; replace or remove it when it does not suit the application.
 

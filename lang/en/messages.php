@@ -7,12 +7,12 @@ declare(strict_types=1);
 | laranail/authkit-preset — user-facing strings
 |--------------------------------------------------------------------------
 |
-| Referenced as laranail-authkit-preset::messages.*, matching the package's
+| Referenced as laranail/authkit-preset::messages.*, matching the package's
 | view namespace. Publish with:
 |
-|     php artisan vendor:publish --tag=laranail::authkit-preset-lang
+|     php artisan vendor:publish --tag=laranail::authkit-preset-translations
 |
-| Published files land in lang/vendor/laranail-authkit-preset, which is where
+| Published files land in lang/vendor/laranail/authkit-preset, which is where
 | Laravel looks for overrides of this namespace.
 |
 */

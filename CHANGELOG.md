@@ -7,6 +7,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Standardized the README, documentation navigation, installation and feature-scope guidance;
+  added localization and troubleshooting references and corrected stale setup instructions.
+- Aligned contribution guidance and GitHub issue/PR templates with the shared repository conventions.
+
 ### Fixed
 
 - Accept full 21-character recovery codes for two-factor challenges, disabling two-factor

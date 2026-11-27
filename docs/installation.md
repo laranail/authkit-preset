@@ -1,6 +1,6 @@
 # Installation
 
-Laranail packages are temporarily installed from their Git repositories rather than Packagist. Add the VCS repositories listed in the [README](../README.md#installation) to the consuming application's `composer.json`, then install and run the Blade installer:
+Laranail packages are temporarily installed from their Git repositories rather than Packagist. Add the VCS repositories listed in the [README](../README.md#install) to the consuming application's `composer.json`, then install and run the Blade installer:
 
 ```bash
 composer require laranail/authkit-preset
@@ -16,6 +16,11 @@ The app's Tailwind CSS entry point must scan the installed package views so Tail
 ```
 
 Then rebuild the assets with `npm run build` (or run `npm run dev` while developing). The core `laranail/authkit` package is headless and has no Blade views to scan.
+
+## Requirements
+
+PHP `^8.4.1 || ^8.5`, Laravel `^13.0`, and a host Blade layout/assets pipeline. Composer installs
+AuthKit, captcha and the supporting Laranail packages; social-login remains optional.
 
 ## Automated installation
 
@@ -45,6 +50,10 @@ The normal login, registration, logout, profile, and password-update features re
 ## Verify the installation
 
 After migration and asset work, inspect `config/laranail/authkit-preset.php` for the selected guard, features, prefixes, middleware, redirects, and CAPTCHA provider. Run `php artisan route:list` and confirm that only intended `/auth` and `/api/auth` routes exist. Visit `/auth/register` or `/auth/login`; for API installations, obtain a token through the documented register/login endpoint and exercise a protected request. Review the generated configuration, mail delivery, and CAPTCHA behavior before exposing routes outside a local environment.
+
+## Preview or customize installation
+
+See [Installer](installer.md) for `--dry-run`, repeatable `--skip`, `--force` and non-interactive options.
 
 ---
 
