@@ -2,36 +2,13 @@
 
 declare(strict_types=1);
 
+uses(Tests\Concerns\UsesPublishedPresetViews::class);
+beforeEach(fn () => $this->publishPresetViews());
+afterEach(fn () => $this->removePublishedPresetViews());
+
 use Workbench\App\Models\User;
-use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
-
-function bindProfileInformationUpdater(): void
-{
-    app()->instance(abstract: UpdatesUserProfileInformation::class, instance: new class implements UpdatesUserProfileInformation
-    {
-        public function update($user, array $input): void
-        {
-            $user->forceFill([
-                'name'  => $input['name'],
-                'email' => $input['email'],
-            ])->save();
-        }
-    });
-}
-
-function bindFailingProfileInformationUpdater(): void
-{
-    app()->instance(abstract: UpdatesUserProfileInformation::class, instance: new class implements UpdatesUserProfileInformation
-    {
-        public function update($user, array $input): void
-        {
-            throw ValidationException::withMessages([
-                'email' => 'The email address is already in use.',
-            ])->errorBag('updateProfileInformation');
-        }
-    });
-}
+use Illuminate\Support\Facades\Notification;
+use Simtabi\Laranail\AuthKit\Services\EmailChange;
 
 it(description: 'renders the profile information form for authenticated users', closure: function (): void {
     $user = User::factory()->create([
@@ -49,9 +26,9 @@ it(description: 'renders the profile information form for authenticated users', 
 });
 
 it(description: 'updates profile information through the web route', closure: function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->create(['email' => 'original@example.com']);
 
-    bindProfileInformationUpdater();
+    Notification::fake();
 
     $this->actingAs($user)
         ->put(uri: route('user-profile-information.update'), data: [
@@ -62,14 +39,15 @@ it(description: 'updates profile information through the web route', closure: fu
 
     expect($user->fresh()->only(['name', 'email']))->toBe([
         'name'  => 'Grace Hopper',
-        'email' => 'grace@example.com',
+        'email' => 'original@example.com',
     ]);
+    expect(app(EmailChange::class)->pending($user)['email'])->toBe('grace@example.com');
 });
 
 it(description: 'returns profile validation errors in the Fortify error bag', closure: function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->create(['email' => 'original@example.com']);
 
-    bindFailingProfileInformationUpdater();
+    User::factory()->create(['email' => 'taken@example.com']);
 
     $this->actingAs($user)
         ->from(route('user-profile-information.edit'))
@@ -82,10 +60,10 @@ it(description: 'returns profile validation errors in the Fortify error bag', cl
 });
 
 it(description: 'updates profile information through the Sanctum API route', closure: function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->create(['email' => 'original@example.com']);
     $token = $user->createToken('test-token');
 
-    bindProfileInformationUpdater();
+    Notification::fake();
 
     $this->withToken($token->plainTextToken)
         ->putJson(uri: route('api.user-profile-information.update'), data: [
@@ -96,6 +74,7 @@ it(description: 'updates profile information through the Sanctum API route', clo
 
     expect($user->fresh()->only(['name', 'email']))->toBe([
         'name'  => 'Grace Hopper',
-        'email' => 'grace@example.com',
+        'email' => 'original@example.com',
     ]);
+    expect(app(EmailChange::class)->pending($user)['email'])->toBe('grace@example.com');
 });

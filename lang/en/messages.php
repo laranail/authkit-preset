@@ -72,6 +72,23 @@ return [
         'submit' => 'Save',
     ],
 
+    'email_change' => [
+        'help'          => 'Your current address stays active until you verify the new address.',
+        'pending'       => 'Verification is pending for :email.',
+        'expires'       => 'This link expires at :time.',
+        'resend'        => 'Resend verification link',
+        'cancel'        => 'Cancel email change',
+        'sent'          => 'A verification link has been sent to your new address.',
+        'cancelled'     => 'Your pending email change has been cancelled.',
+        'changed'       => 'Your email address has been changed and verified.',
+        'confirm_title' => 'Verify your new email address',
+        'confirm_intro' => 'Confirm the change to :email. Your current address stays active until you confirm.',
+        'confirm'       => 'Confirm email change',
+        'invalid'       => 'This email change is unavailable or expired. Request a new link from your profile.',
+        'back'          => 'Back to profile',
+        'saved'         => 'Your profile has been saved.',
+    ],
+
     'verification' => [
         'title'  => 'Verify your email',
         'intro'  => 'We sent a verification link to your address. Follow it to finish setting up your account.',

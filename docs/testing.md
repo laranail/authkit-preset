@@ -7,7 +7,7 @@ XDEBUG_MODE=off vendor/bin/pest --colors=never --no-coverage
 composer pint
 ```
 
-The package tests cover installation, route registration, resource publishing, bot protection, passkey controllers, API tokens, and profile/password updates. Documentation changes do not require these commands, but application changes to the selected flows should be tested against the installed route surface.
+The package tests cover installation, route registration, resource publishing, bot protection, passkey controllers, API tokens, and profile/password updates. Published-form integration tests read the rendered actions and inputs, then submit them to real core registration, password reset, profile and verified email-change handlers; published login and recovery-code tests also exercise the backend. Documentation changes do not require these commands, but application changes to the selected flows should be tested against the installed route surface.
 
 At minimum, cover each enabled web feature for its guest/authenticated middleware, expected redirect or validation error, and feature-disabled absence. Cover CAPTCHA success and failure for every published guest form; route throttling and Auth Kit credential throttling separately; and mail/signed-link behavior for password reset and verification. For API installations, cover token issuance, bearer-token access, invalid credentials, `429` responses, current-token logout, and that disabled feature endpoints return no route.
 

@@ -40,11 +40,14 @@ class PresetServiceProvider extends PackageServiceProvider
                 'laranail::authkit-preset-config',
             )
             ->publish(
-                ['routes/web.php' => base_path('routes/laranail-authkit-preset-web.php')],
+                [
+                    'routes/web.php'       => base_path('routes/laranail-authkit-preset-web.php'),
+                    'routes/web-mount.php' => base_path('routes/laranail-authkit-preset-web-mount.php'),
+                ],
                 'laranail::authkit-preset-routes',
             )
             ->publish(
-                ['resources/views/blade' => resource_path('views/vendor/laranail/authkit-preset')],
+                ['resources/views' => resource_path('views/vendor/laranail/authkit-preset')],
                 'laranail::authkit-preset-views',
             )
             ->publish(
@@ -61,6 +64,16 @@ class PresetServiceProvider extends PackageServiceProvider
         $this->app->bind(InstallCommand::class, fn (): InstallCommand => new InstallCommand($this->package));
 
         $this->mergeConfigFrom($this->packagePath('config/laranail/authkit-preset.php'), 'laranail.authkit-preset');
+
+        // Fortify retains its profile action as a singleton. Resolve the email link at call time
+        // so its injected service cannot keep another request's guard or mutate shared config.
+        $this->app->when(\Simtabi\Laranail\AuthKit\Services\EmailChange::class)
+            ->needs(\Illuminate\Contracts\Config\Repository::class)
+            ->give(fn ($app): Support\EmailChangeConfiguration => new Support\EmailChangeConfiguration(
+                $app['config'],
+                $app['url'],
+                $app['router'],
+            ));
 
         // Fortify registers its own POST endpoints at the application root -- /login, /logout,
         // /forgot-password, /reset-password, /user/* -- in parallel with the ones this package

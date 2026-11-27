@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+uses(Tests\Concerns\UsesPublishedPresetViews::class);
+beforeEach(fn () => $this->publishPresetViews());
+afterEach(fn () => $this->removePublishedPresetViews());
+
 use Workbench\App\Models\User;
 use PragmaRX\Google2FA\Google2FA;
 use Illuminate\Support\Facades\Schema;
@@ -42,7 +46,8 @@ function pendingRecoveryChallenge($test): void
 
 it('accepts a full recovery code for login and rejects reuse in a fresh challenge', function (): void {
     pendingRecoveryChallenge($this);
-    $this->post(route('two-factor.challenge.verify'), ['code' => $this->code])->assertRedirect()->assertSessionHasNoErrors();
+    $form = $this->presetForm($this->get(route('two-factor.challenge'))->assertOk()->getContent(), 'code');
+    $this->{$form['method']}($form['action'], [...$form['fields'], 'code' => $this->code])->assertRedirect()->assertSessionHasNoErrors();
     $this->assertAuthenticatedAs($this->user);
     expect($this->twoFactor->recoveryCodes($this->user->fresh()))->not->toContain($this->code);
 

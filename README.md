@@ -36,7 +36,9 @@ composer require laranail/authkit-preset
 php artisan laranail::authkit-preset.install
 ```
 
-See [installation](docs/installation.md) for the full walkthrough.
+See [installation](docs/installation.md) for the full walkthrough. The verified email-change forms
+require AuthKit `^0.1.3` or `dev-main`; until a stable tag includes that backend, Composer uses
+`dev-main`. See [profile management](docs/profile-management.md).
 
 ## Quick start guide and usage
 

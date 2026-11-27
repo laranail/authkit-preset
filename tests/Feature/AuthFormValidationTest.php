@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+uses(Tests\Concerns\UsesPublishedPresetViews::class);
+beforeEach(fn () => $this->publishPresetViews());
+afterEach(fn () => $this->removePublishedPresetViews());
+
 it('renders login field validation messages inline after an empty submission', function (): void {
     $this->from(route('login'))
         ->post(route('login.store'), [])
