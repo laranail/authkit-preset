@@ -6,7 +6,6 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Simtabi\Laranail\Captcha\Rules\Captcha;
 use Simtabi\Laranail\AuthKit\Preset\Features;
 use Simtabi\Laranail\AuthKit\Http\Requests\RegisterRequest;
@@ -14,6 +13,11 @@ use Simtabi\Laranail\AuthKit\Http\Requests\AttemptEmailPasswordLoginRequest;
 
 class ValidateCaptcha
 {
+    public function __construct(
+        private \Illuminate\Contracts\Config\Repository $config,
+        private \Illuminate\Contracts\Validation\Factory $validator,
+    ) {}
+
     public function handle(Request $request, Closure $next): mixed
     {
         if (! Features::enabled(Features::botProtection())) {
@@ -32,18 +36,18 @@ class ValidateCaptcha
 
         if ($fieldRules !== []) {
             $fieldRules = array_diff_key($fieldRules, [
-                (string) config('laranail.captcha.response_field', 'captcha')                => true,
-                (string) config('laranail.authkit.turnstile.input', 'cf-turnstile-response') => true,
+                (string) $this->config->get('laranail.captcha.response_field', 'captcha')                => true,
+                (string) $this->config->get('laranail.authkit.turnstile.input', 'cf-turnstile-response') => true,
             ]);
 
-            $fields = Validator::make($request->all(), $fieldRules);
+            $fields = $this->validator->make($request->all(), $fieldRules);
 
             if ($fields->fails()) {
                 $fields->validate();
             }
         }
 
-        Validator::make(
+        $this->validator->make(
             data: $request->all(),
             // Captcha is an implicit rule: it finds the canonical `captcha` field, the
             // provider's vendor field (Turnstile uses `cf-turnstile-response`), or the

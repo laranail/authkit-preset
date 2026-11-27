@@ -7,7 +7,6 @@ namespace Simtabi\Laranail\AuthKit\Preset\Http\Controllers\Auth;
 use BaconQrCode\Writer;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use BaconQrCode\Renderer\ImageRenderer;
 use Illuminate\Validation\ValidationException;
@@ -18,6 +17,10 @@ use Simtabi\Laranail\AuthKit\Services\TwoFactorAuthentication;
 
 final class TwoFactorController
 {
+    public function __construct(
+        private \Illuminate\Contracts\Auth\Factory $auth,
+    ) {}
+
     public function index(Request $request, TwoFactorAuthentication $twoFactor): View
     {
         $user = $request->user(AuthPreset::guardForCurrentRoute());
@@ -104,7 +107,7 @@ final class TwoFactorController
             return redirect()->route(AuthPreset::routeName('login'));
         }
 
-        $guard = Auth::guard($pending['guard']);
+        $guard = $this->auth->guard($pending['guard']);
         $user = $guard->getProvider()->retrieveById($pending['user_id']);
 
         if ($user === null || ! $twoFactor->verify($user, $request->string('code')->toString())) {

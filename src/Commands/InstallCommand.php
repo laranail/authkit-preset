@@ -318,6 +318,7 @@ class InstallCommand extends PackageToolsInstallCommand
     {
         $models = [];
 
+        // @facade-call-exempt: Artisan installer is the composition root for selecting the host authentication model.
         foreach ((array) config(key: 'auth.providers', default: []) as $providerName => $provider) {
             if (! is_array(value: $provider) || ($provider['driver'] ?? null) !== 'eloquent') {
                 continue;

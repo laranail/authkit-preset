@@ -9,11 +9,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Run shared facade/config-key guards and two-request state isolation checks alongside real driver-contract and published-config tests.
+- Inject authentication service dependencies; retain documented line-level exceptions for public static compatibility APIs and framework-owned construction.
+
 - Standardized the README, documentation navigation, installation and feature-scope guidance;
   added localization and troubleshooting references and corrected stale setup instructions.
 - Aligned contribution guidance and GitHub issue/PR templates with the shared repository conventions.
 
 ### Fixed
+
+- Additional guard routes now resolve the most specific route-name prefix instead of matching the primary guard first.
 
 - Accept full 21-character recovery codes for two-factor challenges, disabling two-factor
   authentication, and regenerating recovery codes.
@@ -25,6 +30,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Database jobs disable coverage, and the test harness registers migrations consistently across drivers.
 
 ### Added
+
+- Collect architecture tests in the default PHPUnit suite and require package-tools `^0.1.13` for shared guards.
 
 - Installer `--dry-run` previews selected actions without file changes, and repeatable `--skip`
   leaves selected steps untouched. Unknown step names fail before any writes; `--force` remains supported.
