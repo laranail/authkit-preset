@@ -10,6 +10,7 @@ final class Features
 {
     public static function enabled(string $feature): bool
     {
+        // @facade-call-exempt: Public static feature API reads the current application configuration at call time.
         return in_array(needle: $feature, haystack: config(key: 'laranail.authkit-preset.features', default: []), strict: true);
     }
 

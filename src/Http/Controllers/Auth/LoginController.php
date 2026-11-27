@@ -14,6 +14,10 @@ use Simtabi\Laranail\AuthKit\Http\Controllers\AbstractAttemptEmailPasswordLoginC
 
 class LoginController extends AbstractAttemptEmailPasswordLoginController
 {
+    public function __construct(
+        private TwoFactorAuthentication $twoFactor,
+    ) {}
+
     public function create(): View
     {
         return view(view: AuthPreset::view(page: 'login'));
@@ -26,7 +30,7 @@ class LoginController extends AbstractAttemptEmailPasswordLoginController
 
     protected function handlePassed(Request $request, AuthResult $result, LoginUserInterface $loginAction): mixed
     {
-        if (app(TwoFactorAuthentication::class)->enabled($result->user)) {
+        if ($this->twoFactor->enabled($result->user)) {
             $request->session()->put('authkit.two_factor_pending', [
                 'user_id'  => $result->user->getAuthIdentifier(),
                 'guard'    => $this->guard(),

@@ -15,19 +15,26 @@ class AuthPreset
 
     public static function stack(): FrontendStack
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return FrontendStack::from(value: config(key: 'laranail.authkit-preset.stack', default: 'blade'));
     }
 
     public static function guard(): string
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return config(key: 'laranail.authkit-preset.guard', default: 'web');
     }
 
     public static function guardForCurrentRoute(): string
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         $name = request()->route()?->getName() ?? '';
 
-        foreach (self::mounts() as $mount) {
+        // The primary prefix also matches additional mounts; prefer the most specific name.
+        $mounts = self::mounts();
+        usort($mounts, static fn (array $left, array $right): int => strlen($right['name']) <=> strlen($left['name']));
+
+        foreach ($mounts as $mount) {
             if (str_starts_with($name, $mount['name'])) {
                 return $mount['guard'];
             }
@@ -38,11 +45,13 @@ class AuthPreset
 
     public static function webPrefix(): string
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return config(key: 'laranail.authkit-preset.prefix.web', default: 'auth');
     }
 
     public static function webMiddleware(): array
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return config(key: 'laranail.authkit-preset.middleware.web', default: ['web']);
     }
 
@@ -81,6 +90,7 @@ class AuthPreset
      */
     public static function routeNamePrefix(): string
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return (string) config(key: 'laranail.authkit-preset.route_name_prefix', default: 'laranail-auth.');
     }
 
@@ -114,6 +124,7 @@ class AuthPreset
         ]];
 
         /** @var array<string, array{prefix?: string, name?: string}> $additional */
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         $additional = config(key: 'laranail.authkit-preset.guards', default: []);
 
         foreach ($additional as $guard => $options) {
@@ -134,16 +145,19 @@ class AuthPreset
 
     public static function afterLoginRedirect(): string
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return config(key: 'laranail.authkit-preset.redirects.after_login', default: '/dashboard');
     }
 
     public static function afterRegistrationRedirect(): string
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return config(key: 'laranail.authkit-preset.redirects.after_registration', default: '/dashboard');
     }
 
     public static function afterLogoutRedirect(): string
     {
+        // @facade-call-exempt: Public static route/view API reads the current mount and configuration without caching request data.
         return config(key: 'laranail.authkit-preset.redirects.after_logout', default: '/');
     }
 

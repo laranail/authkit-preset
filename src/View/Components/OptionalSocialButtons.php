@@ -19,6 +19,7 @@ final class OptionalSocialButtons extends Component
             return new HtmlString('');
         }
 
+        // @facade-call-exempt: Laravel's static inline-component renderer owns temporary view cleanup.
         return new HtmlString(Blade::render('<x-laranail-authkit-social-login::social-buttons />'));
     }
 }
