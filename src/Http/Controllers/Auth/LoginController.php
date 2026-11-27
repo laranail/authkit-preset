@@ -16,6 +16,7 @@ class LoginController extends AbstractAttemptEmailPasswordLoginController
 {
     public function __construct(
         private TwoFactorAuthentication $twoFactor,
+        private \Illuminate\Contracts\Events\Dispatcher $events,
     ) {}
 
     public function create(): View
@@ -37,6 +38,7 @@ class LoginController extends AbstractAttemptEmailPasswordLoginController
                 'remember' => $request->boolean('remember'),
             ]);
             $request->session()->regenerate();
+            $this->events->dispatch(new \Simtabi\Laranail\AuthKit\Preset\Events\TwoFactorChallengeStarted($result->user::class, (string) $result->user->getAuthIdentifier(), $this->guard()));
 
             return redirect()->route(AuthPreset::routeName('two-factor.challenge'));
         }

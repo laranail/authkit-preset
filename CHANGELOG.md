@@ -31,6 +31,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Browser two-factor challenge started, failed and completed events, with immutable account/guard metadata and no duplicate core account hooks.
+
 - Collect architecture tests in the default PHPUnit suite and require package-tools `^0.1.13` for shared guards.
 
 - Installer `--dry-run` previews selected actions without file changes, and repeatable `--skip`
