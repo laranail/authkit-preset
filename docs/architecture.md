@@ -8,10 +8,10 @@ What belongs in this package, what belongs in the core, and how the two meet.
 laranail/authkit           Simtabi\Laranail\AuthKit\           headless core + REST API
 laranail/authkit-preset    Simtabi\Laranail\AuthKit\Preset\    this package
 laranail/authkit-social-login Simtabi\Laranail\AuthKit\Social\ optional social flows and buttons
-laranail/authkit-sso       Simtabi\Laranail\AuthKit\Sso\       SAML and OIDC
-laranail/authkit-oauth     Simtabi\Laranail\AuthKit\OAuth\     OAuth and social identity
-laranail/authkit-tenancy   Simtabi\Laranail\AuthKit\Tenancy\   multi-tenancy
-laranail/authkit-ldap      Simtabi\Laranail\AuthKit\Ldap\      LDAP and Active Directory
+laranail/authkit-sso       Simtabi\Laranail\AuthKit\Sso\       experimental scaffold (SAML/OIDC planned)
+laranail/authkit-oauth     Simtabi\Laranail\AuthKit\OAuth\     Passport OAuth server integration
+laranail/authkit-tenancy   Simtabi\Laranail\AuthKit\Tenancy\   experimental scaffold (tenancy planned)
+laranail/authkit-ldap      Simtabi\Laranail\AuthKit\Ldap\      experimental scaffold (LDAP planned)
 ```
 
 One root namespace, each sibling a segment under it. Composer's loader matches the longest prefix
@@ -33,9 +33,9 @@ the core.
 The test is simple: could an API-only or Filament application, with no Blade at all, get the same
 behaviour by calling the core directly? If not, the logic is in the wrong package.
 
-Being honest about the current state: it is not fully held. The API controllers here mint and revoke
-Sanctum tokens directly, and the captcha middleware builds its own validator. Both should move down
-into core actions this package calls. Tracked as work, not a design.
+The REST API and token issuer registry live in the core. The preset owns browser orchestration,
+including the session TOTP challenge, and captcha integration on its forms. Installing the preset
+does not move the API controllers into this package.
 
 ## How a controller should read
 
@@ -59,11 +59,11 @@ where a second claimant silently replaces the first:
 
 | Surface | Value |
 |---|---|
-| View namespace | `laranail-authkit-preset` |
+| View namespace | `laranail/authkit-preset` |
 | Blade components | `<x-laranail-authkit-preset::…>` |
-| Translation namespace | `laranail-authkit-preset` |
+| Translation namespace | `laranail/authkit-preset` |
 | Config key | `laranail.authkit-preset` |
-| Publish tags | `laranail::authkit-preset-{config,routes,views,lang}` |
+| Publish tags | `laranail::authkit-preset-{config,routes,views,translations}` |
 | Artisan command | `laranail::authkit-preset.install` |
 
 `tests/Feature/NamingConventionTest.php` asserts these against the **live registries** on a booted

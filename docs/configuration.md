@@ -23,8 +23,9 @@ silent.
 | `features` | see below | Which flows are registered. A feature that is off registers no routes and renders no UI for itself. |
 | `guard` | `web` | The guard the preset's routes authenticate against. |
 | `prefix.web` | `auth` | Web route prefix — `/auth/login`, `/auth/register`. |
-| `prefix.api` | `api/auth` | API route prefix. |
-| `middleware.web` · `middleware.api` | `['web']` · `['api','throttle:60,1']` | Middleware applied to each group. |
+| `route_name_prefix` | `laranail-auth.` | Web route-name prefix. |
+| `guards` | `[]` | Additional guard mounts with independent URL/name prefixes. |
+| `middleware.web` | `['web']` | Browser middleware. Core config owns API middleware and prefix. |
 | `routes.mode` | `package` | `package` registers routes from the package; `published` expects the application to require the published files. |
 | `redirects.*` | `/dashboard`, `/` | Where each flow lands. |
 | `bot_protection.provider` | `turnstile` | Which captcha provider `laranail/captcha` uses. |
@@ -37,7 +38,7 @@ silent.
     \Simtabi\Laranail\AuthKit\Preset\Features::registration(),
     \Simtabi\Laranail\AuthKit\Preset\Features::logout(),
     // updateProfileInformation, updatePasswords, emailVerification,
-    // passwordReset, api, passkeys, botProtection
+    // passwordReset, api, passkeys, twoFactorAuthentication, botProtection
 ],
 ```
 
@@ -55,7 +56,7 @@ Removing an entry removes that flow's routes and the UI that links to it.
 | `CAPTCHA_PROVIDER` · `CAPTCHA_SITE_KEY` · `CAPTCHA_SECRET_KEY` | bot protection |
 
 Core settings — the guard the actions use and rate limits — live under
-`laranail.authkit`. See the [core's configuration guide](../../authkit/docs/configuration.md).
+`laranail.authkit`. See the [core's configuration guide](https://github.com/laranail/authkit/blob/main/docs/configuration.md).
 
 ## After changing anything
 

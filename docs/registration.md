@@ -18,7 +18,7 @@ Removing the feature removes its preset routes. Remove links from published view
 
 The supplied form submits `name`, `email`, `password`, and `password_confirmation`. Auth Kit requires a unique email, lowercases it before storage, and applies Laravel's default password rules. If the selected user model requires verified email, ensure mail and [email verification](email-verification.md) are configured before allowing users into verification-protected application pages.
 
-Registration is not an API endpoint by itself: `POST /api/auth/register` additionally requires `Features::api()` and returns a Sanctum token instead of redirecting. Publish views to change labels, layout, fields, or navigation; a published guest form must retain CSRF and CAPTCHA handling when applicable. For headless behavior, see authkit's [registration guide](../../authkit/docs/registration.md).
+Registration is not an API endpoint by itself: `POST /api/auth/register` is supplied by the enabled core API and returns a token from the configured issuer instead of redirecting. Publish views to change labels, layout, fields, or navigation; a published guest form must retain CSRF and CAPTCHA handling when applicable. For headless behavior, see authkit's [registration guide](https://github.com/laranail/authkit/blob/main/docs/registration.md).
 
 ---
 

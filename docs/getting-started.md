@@ -4,6 +4,8 @@ Install, run the installer, and sign in — the shortest path to a working auth 
 
 ## Install and scaffold
 
+First add the host Composer repositories from [Installation](installation.md).
+
 ```bash
 composer require laranail/authkit-preset
 php artisan laranail::authkit-preset.install
@@ -24,6 +26,8 @@ the preset then renders its buttons on the login and registration pages.
 
 ```bash
 php artisan migrate
+npm install
+npm run build
 ```
 
 ## Sign in
@@ -50,7 +54,7 @@ published:
 
 ```bash
 php artisan vendor:publish --tag=laranail::authkit-preset-views
-php artisan vendor:publish --tag=laranail::authkit-preset-lang
+php artisan vendor:publish --tag=laranail::authkit-preset-translations
 ```
 
 A published guest form must keep its `@csrf` and, where bot protection is on, its `<x-captcha />`.

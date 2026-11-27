@@ -29,7 +29,7 @@ CAPTCHA middleware is attached to the named **web** guest submissions only; it d
 
 ## Enabling and disabling
 
-Remove `Features::login()` from `laranail.authkit-preset.features` to remove both preset login routes, the registered Fortify login view, and login-dependent UI. Remove `Features::api()` to keep the Blade flow while removing every API route. Changing `AUTHKIT_PRESET_GUARD`, either prefix, route mode, or middleware changes the actual route surface; verify it with `php artisan route:list` after configuration changes. For a headless implementation or custom response hooks, see authkit's [login guide](../../authkit/docs/login.md).
+Remove `Features::login()` from `laranail.authkit-preset.features` to remove both preset login routes, the registered Fortify login view, and login-dependent UI. The core API is controlled separately by `laranail.authkit.api.enabled`. Changing `AUTHKIT_PRESET_GUARD`, either prefix, route mode, or middleware changes the actual route surface; verify it with `php artisan route:list` after configuration changes. For a headless implementation or custom response hooks, see authkit's [login guide](https://github.com/laranail/authkit/blob/main/docs/login.md).
 
 ---
 

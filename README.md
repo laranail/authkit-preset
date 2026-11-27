@@ -1,22 +1,13 @@
 # laranail/authkit-preset
 
-[![Tests](https://img.shields.io/github/actions/workflow/status/laranail/authkit-preset/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/laranail/authkit-preset/actions/workflows/tests.yml)
-[![Static analysis](https://img.shields.io/github/actions/workflow/status/laranail/authkit-preset/static.yml?branch=main&label=static%20analysis&style=flat-square)](https://github.com/laranail/authkit-preset/actions/workflows/static.yml)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Tests](https://github.com/laranail/authkit-preset/actions/workflows/tests.yml/badge.svg)](https://github.com/laranail/authkit-preset/actions/workflows/tests.yml)
+[![Code style](https://github.com/laranail/authkit-preset/actions/workflows/code-style.yml/badge.svg)](https://github.com/laranail/authkit-preset/actions/workflows/code-style.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-`laranail/authkit-preset` is not published to Packagist, so there is no registry-version badge to show: see [Install](#install).
+> Blade authentication scaffolding for AuthKit: published forms, browser routes and optional passkey and captcha setup.
 
-Blade authentication scaffolding for Laravel 13+, powered by [`laranail/authkit`](https://github.com/laranail/authkit).
-
-> [!WARNING]
-> This package is still in development. Breaking changes are imminent; use it in production at your own risk.
-
-The preset provides configurable web and API authentication routes, Fortify-backed password and profile flows, Blade views, passkeys, and optional captcha-based bot protection. It integrates with the optional `laranail/authkit-social-login` package and conditionally renders its buttons on login and registration pages.
-
-## Requirements
-
-- PHP 8.4+
-- Laravel 13.x
+Requires PHP `^8.4.1 || ^8.5` and Laravel `^13.0`. This package is pre-1.0; review
+[feature scope](docs/feature-scope.md) before choosing the flows to enable.
 
 ## Install
 
@@ -26,12 +17,15 @@ the whole transitive closure:
 
 ```json
 "repositories": [
-    { "type": "vcs", "url": "https://github.com/laranail/authkit.git" },
-    { "type": "vcs", "url": "https://github.com/laranail/console.git" },
-    { "type": "vcs", "url": "https://github.com/laranail/enumerator.git" },
-    { "type": "vcs", "url": "https://github.com/laranail/package-tools.git" },
-    { "type": "vcs", "url": "https://github.com/laranail/captcha.git" },
-    { "type": "vcs", "url": "https://github.com/laranail/db-tools.git" }
+    {"type": "vcs", "url": "https://github.com/laranail/authkit-preset.git"},
+    {"type": "vcs", "url": "https://github.com/laranail/authkit.git"},
+    {"type": "vcs", "url": "https://github.com/laranail/console.git"},
+    {"type": "vcs", "url": "https://github.com/laranail/enumerator.git"},
+    {"type": "vcs", "url": "https://github.com/laranail/package-tools.git"},
+    {"type": "vcs", "url": "https://github.com/laranail/captcha.git"},
+    {"type": "vcs", "url": "https://github.com/laranail/db-tools.git"},
+    {"type": "composer", "url": "https://repo.packagist.org", "exclude": ["laranail/*"]},
+    {"packagist.org": false}
 ]
 ```
 
@@ -83,7 +77,7 @@ The full walkthrough is in [Getting started](docs/getting-started.md); everythin
 
 ## <a name="documentation"></a>Documentation
 
-Full documentation: <https://opensource.simtabi.com/documentation/laranail/authkit-preset/>
+The documentation lives in this repository under [`docs/`](docs/).
 
 ### Guides
 
@@ -112,224 +106,20 @@ Full documentation: <https://opensource.simtabi.com/documentation/laranail/authk
 - [Testing](docs/testing.md) — how the suite is arranged and what it does not cover
 - [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
 
-## Installer options
+### Operations
 
-The installer can be run non-interactively with explicit options:
+- [Environment variables](docs/environment.md) — supported names and cached configuration
+- [Localization](docs/localization.md) — language files, overrides and fallback
+- [Troubleshooting](docs/troubleshooting.md) — setup checks and common failures
+- [Feature scope](docs/feature-scope.md) — supported flows, limitations and deferred work
+- [Installer](docs/installer.md) — previews and repeatable skipped steps
 
-```bash
-php artisan laranail::authkit-preset.install \
-    --password-reset \
-    --email-verification \
-    --api \
-    --passkeys \
-    --model='App\Models\User' \
-    --bot-protection
-```
+## Contributing & security
 
-Available options:
-
-| Option                 | Description                                                              |
-|------------------------|--------------------------------------------------------------------------|
-| `--stack=blade`        | Select the frontend stack. Blade is currently supported.                 |
-| `--api`                | Enable API authentication and publish the Sanctum token migration.       |
-| `--password-reset`     | Enable forgot-password and reset-password flows.                         |
-| `--email-verification` | Enable email verification.                                               |
-| `--passkeys`           | Enable passkey authentication, migration, and browser client.            |
-| `--two-factor-authentication` | Enable TOTP authenticator login, recovery codes, and migration.     |
-| `--model=<class>`      | Select the Eloquent auth model to configure for Sanctum and/or passkeys. |
-| `--bot-protection`     | Enable captcha validation on registration and password-reset forms.      |
-| `--publish-routes`     | Publish route files for application ownership.                           |
-| `--publish-views`      | Publish Blade views for application customization.                       |
-| `--force`              | Overwrite existing published files.                                      |
-
-In interactive mode, the installer asks which auth provider should receive authentication traits immediately after the frontend stack, then asks `Which authentication feature would you like to enable?` and shows a description for every preset feature. This includes API authentication, which is selected by default and publishes the Sanctum migration. The installer reads the `eloquent` providers from `config/auth.php` and applies traits to the selected provider's model when API authentication or passkeys are enabled. In non-interactive mode, only the base web features are enabled unless optional feature flags are supplied; use `--model=<class>` when needed. Install `laranail/authkit-social-login` separately to add social login; the preset automatically renders its buttons when its component is available.
-
-The selected model receives `Laravel\Sanctum\HasApiTokens` when API authentication is enabled. When passkeys are enabled, it receives the `Laravel\Fortify\Contracts\PasskeyUser` interface and authkit's `Simtabi\Laranail\AuthKit\PasskeyAuthenticatable` trait. The model source file must be writable.
-
-When passkeys are enabled, the installer adds `@laravel/passkeys` to `package.json`, copies the passkey browser adapter to `resources/js/passkeys.js`, and imports it from `resources/js/app.js`. Run `npm install` and rebuild your Vite assets after installation. The adapter binds the preset's login, registration, and deletion buttons to Fortify's canonical passkey endpoints; it does not reimplement WebAuthn.
-
-## Configuration
-
-The installer publishes both configuration files:
-
-- `config/laranail/authkit.php` contains backend authentication and Fortify settings.
-- `config/laranail/authkit-preset.php` controls the frontend stack, bot-protection provider, enabled features, route prefixes, middleware, guard, and redirects.
-
-Enable or disable preset features in `config/laranail/authkit-preset.php`:
-
-```php
-'features' => [
-    Features::login(),
-    Features::registration(),
-    Features::logout(),
-    Features::passwordReset(),
-    Features::emailVerification(),
-],
-```
-
-Bot protection is disabled by default. When enabled with `Features::botProtection()`, the preset uses `laranail/captcha` and defaults to Turnstile. Credentials always resolve from configuration, never the database:
-
-```env
-CAPTCHA_PROVIDER=turnstile
-CAPTCHA_SITE_KEY=
-CAPTCHA_SECRET_KEY=
-```
-
-Set `CAPTCHA_PROVIDER` to any provider supported by `laranail/captcha`; the Blade markup and validation remain unchanged. Bot protection applies only to the web registration, forgot-password, and reset-password submissions. Login and API requests are not challenged.
-
-### Passkey frontend
-
-Passkey support requires both Fortify's server-side routes and the official browser client. Enabling passkeys with the installer performs the frontend wiring automatically:
-
-```bash
-php artisan laranail::authkit-preset.install --passkeys --model='App\\Models\\User'
-npm install
-npm run build
-```
-
-The generated `resources/js/passkeys.js` uses `@laravel/passkeys` for login, registration, and credential deletion. Keep `resources/js/app.js` in the Vite input list; the preset's Blade layout loads that bundle when the application has a Vite manifest or development server.
-
-Route prefixes and redirects can also be customized through `config/laranail/authkit-preset.php` or its environment variables:
-
-```env
-AUTHKIT_PRESET_WEB_PREFIX=auth
-AUTHKIT_PRESET_GUARD=web
-AUTHKIT_PRESET_AFTER_LOGIN=/dashboard
-AUTHKIT_PRESET_AFTER_REGISTRATION=/dashboard
-```
-
-## Publish resources independently
-
-The preset and Auth Kit expose separate Laravel publish tags. Publish only the resources your application needs instead of running the installer.
-
-### Configuration
-
-```bash
-php artisan vendor:publish --tag=laranail::authkit-config
-php artisan vendor:publish --tag=laranail::authkit-preset-config
-```
-
-Use `--force` to overwrite an existing published file:
-
-```bash
-php artisan vendor:publish --tag=laranail::authkit-preset-config --force
-```
-
-### Migrations
-
-The preset does not add a migration of its own. Auth Kit provides an optional migration for passkeys:
-
-```bash
-php artisan vendor:publish --tag=laranail::authkit-passkey-migrations
-php artisan migrate
-```
-
-When API authentication is enabled, publish Sanctum's migration as well:
-
-```bash
-php artisan vendor:publish --tag=sanctum-migrations
-php artisan migrate
-```
-
-Only publish the migration groups for features enabled in `config/laranail/authkit-preset.php`. These migrations are published to the application's `database/migrations` directory because their tables belong to the application's database. If the selected model lives in a module, the model location does not alter the schema; move the published files into the module's migration directory only when that module owns and loads its migrations.
-
-### Routes
-
-Publish the web and API route files to `routes/laranail-authkit-preset-web.php` and `routes/laranail-authkit-preset-api.php`:
-
-```bash
-php artisan vendor:publish --tag=laranail::authkit-preset-routes
-```
-
-Set the route mode to `published` so the package stops loading its bundled route files, then register the published files from the application's route bootstrap:
-
-```php
-// config/laranail/authkit-preset.php
-'routes' => [
-    'mode' => 'published',
-],
-```
-
-Require the files from the application's route-loading entry point:
-
-```php
-require base_path('routes/laranail-authkit-preset-web.php');
-require base_path('routes/laranail-authkit-preset-api.php');
-```
-
-### Blade views
-
-Publish the views to `resources/views/vendor/laranail-authkit-preset`:
-
-```bash
-php artisan vendor:publish --tag=laranail::authkit-preset-views
-```
-
-The published page views can be edited without modifying the package. They include the login, registration, password, profile, email-verification, and passkey views. The preset's reusable components continue to be loaded from the package namespace.
-
-## Routes and views without publishing
-
-For the standard setup, leave `laranail.authkit-preset.routes.mode` as `package`. The service provider loads the package routes automatically and Fortify uses the preset's Blade views. Publish resources only when the application needs to own and customize them.
-
-## Testing
-
-From the package directory:
-
-```bash
-composer test
-composer lint
-```
-
-## Sister packages
-
-| Package | Role |
-|---|---|
-| [`laranail/authkit`](https://github.com/laranail/authkit) | Headless core — actions, contracts, result objects, REST API |
-| [`laranail/authkit-preset`](https://github.com/laranail/authkit-preset) | Blade scaffolding on top of the core |
-| `laranail/authkit-sso` | SAML 2.0 and OIDC single sign-on |
-| `laranail/authkit-social-login` | Optional social login and buttons |
-| `laranail/authkit-oauth` | OAuth server, apps and scopes |
-| `laranail/authkit-tenancy` | Multi-tenancy |
-| `laranail/authkit-ldap` | LDAP and Active Directory |
-
-The family shares one root namespace, `Simtabi\Laranail\AuthKit\`, with each sibling a segment
-under it.
-
-## Contributing and security
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues privately — [SECURITY.md](SECURITY.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities privately through the
+[security policy](SECURITY.md). Participation follows the
+[Laranail Code of Conduct](https://github.com/laranail/.github/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
-MIT licensed.
-
-## Installer previews and skipped steps
-
-Preview the actions selected by your installation options without writing files:
-
-```sh
-php artisan laranail::authkit-preset.install --stack=blade --api --passkeys --publish-routes --publish-views --dry-run --no-interaction
-```
-
-Repeat `--skip` to leave selected steps untouched. Other requested steps still run:
-
-```sh
-php artisan laranail::authkit-preset.install --stack=blade --api --passkeys --publish-routes --publish-views --skip=config --skip=environment --no-interaction
-```
-
-| Step | Controls |
-| --- | --- |
-| `model` | Authentication model edits |
-| `config` | AuthKit/preset config publishing and selected feature updates |
-| `tailwind` | Tailwind source registration |
-| `passkeys` | Passkey JavaScript and package.json updates |
-| `migrations` | All selected Sanctum, passkey and two-factor migrations |
-| `routes` | Optional route publishing |
-| `views` | Optional Blade view publishing |
-| `environment` | .env and .env.example updates |
-
-Unknown step names fail before any changes. Optional steps still require their enabling options;
-`--skip` does not enable a step. Dry-run can be combined with `--skip` and `--force` and performs
-no writes. On a normal run, `--force` retains its existing overwrite behavior and never overrides
-a skipped step. When skipping prerequisites such as config, migrations, or model edits, provide
-those changes in your application before using the selected features.
+MIT © Simtabi LLC. See [LICENSE](LICENSE).
