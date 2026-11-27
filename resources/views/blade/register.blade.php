@@ -57,7 +57,7 @@
                     name="password"
                     type="password"
                     autocomplete="new-password"
-                    placeholder="At least 8 characters"
+                    placeholder="{{ __('laranail/authkit-preset::messages.register.password') }}"
                     :error="$errors->has('password')"
                 />
             </div>

@@ -7,7 +7,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Verified email-change browser confirmation, pending status, expiry, resend and cancellation, using AuthKit's backend with guard-aware links and translated feedback.
+- Integration tests for published views/routes and real authentication flows, including recovery codes, disabled features and multiple guards.
+
 ### Changed
+
+- Require AuthKit `^0.1.3 || dev-main` for the verified email-change backend; Composer uses main until a compatible stable release is tagged.
+- Keep profile navigation, form actions and email-change redirects on the current guard's mount.
 
 - Run shared facade/config-key guards and two-request state isolation checks alongside real driver-contract and published-config tests.
 - Inject authentication service dependencies; retain documented line-level exceptions for public static compatibility APIs and framework-owned construction.
@@ -17,6 +25,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Aligned contribution guidance and GitHub issue/PR templates with the shared repository conventions.
 
 ### Fixed
+
+- Publish the full `blade/` and `components/` view tree so application overrides match Laravel's lookup paths; include the companion mount file with published web routes.
+- Preserve text input and the full 21-character recovery-code format across factor-proof forms; remove the registration form's fixed password-length hint so it does not contradict configured validation.
 
 - Additional guard routes now resolve the most specific route-name prefix instead of matching the primary guard first.
 

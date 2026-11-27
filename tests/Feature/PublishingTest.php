@@ -18,13 +18,17 @@ beforeEach(function (): void {
 });
 
 it('publishes Blade views for application customization', function (): void {
-    expect(resource_path('views/vendor/laranail/authkit-preset/login.blade.php'))->not->toBeFile();
+    expect(resource_path('views/vendor/laranail/authkit-preset/blade/login.blade.php'))->not->toBeFile();
 
     $this->artisan('vendor:publish', [
         '--tag' => 'laranail::authkit-preset-views',
     ])->assertSuccessful();
 
-    expect(resource_path('views/vendor/laranail/authkit-preset/login.blade.php'))->toBeFile();
+    expect(resource_path('views/vendor/laranail/authkit-preset/blade/login.blade.php'))->toBeFile();
+});
+
+afterEach(function (): void {
+    File::deleteDirectory(resource_path('views/vendor/laranail/authkit-preset'));
 });
 
 it('preserves the Auth Preset publish tags and destinations', function (): void {
@@ -42,7 +46,7 @@ it('preserves the Auth Preset publish tags and destinations', function (): void 
     );
 
     expect(array_values($config))->toContain(config_path('laranail/authkit-preset.php'))
-        ->and(array_values($routes))->toContain(base_path('routes/laranail-authkit-preset-web.php'))
+        ->and(array_values($routes))->toContain(base_path('routes/laranail-authkit-preset-web.php'), base_path('routes/laranail-authkit-preset-web-mount.php'))
         // The API routes ship from laranail/authkit now, so this package publishes only the web set.
         ->and(array_values($views))->toContain(resource_path('views/vendor/laranail/authkit-preset'));
 });

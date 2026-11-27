@@ -107,7 +107,15 @@ if (Features::enabled(Features::updateProfileInformation())) {
                 ->name('user-profile-information.edit');
 
             Route::put('/user/profile-information', [Auth\UpdateProfileInformationController::class, 'update'])
+                ->middleware('throttle:6,1,authkit-preset-email-change:')
                 ->name('user-profile-information.update');
+
+            Route::middleware('throttle:6,1,authkit-preset-email-change:')->group(function (): void {
+                Route::get('/user/email-change/verify', [Auth\EmailChangeController::class, 'show'])->name('user-email-change.verify');
+                Route::post('/user/email-change/verify', [Auth\EmailChangeController::class, 'confirm'])->name('user-email-change.confirm');
+                Route::post('/user/email-change/resend', [Auth\EmailChangeController::class, 'resend'])->name('user-email-change.resend');
+                Route::delete('/user/email-change', [Auth\EmailChangeController::class, 'destroy'])->name('user-email-change.destroy');
+            });
         });
 }
 

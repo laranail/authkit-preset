@@ -100,6 +100,19 @@ class AuthPreset
         return self::routeNamePrefix() . $name;
     }
 
+    /** A route on the active guard's mount, without retaining request state. */
+    public static function routeNameForCurrentRoute(string $name): string
+    {
+        $guard = self::guardForCurrentRoute();
+        foreach (self::mounts() as $mount) {
+            if ($mount['guard'] === $guard) {
+                return $mount['name'] . $name;
+            }
+        }
+
+        return self::routeName($name);
+    }
+
     /**
      * Every user population these routes are mounted for.
      *

@@ -2,35 +2,13 @@
 
 declare(strict_types=1);
 
+uses(Tests\Concerns\UsesPublishedPresetViews::class);
+beforeEach(fn () => $this->publishPresetViews());
+afterEach(fn () => $this->removePublishedPresetViews());
+
 use Workbench\App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\UpdatesUserPasswords;
 use Simtabi\Laranail\Package\Tools\Testing\TestCredentials;
-
-function bindPasswordUpdater(): void
-{
-    app()->instance(abstract: UpdatesUserPasswords::class, instance: new class implements UpdatesUserPasswords
-    {
-        public function update($user, array $input): void
-        {
-            $user->forceFill(['password' => Hash::make($input['password'])])->save();
-        }
-    });
-}
-
-function bindFailingPasswordUpdater(): void
-{
-    app()->instance(abstract: UpdatesUserPasswords::class, instance: new class implements UpdatesUserPasswords
-    {
-        public function update($user, array $input): void
-        {
-            throw ValidationException::withMessages([
-                'current_password' => 'The provided password does not match your current password.',
-            ])->errorBag('updatePassword');
-        }
-    });
-}
 
 it(description: 'renders the password update form for authenticated users', closure: function (): void {
     $user = User::factory()->create();
@@ -46,14 +24,12 @@ it(description: 'updates a password through the web route', closure: function ()
 
     $user = User::factory()->create(['password' => Hash::make(TestCredentials::password('old'))]);
 
-    bindPasswordUpdater();
-
-    $this->actingAs($user)
-        ->put(uri: route('user-password.update'), data: [
-            'current_password'      => TestCredentials::password('old'),
-            'password'              => TestCredentials::password('new'),
-            'password_confirmation' => TestCredentials::password('new'),
-        ])
+    $form = $this->presetForm($this->actingAs($user)->get(route('user-password.edit'))->assertOk()->getContent(), 'current_password');
+    $this->{$form['method']}($form['action'], [...$form['fields'],
+        'current_password'      => TestCredentials::password('old'),
+        'password'              => TestCredentials::password('new'),
+        'password_confirmation' => TestCredentials::password('new'),
+    ])
         ->assertRedirect();
 
     expect(Hash::check(value: TestCredentials::password('new'), hashedValue: $user->fresh()->password))->toBeTrue();
@@ -63,8 +39,6 @@ it(description: 'returns password validation errors in the Fortify error bag', c
     expect(TestCredentials::password('invalid'))->not->toBe(TestCredentials::password('old'));
 
     $user = User::factory()->create();
-
-    bindFailingPasswordUpdater();
 
     $this->actingAs($user)
         ->from(route('user-password.edit'))
@@ -77,19 +51,18 @@ it(description: 'returns password validation errors in the Fortify error bag', c
         ->assertSessionHasErrorsIn(errorBag: 'updatePassword', keys: ['current_password']);
 });
 
-it(description: 'updates a password through the Sanctum API route', closure: function (): void {
-    $user = User::factory()->create(['password' => Hash::make(TestCredentials::password('old'))]);
-    $token = $user->createToken('test-token');
+// This test covers the API adapter's contract dispatch; browser form tests above use the real action.
+it('delegates a Sanctum API password update to the configured Fortify action', function (): void {
+    $user = User::factory()->create();
+    $input = [
+        'current_password'      => TestCredentials::password('old'),
+        'password'              => TestCredentials::password('new'),
+        'password_confirmation' => TestCredentials::password('new'),
+    ];
+    $updater = Mockery::mock(Laravel\Fortify\Contracts\UpdatesUserPasswords::class);
+    $updater->shouldReceive('update')->once()->withArgs(fn ($actualUser, $actualInput) => $actualUser->is($user) && $actualInput === $input);
+    app()->instance(Laravel\Fortify\Contracts\UpdatesUserPasswords::class, $updater);
 
-    bindPasswordUpdater();
-
-    $this->withToken($token->plainTextToken)
-        ->putJson(uri: route('api.user-password.update'), data: [
-            'current_password'      => TestCredentials::password('old'),
-            'password'              => TestCredentials::password('new'),
-            'password_confirmation' => TestCredentials::password('new'),
-        ])
-        ->assertOk();
-
-    expect(Hash::check(value: TestCredentials::password('new'), hashedValue: $user->fresh()->password))->toBeTrue();
+    $this->withToken($user->createToken('test-token')->plainTextToken)
+        ->putJson(route('api.user-password.update'), $input)->assertOk();
 });

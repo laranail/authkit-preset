@@ -7,7 +7,7 @@ provided. It depends on the AuthKit core and delegates authentication to it.
 | --- | --- |
 | Login, registration, logout | Blade forms and configurable browser routes. |
 | Password reset, updates and profile | Feature-gated forms using core actions. |
-| Email verification | Verification of the current email; profile edits replace the address before verification. A pending verified-email-change flow is not implemented. |
+| Email verification | Current-address verification and a pending verified email-change flow. The old address stays active until confirmation; profile pages expose resend/cancel controls. |
 | TOTP | Enrollment, confirmation and single-use alphanumeric recovery-code challenge. |
 | Passkeys | Browser client and session routes; no bearer-token passkey API. |
 | REST API | Owned by the core; `--api` prepares Sanctum on the selected model. |

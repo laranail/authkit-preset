@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+uses(Tests\Concerns\UsesPublishedPresetViews::class);
+beforeEach(fn () => $this->publishPresetViews());
+afterEach(fn () => $this->removePublishedPresetViews());
+
 use Workbench\App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
